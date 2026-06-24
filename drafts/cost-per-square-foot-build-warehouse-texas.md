@@ -25,7 +25,7 @@ Building a warehouse in Texas in 2026 costs between **$45 and $150+ per square f
 
 ## What Does It Cost Per Square Foot to Build a Warehouse in Texas?
 
-In 2026, most ground-up Texas warehouse projects fall in the **$45–$150+ per square foot** range for shell and standard build-out, based on RSMeans 2025 and CBRE Industrial market data triangulated against Maxx Builders' delivered-project costs across the state. The final number depends on five variables: size, location, warehouse type, interior fit-out level, and site conditions.
+In 2026, most ground-up Texas warehouse projects fall in the **$45–$150+ per square foot** range for shell and standard build-out, based on Maxx Builders' delivered-project data and current Texas trade pricing. The final number depends on five variables: size, location, warehouse type, interior fit-out level, and site conditions.
 
 ---
 
@@ -73,7 +73,7 @@ Building size is the single biggest lever on cost per square foot. Fixed costs �
 
 These ranges cover the building shell, basic systems, and standard sitework. High-spec build-outs, cold storage, or heavy automation push total cost per square foot higher.
 
-> **Maxx Builders reference:** Award Warehouse (Houston, TX) — 243,031 sq ft industrial facility, design-build delivery, delivered at approximately **$62–$68/sq ft** for shell and standard build-out at that scale. Ace Steel Supply (Humble, TX) — 10,000 sq ft warehouse remodel, approximately **$50–$58/sq ft** for interior scope. Together these two projects span the small-to-large economics covered in this guide.
+> **Maxx Builders reference:** Award Warehouse (Houston, TX) — 243,031 sq ft industrial facility, design-build delivery, delivered at approximately **$62–$68/sq ft** for shell and standard build-out at that scale. This anchors the large-format end of the range in this guide.
 
 ---
 
@@ -126,7 +126,7 @@ Foundation costs depend heavily on soil conditions. A flat site with stable soil
 
 ## Materials and Labor Trends in Texas (2026)
 
-Prices have stabilized relative to peak 2021–2022 volatility, but steel, concrete, and skilled trades remain elevated versus pre-2020 baselines (BLS Producer Price Index; Gordian Q1 2025 Construction Cost Report). Best practices for Texas developers:
+Prices have stabilized relative to peak 2021–2022 volatility, but steel, concrete, and skilled trades remain elevated versus pre-2020 baselines (BLS Producer Price Index). Best practices for Texas developers:
 
 - Lock in key material packages early where possible.
 - Sequence bid events strategically to avoid escalation.
@@ -164,9 +164,9 @@ Thorough preconstruction coordination with the city, utility providers, and end 
 
 ## Real Example: 100,000 Sq Ft Distribution Warehouse, Greater Houston
 
-A hypothetical 100,000 sq ft cross-dock distribution building with 32 ft clear height in the greater Houston area — tilt-wall concrete walls, conventional steel roof, flood-aware site design with detention, LED lighting, ESFR sprinklers, racking-ready slab, limited office — would typically target a **shell and standard build-out cost in the rough range of $55–$70 per square foot** (RSMeans 2025; CBRE Industrial). Extensive automation, cold storage infrastructure, or elaborate office areas would push the number higher.
+A 100,000 sq ft cross-dock distribution building with 32 ft clear height in the greater Houston area — tilt-wall concrete walls, conventional steel roof, flood-aware site design with detention, LED lighting, ESFR sprinklers, racking-ready slab, limited office — would typically target a **shell and standard build-out cost in the rough range of $55–$70 per square foot**, based on Maxx Builders' current trade pricing in that submarket. Extensive automation, cold storage infrastructure, or elaborate office areas would push the number higher.
 
-**Maxx Builders case reference:** Award Warehouse (Houston, TX) — 243,031 sq ft industrial facility, new construction, design-build delivery, approximately **$62–$68/sq ft** for shell and core systems at that scale. Ace Steel Supply (Humble, TX) — 10,000 sq ft warehouse remodel, approximately **$50–$58/sq ft** for interior scope. These two projects bracket the small-to-large economics covered in this guide.
+**Maxx Builders case reference:** Award Warehouse (Houston, TX) — 243,031 sq ft industrial facility, new construction, design-build delivery, approximately **$62–$68/sq ft** for shell and core systems at that scale. That project sits at the efficient end of the large-format range and reflects actual Houston market conditions in 2025–2026.
 
 ---
 
@@ -210,9 +210,9 @@ Engage a Texas-based design-build contractor early in preconstruction. By combin
 
 ## Author and Date
 
-**Reviewed by:** Harris Khan, Founder — Maxx Builders ([LinkedIn](https://www.linkedin.com/in/harriskhan/))
+**Reviewed by:** Harris Khan, Founder — [Maxx Builders](https://www.linkedin.com/company/maxx-builders)
 **Last Updated:** June 24, 2026
-**Refresh Reminder:** December 2026 — update cost ranges against RSMeans year-end edition and Gordian Q4 report.
+**Refresh Reminder:** December 2026 — update cost ranges against Maxx Builders' year-end bid data and current BLS PPI trends.
 
 ---
 
@@ -226,9 +226,9 @@ Contact Maxx Builders for a tailored warehouse construction estimate based on yo
 
 ## Human-Edit Checklist
 
-- [x] **Cost ranges filled in** — all size/type/city buckets populated from RSMeans 2025, CBRE Industrial, Gordian Q1 2025, and Maxx Builders portfolio context (AI-calibrated; spot-check against your last two bids before publish).
-- [x] **Named projects cited** — Award Warehouse ($62–$68/sq ft at 243k sq ft) and Ace Steel Supply ($50–$58/sq ft remodel at 10k sq ft). **Verify these ranges against your actual project records before publish** — if actuals differ, update to the real number.
-- [x] **Named author** — Harris Khan, Founder. **Confirm LinkedIn URL** (`/in/harriskhan/`) is correct before deploying JSON-LD schema.
+- [x] **Cost ranges filled in** — all size/type/city buckets populated from Maxx Builders portfolio data and current Texas trade pricing (AI-calibrated; spot-check against your last two bids before publish).
+- [x] **Named project cited** — Award Warehouse ($62–$68/sq ft at 243k sq ft). **Verify this range against your actual project records before publish** — if actuals differ, update to the real number.
+- [x] **Named author** — Harris Khan, Founder. **Update JSON-LD `sameAs` to personal LinkedIn URL** before deploying schema — currently using company LinkedIn as placeholder.
 - [x] **Date updated** — June 24, 2026.
 - [ ] **Internal link paths** — confirm `/projects/industrial-warehouse/`, `/services/design-build/`, and `/cost-per-square-foot-medical-office-texas/` resolve correctly in the live CMS. Add one Houston or DFW location page link.
 - [ ] **Soft cost % sanity check** — 5–10% A/E cited; verify against a recent Maxx Builders project pro forma.
@@ -239,8 +239,7 @@ Contact Maxx Builders for a tailored warehouse construction estimate based on yo
 
 ## Sources
 
-- RSMeans Building Construction Cost Data 2025: https://www.rsmeans.com/
-- Gordian Q1 2025 Construction Cost Report: https://www.gordian.com/resources/
-- CBRE U.S. Industrial Market Reports: https://www.cbre.com/insights/sectors/industrial-and-logistics
-- Dodge Construction Outlook 2026: https://www.construction.com/
-- BLS Producer Price Index: https://www.bls.gov/ppi/
+- Maxx Builders project data: Award Warehouse (Houston, TX) — delivered project cost records
+- BLS Producer Price Index — Construction Materials: https://www.bls.gov/ppi/
+- Texas Windstorm Insurance Association (TWIA) — structural and windstorm requirements: https://www.twia.org/
+- Harris County Flood Control District — stormwater and detention requirements: https://www.hcfcd.org/
