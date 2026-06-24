@@ -1,0 +1,21 @@
+name: seo-auto-merge
+on:
+  pull_request:
+    types: [opened, reopened, labeled, synchronize]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  enable-auto-merge:
+    # Only safe-class bot PRs. GitHub completes the merge ONLY when branch protection
+    # is satisfied: the eval-gate required check (diff-size + judge) and any other
+    # required checks (e.g. vitals) must all be green. Otherwise it waits for a human.
+    if: contains(github.event.pull_request.labels.*.name, 'seo-auto')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Queue auto-merge (squash)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh pr merge ${{ github.event.pull_request.number }} --auto --squash -R ${{ github.repository }}

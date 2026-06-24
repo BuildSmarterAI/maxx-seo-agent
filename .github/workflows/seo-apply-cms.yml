@@ -1,0 +1,59 @@
+name: seo-apply-cms
+# Applies APPROVED change_set rows to a live CMS. Approval is the human gate (a person
+# flips change_set.status pending→approved, in SQL or via your own review UI). Webflow
+# stays staged until the publish step, which is gated on WEBFLOW_ALLOW_SITE_PUBLISH.
+on:
+  workflow_dispatch:
+    inputs:
+      platform: { description: "wordpress | webflow", required: true, default: "wordpress" }
+      publish:  { description: "webflow: also publish (global!)", required: false, default: "false" }
+  schedule:
+    - cron: "30 7 * * *"      # after the nightly orchestrate
+
+permissions:
+  contents: read
+
+concurrency:
+  group: seo-apply-cms
+  cancel-in-progress: false
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - run: npm ci
+
+      - name: Apply (WordPress)
+        if: ${{ github.event.inputs.platform == 'wordpress' || github.event_name == 'schedule' }}
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          WP_BASE_URL: ${{ vars.WP_BASE_URL }}            # staging URL
+          WP_USER: ${{ secrets.WP_USER }}
+          WP_APP_PASSWORD: ${{ secrets.WP_APP_PASSWORD }}
+          SEO_PLUGIN: ${{ vars.SEO_PLUGIN }}
+        run: node packs/wordpress/apply.mjs
+
+      - name: Apply (Webflow — stage)
+        if: ${{ github.event.inputs.platform == 'webflow' }}
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          WEBFLOW_TOKEN: ${{ secrets.WEBFLOW_TOKEN }}
+        run: node packs/webflow/apply.mjs
+
+      - name: Publish (Webflow — global, opt-in)
+        if: ${{ github.event.inputs.platform == 'webflow' && github.event.inputs.publish == 'true' }}
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          WEBFLOW_TOKEN: ${{ secrets.WEBFLOW_TOKEN }}
+          WEBFLOW_SITE_ID: ${{ vars.WEBFLOW_SITE_ID }}
+          WEBFLOW_ALLOW_SITE_PUBLISH: "true"
+          PAGESPEED_API_KEY: ${{ secrets.PAGESPEED_API_KEY }}
+        run: |
+          chmod +x scripts/check-vitals.sh || true
+          node packs/webflow/publish.mjs
