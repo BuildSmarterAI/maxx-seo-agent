@@ -210,7 +210,7 @@ Engage a Texas-based design-build contractor early in preconstruction. By combin
 
 ## Author and Date
 
-**Reviewed by:** Harris Khan, Founder — [Maxx Builders](https://www.linkedin.com/company/maxx-builders)
+**Reviewed by:** [Harris Khan](https://www.linkedin.com/in/maxxbuildersharris/), Founder — Maxx Builders
 **Last Updated:** June 24, 2026
 **Refresh Reminder:** December 2026 — update cost ranges against Maxx Builders' year-end bid data and current BLS PPI trends.
 
