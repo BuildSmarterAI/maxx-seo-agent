@@ -1,0 +1,94 @@
+[
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "Hotel Construction Guide: Phases, Costs & What Every Owner Needs to Know",
+    "description": "A complete hotel construction guide covering phases, costs, timelines, permits, and what to expect from pre-development through opening day. Based on real project experience.",
+    "url": "https://www.maxxbuilders.com/hotel-construction-guide/",
+    "datePublished": "2026-06-24",
+    "dateModified": "2026-06-24",
+    "author": {
+      "@type": "Person",
+      "name": "HUMAN_EDIT_REQUIRED",
+      "jobTitle": "HUMAN_EDIT_REQUIRED",
+      "sameAs": "HUMAN_EDIT_REQUIRED"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "Maxx Builders",
+      "url": "https://www.maxxbuilders.com"
+    },
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": "https://www.maxxbuilders.com/hotel-construction-guide/"
+    },
+    "about": {
+      "@type": "Thing",
+      "name": "Hotel Construction"
+    }
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://www.maxxbuilders.com/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Hotel Construction Guide",
+        "item": "https://www.maxxbuilders.com/hotel-construction-guide/"
+      }
+    ]
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "How long does it take to build a hotel?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "For a 3–5 story, 100–150 key limited-service hotel, total timeline from land control through certificate of occupancy typically runs 24–36 months. Full-service properties and branded flags with extended design review processes run 36–48 months."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What permits are required to build a hotel?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "At minimum: building permit, mechanical permit, electrical permit, plumbing permit, fire sprinkler permit, and fire alarm permit. Full-service properties add health department permits for food service. Some jurisdictions require a separate demolition permit if prior structures exist."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What is a PIP in hotel construction?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "A Property Improvement Plan (PIP) is the brand's documented list of physical requirements your property must meet to carry the flag. For new construction, the PIP is embedded in the franchise agreement and the brand prototype; the brand's design review process confirms compliance at each design phase."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What is the difference between soft costs and hard costs in hotel construction?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Hard costs are direct construction costs: site work, structure, MEP, finishes, and FF&E. Soft costs are indirect: architecture and engineering fees, permitting fees, legal, financing fees, pre-opening operating expenses, brand fees, owner's representative, and contingency. For most hotel projects, soft costs run 20–30% of total project cost."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How do I find a hotel general contractor?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Look for a GC with verifiable hospitality-specific project experience, brand relationships with the flags relevant to your project, and demonstrated knowledge of the PIP and brand design review process. Request references from hotel owners who can speak to schedule performance, budget adherence, and post-construction warranty response."
+        }
+      }
+    ]
+  }
+]

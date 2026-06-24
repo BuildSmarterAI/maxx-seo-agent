@@ -1,0 +1,108 @@
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Article",
+      "@id": "https://www.maxxbuilders.com/importance-of-mock-up-rooms-in-the-hospitality-industry/#article",
+      "headline": "Mock-Up Rooms in Hospitality: Why They Matter",
+      "description": "Mock-up rooms let hotel owners approve finishes, furniture, and layouts before full-build commits — cutting costly change orders and protecting brand standards.",
+      "url": "https://www.maxxbuilders.com/importance-of-mock-up-rooms-in-the-hospitality-industry/",
+      "datePublished": "2026-06-24",
+      "dateModified": "2026-06-24",
+      "author": {
+        "@type": "Person",
+        "@id": "https://www.maxxbuilders.com/#author-placeholder",
+        "name": "[INSERT: Named expert — e.g. Jane Smith, Project Executive]",
+        "url": "https://www.maxxbuilders.com/team/",
+        "sameAs": [
+          "[INSERT: LinkedIn profile URL]"
+        ]
+      },
+      "publisher": {
+        "@type": "Organization",
+        "@id": "https://www.maxxbuilders.com/#organization",
+        "name": "Maxx Builders",
+        "url": "https://www.maxxbuilders.com"
+      },
+      "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "https://www.maxxbuilders.com/importance-of-mock-up-rooms-in-the-hospitality-industry/"
+      },
+      "about": {
+        "@type": "Thing",
+        "name": "Mock-Up Rooms",
+        "description": "Full-scale physical prototypes of a hotel guest room built before mass construction to validate materials, furniture, and layouts."
+      }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": "https://www.maxxbuilders.com/importance-of-mock-up-rooms-in-the-hospitality-industry/#breadcrumb",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://www.maxxbuilders.com/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Blog",
+          "item": "https://www.maxxbuilders.com/blog/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "Mock-Up Rooms in Hospitality: Why They Matter",
+          "item": "https://www.maxxbuilders.com/importance-of-mock-up-rooms-in-the-hospitality-industry/"
+        }
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "@id": "https://www.maxxbuilders.com/importance-of-mock-up-rooms-in-the-hospitality-industry/#faq",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "How much does a hotel mock-up room cost?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Mock-up room cost depends on the room type and finish level. For a standard select-service king room, total costs (construction, FF&E, installation, and review) commonly range from $40,000 to $120,000 — weighed against total FF&E budgets that often run into the millions, making mock-ups one of the highest-ROI line items in pre-construction planning."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can you skip the mock-up room to save time?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Skipping the mock-up transfers discovery cost to the construction phase, where it is compounded by labor disruption, material re-procurement, and schedule compression. The apparent time savings are offset by larger downstream delays and cost overruns."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Do all hotel brands require a physical mock-up room?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Requirements vary by brand tier. Full-service brands under major flags almost universally require a physical mock-up review. Some select-service brands accept a detailed submittals package with mock-up photos. Independent hotels have no external requirement but face the same constructability and design-intent risks."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What happens if the mock-up room fails brand review?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "The owner and contractor receive a deficiency list. The mock-up is corrected and re-reviewed before the full-build release is authorized. A failing mock-up review is not unusual — it is the intended function of the process."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How is a mock-up room different from a model room?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "A mock-up room is a construction and brand-review tool used during pre-construction. A model room is a marketing and sales tool opened to prospective guests after the property opens. The two often overlap but serve different primary purposes."
+          }
+        }
+      ]
+    }
+  ]
+}
