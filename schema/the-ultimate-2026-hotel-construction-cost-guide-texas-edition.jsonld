@@ -1,0 +1,88 @@
+[
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "2026 Hotel Construction Cost Guide: Texas Edition",
+    "description": "Hard cost ranges, soft costs, and market breakdowns for building a hotel in Texas in 2026, from limited-service to luxury.",
+    "url": "https://www.maxxbuilders.com/the-ultimate-2026-hotel-construction-cost-guide-texas-edition/",
+    "datePublished": "2026-06-24",
+    "dateModified": "2026-06-24",
+    "publisher": {
+      "@type": "Organization",
+      "name": "Maxx Builders",
+      "url": "https://www.maxxbuilders.com"
+    },
+    "author": {
+      "@type": "Person",
+      "name": "__AUTHOR_NAME__",
+      "jobTitle": "__AUTHOR_TITLE__",
+      "sameAs": "__AUTHOR_LINKEDIN_OR_CREDENTIAL_URL__"
+    },
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": "https://www.maxxbuilders.com/the-ultimate-2026-hotel-construction-cost-guide-texas-edition/"
+    }
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://www.maxxbuilders.com/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Resources",
+        "item": "https://www.maxxbuilders.com/resources/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": "2026 Hotel Construction Cost Guide: Texas Edition",
+        "item": "https://www.maxxbuilders.com/the-ultimate-2026-hotel-construction-cost-guide-texas-edition/"
+      }
+    ]
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "How much does it cost to build a 100-room hotel in Texas?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "A 100-room select-service hotel in Texas in 2026 costs approximately $18M–$28M in total project cost, assuming roughly 65,000 SF of gross floor area, current Texas labor rates, and a standard midscale flag. Urban markets such as Austin and DFW will skew toward the top of that range; secondary markets toward the lower end."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How long does hotel construction take in Texas?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Most hotel projects in Texas take 18–30 months from permit issuance to certificate of occupancy. Full-service and luxury projects in urban markets can run 30–42 months when permitting time is included. Total development timelines including pre-design and entitlement commonly reach 36–48 months."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What brand flags are most cost-efficient in Texas?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Select-service flags from Marriott (Fairfield, Courtyard), Hilton (Hampton Inn, Tru), and IHG (Holiday Inn Express) are the most cost-efficient for Texas markets in 2026. Soft brands and independent boutiques can save 5–10% in FF&E by avoiding brand-mandated vendors, but require stronger management infrastructure."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What is the difference between hard cost and total project cost for a hotel?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Hard cost is the construction contract value — labor and materials for the physical structure. Total project cost adds soft costs, FF&E/OS&E, land, financing carry, and pre-opening expenses. For most Texas hotel projects, total project cost runs 1.35–1.55x the hard cost."
+        }
+      }
+    ]
+  }
+]

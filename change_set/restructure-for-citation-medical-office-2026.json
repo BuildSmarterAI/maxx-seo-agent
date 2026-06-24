@@ -1,0 +1,15 @@
+{
+  "skill": "restructure-for-citation",
+  "generated_at": "2026-06-24T00:00:00Z",
+  "query": "What is the cost of medical office construction in Texas?",
+  "platform": "wordpress",
+  "page_id": null,
+  "url": "https://www.maxxbuilders.com/medical-office-construction-costs-texas-2026-comprehensive-guide/",
+  "status": "pending",
+  "field": "content",
+  "change_type": "restructure-for-citation",
+  "base_value": "Healthcare construction in Texas continues to accelerate heading into 2026 — but so do project costs. With demand rising for outpatient clinics, urgent care centers, and multi-tenant medical buildings, developers and healthcare groups are re-evaluating how much it really costs to build a medical facility in today's market.",
+  "answer_block": "<p><strong>Medical office construction in Texas costs $350–$800 per square foot in 2026</strong>, depending on facility type, finish level, and market. Surgical and imaging centers sit at the high end ($600–$900/SF); general practice and family clinics start near $350–$500/SF. Houston and Dallas carry the highest per-square-foot rates; Austin and San Antonio run slightly lower. Design-build delivery typically saves 10–15% in total project cost and compresses schedules by up to 30%.</p>\n<ul>\n<li><strong>General practice / family clinic:</strong> $350–$500/SF</li>\n<li><strong>Dental / orthodontic clinic:</strong> $400–$600/SF</li>\n<li><strong>Urgent care center:</strong> $500–$650/SF</li>\n<li><strong>Imaging / diagnostic center:</strong> $600–$800/SF</li>\n<li><strong>Ambulatory surgery center (ASC):</strong> $650–$900/SF</li>\n</ul>",
+  "new_value_description": "Answer block prepended immediately after H1, above existing intro paragraph. All original body content preserved unchanged below the answer block.",
+  "notes": "Current P1 opens with narrative context ('Healthcare construction in Texas continues to accelerate...') — classic in-today's-market opener that gives AI engines no extractable answer. Answer block is factually grounded in the page's own TL;DR section and facility-type cost table. H1 and URL unchanged. No body content deleted. page_id unknown — apply step must resolve via WP REST /wp/v2/posts?slug= before patching."
+}

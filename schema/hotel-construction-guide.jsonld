@@ -1,0 +1,119 @@
+[
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "@id": "https://www.maxxbuilders.com/hotel-construction-guide/#article",
+    "headline": "Hotel Construction Guide: Costs, Timeline & Process",
+    "description": "A complete hotel construction guide covering costs, timelines, permits, and what to expect from site prep through ribbon-cutting.",
+    "url": "https://www.maxxbuilders.com/hotel-construction-guide/",
+    "datePublished": "[ISO-DATE — operator to set on publish, e.g. 2026-06-24]",
+    "dateModified": "[ISO-DATE — operator to update on each revision]",
+    "image": {
+      "@type": "ImageObject",
+      "url": "[FULL URL to hero image — operator to set]",
+      "width": 1200,
+      "height": 630
+    },
+    "author": {
+      "@type": "Person",
+      "@id": "https://www.maxxbuilders.com/team/[author-slug]/#person",
+      "name": "[Author Full Name — operator to set]",
+      "jobTitle": "[Title, e.g. 'Director of Pre-Construction']",
+      "url": "https://www.maxxbuilders.com/team/[author-slug]/",
+      "sameAs": [
+        "[LinkedIn profile URL — operator to set]"
+      ]
+    },
+    "publisher": {
+      "@type": "Organization",
+      "@id": "https://www.maxxbuilders.com/#organization",
+      "name": "Maxx Builders",
+      "url": "https://www.maxxbuilders.com",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "[Full URL to logo — operator to set]",
+        "width": 300,
+        "height": 60
+      }
+    },
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": "https://www.maxxbuilders.com/hotel-construction-guide/"
+    },
+    "about": {
+      "@type": "Thing",
+      "name": "Hotel Construction"
+    },
+    "keywords": "hotel construction, hotel construction cost, hotel construction timeline, how to build a hotel, hotel general contractor"
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://www.maxxbuilders.com/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Resources",
+        "item": "https://www.maxxbuilders.com/resources/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": "Hotel Construction Guide",
+        "item": "https://www.maxxbuilders.com/hotel-construction-guide/"
+      }
+    ]
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "How much does it cost to build a 100-room hotel?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "A 100-room limited-service hotel in a mid-tier U.S. market costs roughly $16M–$25M in hard costs. Adding 18–25% for soft costs, land, and pre-opening, total development cost commonly reaches $20M–$32M for a prototypical limited-service project. Full-service or urban projects run materially higher."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How long does it take to build a hotel from scratch?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "From initial site control to opening day, most hotel projects take 24–48 months. A clean, entitled site with a prototypical brand design can shorten this to 18–24 months. Complex entitlements, custom design, or mixed-use programs routinely push past 36 months."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Do I need a general contractor who specializes in hotels?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. Hospitality projects have brand-mandated specifications, a fixed soft-opening date tied to marketing and franchise agreements, and complex life safety requirements. A GC without hotel experience will miss brand PIP requirements and struggle to coordinate the FF&E installation sequence with construction closeout."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What is a hotel PIP and why does it matter in construction?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "A PIP (property improvement plan) is the brand's specification document defining required finishes, furniture standards, and systems for a property to earn or maintain flag certification. PIPs must be incorporated into the construction documents before permit submission — retrofitting PIP requirements after construction begins is expensive and delays opening."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What permits are required to build a hotel?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "At minimum: a building permit covering structural, architectural, and life safety; separate MEP permits (mechanical, electrical, plumbing); a fire suppression permit; and a health department permit for any food service or pool. High-rise, historic district, or coastal properties trigger additional state or federal review layers."
+        }
+      }
+    ]
+  }
+]

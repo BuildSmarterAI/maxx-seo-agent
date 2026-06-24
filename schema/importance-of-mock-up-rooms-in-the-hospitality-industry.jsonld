@@ -1,0 +1,121 @@
+[
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "Mock-Up Rooms in Hotel Construction: Why They Matter",
+    "description": "Learn how mock-up rooms reduce risk and cost in hotel construction. Two-stage process, brand approval, ADA compliance, and Texas project benchmarks.",
+    "url": "https://www.maxxbuilders.com/importance-of-mock-up-rooms-in-the-hospitality-industry/",
+    "datePublished": "2018-10-06",
+    "dateModified": "2026-06-24",
+    "inLanguage": "en-US",
+    "publisher": {
+      "@type": "Organization",
+      "name": "Maxx Builders",
+      "url": "https://www.maxxbuilders.com",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://www.maxxbuilders.com/wp-content/uploads/maxx-builders-logo.png"
+      }
+    },
+    "author": {
+      "@type": "Person",
+      "name": "OPERATOR_INSERT_AUTHOR_NAME",
+      "jobTitle": "OPERATOR_INSERT_TITLE",
+      "sameAs": "OPERATOR_INSERT_LINKEDIN_URL"
+    },
+    "about": [
+      {
+        "@type": "Thing",
+        "name": "Mock-up room",
+        "description": "A fully constructed prototype guest room built before main hotel construction to validate brand standards, systems placement, and design decisions."
+      },
+      {
+        "@type": "Thing",
+        "name": "Hotel construction",
+        "description": "Commercial construction of hotel and hospitality facilities including brand-compliant guest rooms."
+      }
+    ],
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": "https://www.maxxbuilders.com/importance-of-mock-up-rooms-in-the-hospitality-industry/"
+    }
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://www.maxxbuilders.com/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Blog",
+        "item": "https://www.maxxbuilders.com/blog/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": "Mock-Up Rooms in Hotel Construction: Why They Matter",
+        "item": "https://www.maxxbuilders.com/importance-of-mock-up-rooms-in-the-hospitality-industry/"
+      }
+    ]
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "What is the purpose of a mock-up room in hotel construction?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "A mock-up room is a fully constructed single guest room used to validate design decisions, brand standards, and system placements before those decisions are replicated across the entire hotel. It limits the cost of errors to one room and gives the brand representative a physical room to inspect and approve."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How long does it take to build a hotel mock-up room?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Most hotel mock-up rooms take 3 to 5 weeks to construct from rough framing through brand-approved finish. The timeline depends on FF&E lead times, brand inspection scheduling, and whether the mock-up is sequenced to run in parallel with the main structure or in series."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Do all hotel brands require a mock-up room?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Most major national hotel brands — including Marriott, Hilton, Hyatt, and IHG — require a brand-approved mock-up room before authorizing full construction to proceed. Brand standards documents for each flag specify the mock-up requirement and inspection process."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What is the difference between a rough mock-up and a finished mock-up room?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "A rough mock-up is built with structural framing exposed, allowing the team to resolve systems placements (electrical, plumbing, backing) before walls close. A finished mock-up applies the full brand prototype — finishes, FF&E, fixtures — and is the stage submitted for brand approval."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Why is ADA compliance addressed in the mock-up room?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "ADA grab bar placement, turning radius, fixture heights, and accessible route requirements are structural decisions that cannot be corrected cost-effectively after framing closes. Resolving them in the rough mock-up stage prevents expensive rework."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What happens if you skip the mock-up room?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Skipping the mock-up means design errors, brand non-compliance, and ADA issues are discovered after full construction is underway — or during the brand's pre-opening inspection. Corrections at that stage apply to every affected room, multiplying the cost and schedule impact significantly."
+        }
+      }
+    ]
+  }
+]
