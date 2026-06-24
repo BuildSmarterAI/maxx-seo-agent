@@ -1,0 +1,108 @@
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Article",
+      "@id": "https://www.maxxbuilders.com/medical-office-construction-costs-texas-2026-comprehensive-guide/#article",
+      "headline": "Medical Office Construction Costs in Texas (2026)",
+      "description": "Texas medical office construction costs $200-$450/sqft in 2026. See cost drivers by specialty, market, and build type from Maxx Builders.",
+      "url": "https://www.maxxbuilders.com/medical-office-construction-costs-texas-2026-comprehensive-guide/",
+      "datePublished": "2026-06-24",
+      "dateModified": "2026-06-24",
+      "inLanguage": "en-US",
+      "publisher": {
+        "@type": "Organization",
+        "@id": "https://www.maxxbuilders.com/#organization",
+        "name": "Maxx Builders",
+        "url": "https://www.maxxbuilders.com"
+      },
+      "author": {
+        "@type": "Person",
+        "@id": "https://www.maxxbuilders.com/#author-PLACEHOLDER",
+        "name": "HUMAN EDIT REQUIRED — insert real author name",
+        "jobTitle": "HUMAN EDIT REQUIRED — insert title",
+        "sameAs": [
+          "HUMAN EDIT REQUIRED — insert LinkedIn URL"
+        ]
+      },
+      "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "https://www.maxxbuilders.com/medical-office-construction-costs-texas-2026-comprehensive-guide/"
+      },
+      "about": {
+        "@type": "Thing",
+        "name": "Medical Office Construction",
+        "description": "Construction of healthcare facilities including medical offices, clinics, and ambulatory surgery centers"
+      },
+      "keywords": [
+        "medical office construction costs Texas",
+        "healthcare construction cost per square foot Texas",
+        "medical office build-out cost 2026",
+        "Texas medical construction contractor",
+        "HHSC construction requirements"
+      ]
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": "https://www.maxxbuilders.com/medical-office-construction-costs-texas-2026-comprehensive-guide/#breadcrumb",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://www.maxxbuilders.com/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Resources",
+          "item": "https://www.maxxbuilders.com/resources/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "Medical Office Construction Costs in Texas (2026)",
+          "item": "https://www.maxxbuilders.com/medical-office-construction-costs-texas-2026-comprehensive-guide/"
+        }
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "@id": "https://www.maxxbuilders.com/medical-office-construction-costs-texas-2026-comprehensive-guide/#faq",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "How long does it take to build a medical office in Texas?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "A standard tenant improvement for a 3,000–5,000 sq ft primary care suite in Texas typically takes 4–7 months from permit submission to certificate of occupancy. Ground-up medical office buildings run 12–20 months depending on size, market, and HHSC licensing requirements."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What is the cost to build a 5,000 sq ft medical office in Texas?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "For a general-purpose medical suite in Texas, budget $1.0M–$1.6M for tenant improvement hard and soft costs at 2026 rates. Total project cost including land and equipment ranges from $1.5M to $2.5M or more depending on location and specialty mix."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What is the biggest cost mistake in medical office construction?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Underestimating MEP scope is the most common cost error. Medical HVAC and electrical loads run 3–5x a standard office. The second most common error is failing to account for commissioning and HHSC inspection time in the schedule."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Are construction costs in Texas lower than national averages?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Generally yes — Texas labor rates are 20–35% below California, New York, and the Pacific Northwest for comparable scopes. However, the DFW and Austin markets have seen labor cost compression since 2021 due to high construction volume."
+          }
+        }
+      ]
+    }
+  ]
+}
