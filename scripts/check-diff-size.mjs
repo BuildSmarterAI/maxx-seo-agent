@@ -3,10 +3,10 @@
 // threshold, forcing human review for large changes. Part of the eval-gate.
 import { execSync } from "node:child_process";
 
-const base = process.env.BASE_REF || "origin/main";
+const base = process.env.BASE_REF || "HEAD~1";
 const max = Number(process.env.MAX_DIFF_LINES || 400);
 
-const rows = execSync(`git diff --numstat ${base}...HEAD`, { maxBuffer: 20 * 1024 * 1024 })
+const rows = execSync(`git diff --numstat ${base} HEAD`, { maxBuffer: 20 * 1024 * 1024 })
   .toString().trim().split("\n").filter(Boolean);
 
 let total = 0;
