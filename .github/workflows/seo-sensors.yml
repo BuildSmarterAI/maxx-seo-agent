@@ -1,0 +1,52 @@
+name: seo-sensors
+on:
+  schedule:
+    - cron: "0 7 * * *"        # 07:00 UTC nightly
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: seo-sensors
+  cancel-in-progress: false
+
+jobs:
+  sense-and-orchestrate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+
+      - run: npm ci
+
+      - name: Write GCP service-account key
+        run: printf '%s' '${{ secrets.GCP_SA_JSON }}' > "${{ github.workspace }}/gcp.json"
+
+      - name: Sensors → work_queue
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/gcp.json
+          GSC_SITE_URL: ${{ vars.GSC_SITE_URL }}
+          SITEMAP_URL: ${{ vars.SITEMAP_URL }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          node scripts/sensor-gsc.mjs
+          node scripts/sensor-sitemap.mjs
+
+      - name: Orchestrate safe-class fixes → PR
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          MONTHLY_BUDGET_USD: ${{ vars.MONTHLY_BUDGET_USD }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node orchestrator/run.mjs
+
+      - name: Remove key
+        if: always()
+        run: rm -f "${{ github.workspace }}/gcp.json"

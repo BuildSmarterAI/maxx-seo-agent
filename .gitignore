@@ -1,0 +1,4 @@
+.env
+gcp.json
+node_modules/
+*.log

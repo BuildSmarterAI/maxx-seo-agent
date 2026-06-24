@@ -1,0 +1,26 @@
+name: vitals
+# PR-time Core Web Vitals gate. Fires when a deploy (e.g. a Vercel preview for the PR)
+# reports success, then runs PSI against that preview URL. The job is named `vitals`
+# so it matches the branch-protection required check from setup-branch-protection.sh.
+#
+# Requires the Vercel for GitHub integration (or any provider that emits
+# deployment_status with a target_url). If you don't use preview deploys, keep the
+# scheduled core/seo-regression-url.yml instead and require that context.
+on:
+  deployment_status: {}
+
+permissions:
+  contents: read
+
+jobs:
+  vitals:
+    if: github.event.deployment_status.state == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: PSI on the preview URL (mobile)
+        env:
+          PAGESPEED_API_KEY: ${{ secrets.PAGESPEED_API_KEY }}
+        run: |
+          chmod +x scripts/check-vitals.sh
+          ./scripts/check-vitals.sh "${{ github.event.deployment_status.target_url }}"

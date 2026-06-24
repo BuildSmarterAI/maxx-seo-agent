@@ -1,0 +1,44 @@
+name: eval-gate
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, labeled]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  eval-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+
+      - run: npm ci
+
+      - run: git fetch origin ${{ github.base_ref }}
+
+      # Enforcement applies ONLY to bot-authored safe-class PRs (label seo-auto).
+      # Human PRs pass this gate automatically so it can stay a required check.
+      - name: Diff-size guard
+        if: contains(github.event.pull_request.labels.*.name, 'seo-auto')
+        env:
+          BASE_REF: origin/${{ github.base_ref }}
+          MAX_DIFF_LINES: ${{ vars.MAX_DIFF_LINES }}
+        run: node scripts/check-diff-size.mjs
+
+      - name: LLM-as-judge
+        if: contains(github.event.pull_request.labels.*.name, 'seo-auto')
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          BASE_REF: origin/${{ github.base_ref }}
+          JUDGE_MODEL: claude-haiku-4-5-20251001
+          JUDGE_MIN_SCORE: ${{ vars.JUDGE_MIN_SCORE }}
+        run: node scripts/eval-judge.mjs
+
+      - name: Human PR notice
+        if: ${{ !contains(github.event.pull_request.labels.*.name, 'seo-auto') }}
+        run: echo "Non-bot PR — eval-gate enforcement skipped (human review path)."

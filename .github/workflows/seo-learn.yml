@@ -1,0 +1,40 @@
+name: seo-learn
+on:
+  schedule:
+    - cron: "0 8 * * 1"        # weekly, Monday 08:00 UTC (after the weekend's nightly runs)
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+concurrency:
+  group: seo-learn
+  cancel-in-progress: false
+
+jobs:
+  learn:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - run: npm ci
+
+      - name: Write GCP key
+        run: printf '%s' '${{ secrets.GCP_SA_JSON }}' > "${{ github.workspace }}/gcp.json"
+
+      - name: Collect outcomes → attribute → reprioritize
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/gcp.json
+          GSC_SITE_URL: ${{ vars.GSC_SITE_URL }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          # optional: CITATIONS_CSV / CONVERSIONS_CSV checked into the repo or produced by a prior step
+        run: |
+          node scripts/collect-outcomes.mjs
+          node scripts/attribute.mjs
+          node scripts/prioritize.mjs
+
+      - name: Remove key
+        if: always()
+        run: rm -f "${{ github.workspace }}/gcp.json"
