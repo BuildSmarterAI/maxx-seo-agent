@@ -10,6 +10,7 @@
     "orchestrate": "node --env-file=.env orchestrator/run.mjs",
     "judge": "node --env-file=.env scripts/eval-judge.mjs",
     "diff-size": "node --env-file=.env scripts/check-diff-size.mjs",
+    "validate:metadata": "node --env-file=.env scripts/validate-metadata-csv.mjs",
     "outcomes": "node --env-file=.env scripts/collect-outcomes.mjs",
     "learn": "node --env-file=.env scripts/collect-outcomes.mjs && node --env-file=.env scripts/attribute.mjs && node --env-file=.env scripts/prioritize.mjs",
     "wp:apply": "node --env-file=.env packs/wordpress/apply.mjs",
