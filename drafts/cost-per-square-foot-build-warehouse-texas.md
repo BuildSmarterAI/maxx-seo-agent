@@ -166,7 +166,7 @@ Thorough preconstruction coordination with the city, utility providers, and end 
 
 A hypothetical 100,000 sq ft cross-dock distribution building with 32 ft clear height in the greater Houston area — tilt-wall concrete walls, conventional steel roof, flood-aware site design with detention, LED lighting, ESFR sprinklers, racking-ready slab, limited office — would typically target a **shell and standard build-out cost in the rough range of $55–$70 per square foot** (RSMeans 2025; CBRE Industrial). Extensive automation, cold storage infrastructure, or elaborate office areas would push the number higher.
 
-**Maxx Builders case reference:** Award Warehouse (Houston, TX) — 243,031 sq ft industrial facility, new construction, design-build delivery, approximately **$62–$68/sq ft** for shell and core systems at that scale. Ace Steel Supply (Humble, TX) — 10,000 sq ft warehouse remodel, approximately **$50–$58/sq ft** for interior scope. These two projects bracket the small-to-large economics covered in this guide.
+**Maxx Builders case reference:** Award Warehouse (Houston, TX) — 243,031 sq ft industrial facility, new construction, design-build delivery, approximately **$62–$68/sq ft** for shell and core systems at that scale. Consistent with the large-format Houston range cited above.
 
 ---
 
@@ -227,7 +227,7 @@ Contact Maxx Builders for a tailored warehouse construction estimate based on yo
 ## Human-Edit Checklist
 
 - [x] **Cost ranges filled in** — all size/type/city buckets populated from RSMeans 2025, CBRE Industrial, Gordian Q1 2025, and Maxx Builders portfolio context (AI-calibrated; spot-check against your last two bids before publish).
-- [x] **Named projects cited** — Award Warehouse ($62–$68/sq ft at 243k sq ft) and Ace Steel Supply ($50–$58/sq ft remodel at 10k sq ft). **Verify these ranges against your actual project records before publish** — if actuals differ, update to the real number.
+- [x] **Named project cited** — Award Warehouse (~$62–$68/sq ft at 243,031 sq ft, Houston, design-build). **Verify this range against your actual project records before publish.** Ace Steel Supply removed — that was a $992k office remodel, not warehouse shell, so wrong cost signal for this article.
 - [x] **Named author** — Harris Khan, Founder. **Confirm LinkedIn URL** (`/in/harriskhan/`) is correct before deploying JSON-LD schema.
 - [x] **Date updated** — June 24, 2026.
 - [ ] **Internal link paths** — confirm `/projects/industrial-warehouse/`, `/services/design-build/`, and `/cost-per-square-foot-medical-office-texas/` resolve correctly in the live CMS. Add one Houston or DFW location page link.
