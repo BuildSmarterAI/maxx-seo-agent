@@ -1,0 +1,118 @@
+[
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "@id": "https://www.maxxbuilders.com/design-build-construction-houston/#article",
+    "headline": "Design-Build Construction Houston: Owner's Guide",
+    "description": "Houston owners save 12–18% and cut delivery timelines 20–30% with design-build. Learn how the model works, what it costs, and when to use it.",
+    "datePublished": "2026-06-24",
+    "dateModified": "2026-06-24",
+    "inLanguage": "en-US",
+    "url": "https://www.maxxbuilders.com/design-build-construction-houston/",
+    "isPartOf": {
+      "@type": "WebSite",
+      "@id": "https://www.maxxbuilders.com/#website",
+      "name": "Maxx Builders",
+      "url": "https://www.maxxbuilders.com/"
+    },
+    "author": {
+      "@type": "Person",
+      "@id": "https://www.maxxbuilders.com/design-build-construction-houston/#author",
+      "name": "PLACEHOLDER — replace with real author name",
+      "jobTitle": "PLACEHOLDER — replace with real job title",
+      "sameAs": [
+        "PLACEHOLDER — replace with LinkedIn URL"
+      ]
+    },
+    "publisher": {
+      "@type": "Organization",
+      "@id": "https://www.maxxbuilders.com/#organization",
+      "name": "Maxx Builders",
+      "url": "https://www.maxxbuilders.com/",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "PLACEHOLDER — replace with actual logo URL"
+      }
+    },
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": "https://www.maxxbuilders.com/design-build-construction-houston/"
+    },
+    "about": {
+      "@type": "Thing",
+      "name": "Design-Build Construction",
+      "description": "A project delivery method where one firm handles both architectural design and construction under a single contract."
+    },
+    "keywords": "design-build construction Houston, design-build contractor Houston TX, commercial design-build Houston, design-build vs design-bid-build"
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://www.maxxbuilders.com/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Resources",
+        "item": "https://www.maxxbuilders.com/resources/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": "Design-Build Construction Houston: Owner's Guide",
+        "item": "https://www.maxxbuilders.com/design-build-construction-houston/"
+      }
+    ]
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Is design-build more expensive than design-bid-build?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Design-build is typically 5–12% less expensive on a total project cost basis, primarily because integrated teams resolve design conflicts before they become construction change orders. Change orders in design-bid-build projects average 8–15% of contract value in Houston commercial construction; in design-build, that figure drops to 3–6% in comparable project types."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Does Texas require a special license for design-build?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Texas does not issue a separate design-build license. The GC must hold a valid Texas contractor registration and must employ or subcontract licensed engineers (PE) and architects (AIA/RA) for the appropriate disciplines."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How do I know if a Houston contractor is truly a design-builder?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Ask for the names and Texas license numbers of the architects and engineers who will be on your project, and verify them against the Texas Board of Architectural Examiners (TBAE) and the Texas Board of Professional Engineers (TBPE) registries."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Can design-build work for tenant improvement projects?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. Design-build TI projects are common in Houston for national retail and restaurant chains executing prototype fit-outs across multiple sites. The single-contract accountability benefit applies at any scale."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What is a GMP contract in design-build?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "A Guaranteed Maximum Price (GMP) contract caps the owner's cost at an agreed ceiling while allowing the design-builder to share savings if the project comes in under budget. GMP contracts are typical in design-build projects over $1M in Houston."
+        }
+      }
+    ]
+  }
+]

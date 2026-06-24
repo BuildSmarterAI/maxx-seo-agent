@@ -1,0 +1,15 @@
+{
+  "skill": "restructure-for-citation",
+  "generated_at": "2026-06-24T00:00:00Z",
+  "query": "How much does hotel construction cost in Texas?",
+  "platform": "wordpress",
+  "page_id": 5975,
+  "url": "https://www.maxxbuilders.com/the-ultimate-2026-hotel-construction-cost-guide-texas-edition/",
+  "status": "pending",
+  "field": "content",
+  "change_type": "restructure-for-citation",
+  "base_value": "<aside class=\"maxx-project-spotlight\" style=\"background:#f5f5f5;border-left:4px solid #c8102e;padding:18px 22px;margin:24px 0;border-radius:4px;font-size:0.95em;\"><span style=\"display:inline-block;background:#c8102e;color:#fff;font-weight:600;font-size:0.75em;letter-spacing:0.08em;padding:2px 8px;border-radius:2px;text-transform:uppercase;margin-bottom:10px;\">From projects we delivered</span><p style=\"font-weight:700;margin:0 0 6px;font-size:1.05em;\">Home2Suites by Hilton, Comfort Suites &amp; Holiday Inn Express</p><p style=\"margin:0 0 8px;color:#666;font-size:0.92em;\">Richmond, Pasadena &amp; Pflugerville, TX &middot; 90,500 / new construction / 114,700 sq ft &middot; Hospitality &middot; Construction management</p><p style=\"margin:0;\">Three Texas hotel deliveries: a 90,500 sq ft Home2Suites by Hilton in Richmond, a Comfort Suites in Pasadena, and a 114,700 sq ft Holiday Inn Express in Pflugerville. The cost-per-key economics and brand-prototype requirements covered in this guide reflect what these projects actually required to deliver on time and on budget.</p></aside>\n<h2>Introduction</h2>",
+  "answer_block": "<p><strong>In Texas in 2026, hotel construction costs range from approximately $184,000 to $305,000 per key depending on hotel type, with limited-service hotels running $220,000–$246,000 per key and extended-stay upscale properties reaching $279,000–$305,000 per key.</strong> On a per-square-foot basis, budgets typically fall between $175 and $275 per SF for hard costs alone. These Texas figures run 12–15% above national averages due to MEP labor scarcity, coastal wind-load requirements, and elevated FF&amp;E costs.</p>\n<ul>\n<li><strong>Limited-Service (Texas 2026):</strong> $220,193–$245,562 per key</li>\n<li><strong>Extended Stay – Midscale (Texas 2026):</strong> $184,480–$215,451 per key</li>\n<li><strong>Extended Stay – Upscale (Texas 2026):</strong> $278,787–$304,700 per key</li>\n</ul>",
+  "new_value_description": "Answer block prepended immediately after H1, before existing aside and Introduction section. All original body content preserved unchanged below the answer block.",
+  "notes": "Answer block is factually grounded in cost table from section 3 of the existing page. H1 and URL unchanged. No body content deleted."
+}

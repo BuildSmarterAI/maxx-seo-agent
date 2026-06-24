@@ -1,0 +1,108 @@
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Article",
+      "@id": "https://www.maxxbuilders.com/medical-office-construction-costs-texas-2026-comprehensive-guide/#article",
+      "headline": "Medical Office Construction Costs Texas 2026",
+      "description": "Medical office construction in Texas costs $200–$450/sq ft in 2026. This guide breaks down cost drivers, market ranges, and how to budget for your project.",
+      "url": "https://www.maxxbuilders.com/medical-office-construction-costs-texas-2026-comprehensive-guide/",
+      "datePublished": "2026-06-24",
+      "dateModified": "2026-06-24",
+      "inLanguage": "en-US",
+      "author": {
+        "@type": "Person",
+        "@id": "https://www.maxxbuilders.com/#author-REPLACE",
+        "name": "[OPERATOR INSERT: Author full name]",
+        "jobTitle": "[OPERATOR INSERT: e.g., Licensed General Contractor]",
+        "sameAs": [
+          "[OPERATOR INSERT: LinkedIn URL]"
+        ]
+      },
+      "publisher": {
+        "@type": "Organization",
+        "@id": "https://www.maxxbuilders.com/#organization",
+        "name": "Maxx Builders",
+        "url": "https://www.maxxbuilders.com"
+      },
+      "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "https://www.maxxbuilders.com/medical-office-construction-costs-texas-2026-comprehensive-guide/"
+      },
+      "about": {
+        "@type": "Thing",
+        "name": "Medical Office Construction Costs"
+      }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": "https://www.maxxbuilders.com/medical-office-construction-costs-texas-2026-comprehensive-guide/#breadcrumb",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://www.maxxbuilders.com/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Blog",
+          "item": "https://www.maxxbuilders.com/blog/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "Medical Office Construction Costs Texas 2026",
+          "item": "https://www.maxxbuilders.com/medical-office-construction-costs-texas-2026-comprehensive-guide/"
+        }
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "@id": "https://www.maxxbuilders.com/medical-office-construction-costs-texas-2026-comprehensive-guide/#faq",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "How much does it cost to build a 5,000 sq ft medical office in Texas?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "A 5,000 sq ft medical office in Texas runs $1.0M–$2.25M in hard construction costs in 2026, depending on specialty type and location. Add 20–30% for soft costs (design, permitting, FF&E, technology) to estimate total project cost."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is it cheaper to build or lease medical office space in Texas?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Leasing a shell and doing a tenant improvement is almost always cheaper in year one — $80–$200/sq ft vs. $200–$450/sq ft for ground-up construction. Build-to-own makes sense when you need a highly customized facility, want long-term cost control, or the local lease market is tight."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How long does medical office construction take in Texas?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Ground-up medical office construction takes 12–24 months from design kickoff to certificate of occupancy in Texas. Tenant improvements run 4–9 months depending on scope and local permitting timelines."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What is the most expensive part of building a medical office?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "MEP systems (HVAC, plumbing, medical gas, electrical) typically represent 30–40% of total hard costs in a medical office build — more in procedure-heavy facilities. This is the primary reason medical construction costs 2–3x standard commercial office."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Do I need a healthcare-specialized general contractor in Texas?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "It is not legally required, but strongly advisable. Medical facilities have specific HVAC, plumbing, and infection-control requirements that general commercial contractors often underestimate, and cost overruns from MEP scope gaps are common when contractors lack healthcare experience."
+          }
+        }
+      ]
+    }
+  ]
+}

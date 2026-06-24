@@ -1,0 +1,26 @@
+{
+  "platform": "wordpress",
+  "page_id": null,
+  "url": "https://www.maxxbuilders.com/cost-to-build-a-car-wash-in-texas/",
+  "skill": "restructure-for-citation",
+  "monitored_query": "How much does it cost to build a car wash in Texas?",
+  "status": "pending",
+  "field": "content",
+  "base_value_excerpt": "If you are evaluating the cost to build a car wash in Texas, 2026 is a strong but capital-intensive market to enter. Commercial construction costs rose roughly 6% year-over-year heading into 2026 (Gordian Q1 2025 Construction Cost Report), and car wash development sits at the higher-complexity end of commercial construction because it combines a building, heavy equipment, water systems, and an environmentally regulated site.",
+  "change_type": "restructure-for-citation",
+  "answer_block": "<p><strong>Building a car wash in Texas in 2026 costs between $1.2 million and $8 million or more, depending on facility type.</strong> A self-serve (3\u20135 bay) site runs $1.2M\u2013$2.5M all-in; an in-bay automatic runs $1.2M\u2013$2.8M; an express exterior tunnel runs $3.0M\u2013$7.0M; and a full-service or flex-service site runs $4.0M\u2013$8.0M+. The building shell costs $250\u2013$400 per sq\u00a0ft excluding land (Gordian Q1 2025; RSMeans 2025). Land, facility type, and Texas metro are the three biggest cost variables.</p>\n<ul>\n  <li><strong>Self-serve (3\u20135 bays):</strong> $1.2M\u2013$2.5M</li>\n  <li><strong>In-bay automatic:</strong> $1.2M\u2013$2.8M</li>\n  <li><strong>Express exterior tunnel:</strong> $3.0M\u2013$7.0M</li>\n  <li><strong>Full-service / flex-service:</strong> $4.0M\u2013$8.0M+</li>\n</ul>",
+  "new_value_preview": "[answer_block inserted immediately after H1, before existing intro paragraph — full body preserved below]",
+  "validation": {
+    "answer_in_first_30_pct": true,
+    "answer_first_structure": true,
+    "no_full_rewrite": true,
+    "h1_unchanged": true,
+    "url_unchanged": true,
+    "existing_body_preserved": true,
+    "facts_grounded_in_page": true,
+    "title_chars": 56,
+    "title_within_60": true,
+    "description_chars": 142,
+    "description_within_155": true
+  }
+}
