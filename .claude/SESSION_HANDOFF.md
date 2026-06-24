@@ -9,6 +9,21 @@
 
 Ran a `grill-with-docs` + `domain-modeling` session to design the agents that **complete the autonomous SEO/marketing department**, each riding the existing `work_queue → orchestrator → seo-fixer → eval_gate → approval → publish` loop. **No parallel systems.** Then generated the roster PRD and filed Linear issues.
 
+## ⚠️ RECONCILE FIRST — overlaps the locked buzz-seo-extension plan
+
+This session did **not** have `docs/buzz-seo-extension-architecture.md` loaded during the grill. That doc (+ memory `buzz-seo-extension`) already locked a 6-phase plan **earlier the same day**. The roster below independently re-derived most of it with **different labels** and **two conflicting vendor calls**. Read the architecture doc and reconcile before building:
+
+| This session (Linear) | Buzz plan phase | Status |
+|---|---|---|
+| A CMO Reporter (BUI-63) | **C-1** ops reporting + **C-2** client reporting | Same (Resend). Buzz already specced `scripts/reporter-ops.mjs` + `seo-report-ops.yml`; buzz splits weekly-internal vs monthly-client — this session only specced the internal digest |
+| B Conversion Optimizer (BUI-64) | — | **NET-NEW** — not in buzz plan; keep |
+| C Link Prospector (BUI-65) | **Phase A** link building | Same `link_prospects` table. **CONFLICT:** buzz locked **DataForSEO backlinks**; this session recommended **free `ai_citations`+GSC-Links v1, defer paid** |
+| D GBP Agent (BUI-66) | **Phase B** local/GBP | Consistent (`change_set.platform='gbp'` + `packs/gbp/`) |
+| E Competitor Watch (BUI-67) | **Phase D** competitor/gap | Same function. **CONFLICT:** buzz locked **DataForSEO SERP**; this session recommended **free GEO-only via `ai_citations`, defer paid SERP** |
+| — | **Phase E** programmatic SEO (`vertical_config`) | Not covered here (existing-skill config, not a new agent) |
+
+**Label collision:** buzz "Phase A" = link building; this session's "Agent A" = reporter — opposite meanings. **Recommendation:** treat the buzz architecture doc as canonical for labels + vendor decisions; fold in this session's three genuine additions — **(1) Agent B (CRO)**, **(2) the `observer_agent` term**, **(3) the `url→asset` outcome-key ADR** — and consciously decide DataForSEO (locked) vs free-tools-first (this session) for C/E.
+
 ## State (done)
 
 - **PRD written:** `docs/agent-roster.prd.md` — roster spec in the requested format (agent · gap · task names · tables · model+justification · blast radius · priority) + MoSCoW + phases + risks + decisions log.
