@@ -150,6 +150,14 @@ Related: `work_queue`, `client_id`
 
 ---
 
+### observer_agent
+
+A roster member that **reads the memory layer and emits a report, without producing `work_queue` or `change_set` rows**. It does not traverse the `approval-to-publish loop` — it has no output to gate, because it changes nothing. This is a sanctioned exception to the rule that every agent plugs into the loop: an observer is not a parallel *acting* system, it is a read-only consumer of state. The CMO Reporter (`weekly-digest`) is the first observer — it pre-digests the manual `OPERATIONS.md §1` supervision routine on a weekly cron. An observer never writes to `work_queue` (that is `prioritize.mjs`'s job) and has no learning signal of its own (it is the surface that *exposes* learning).
+
+Related: `work_queue`, `decision_log`, `eval_gate`
+
+---
+
 ## Architectural Decisions
 
 - [ADR-0001](docs/adr/0001-repo-per-client-with-migration-path.md) — Repo-per-client now; migrate to multi-tenant monorepo at 10 clients or when unified dashboard is needed
