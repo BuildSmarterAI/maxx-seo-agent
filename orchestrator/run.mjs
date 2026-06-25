@@ -146,6 +146,13 @@ Never write to the CMS directly. Never create git branches.`,
     if (costUsd) await addSpend(costUsd);
     console.log(`CMS run complete — check change_set table for pending rows. (cost ≈ $${costUsd.toFixed(2)})`);
   } catch (err) {
+    // The Agent SDK emits "Claude Code process exited with code 1" as a normal
+    // shutdown signal after the query loop completes — not a real failure.
+    if (/process exited with code 1/i.test(err?.message || "")) {
+      console.log(`CMS run complete — check change_set table for pending rows. (cost ≈ $${costUsd.toFixed(2)})`);
+      if (costUsd) await addSpend(costUsd);
+      return;
+    }
     console.error("orchestrator (CMS) failed:", err?.message || err);
     process.exit(1);
   }

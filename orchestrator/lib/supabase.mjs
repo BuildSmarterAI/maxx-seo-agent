@@ -97,7 +97,8 @@ export async function learnedPatterns() {
 }
 
 export async function insertChangeset(row) {
-  await db.from("change_set").insert(row);
+  const { error } = await db.from("change_set").insert(row);
+  if (error) throw new Error(`insertChangeset failed: ${error.message}`);
 }
 
 export async function setPriority(id, priority) {
