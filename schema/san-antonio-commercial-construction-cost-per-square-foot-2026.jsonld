@@ -1,0 +1,104 @@
+[
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "San Antonio Commercial Construction Cost Per Square Foot (2026)",
+    "description": "San Antonio commercial construction runs $135–$430/sq ft in 2026 — about 5% under DFW. Maxx Builders breaks down cost by building type and permitting.",
+    "url": "https://www.maxxbuilders.com/san-antonio-commercial-construction-cost-per-square-foot-2026/",
+    "datePublished": "2026-06-25",
+    "dateModified": "2026-06-25",
+    "publisher": {
+      "@type": "Organization",
+      "name": "Maxx Builders",
+      "url": "https://www.maxxbuilders.com"
+    },
+    "author": {
+      "@type": "Person",
+      "name": "__HUMAN_VERIFY_AUTHOR_NAME__",
+      "jobTitle": "__HUMAN_VERIFY_AUTHOR_TITLE__",
+      "sameAs": "__HUMAN_VERIFY_AUTHOR_LINKEDIN_OR_BIO_URL__"
+    },
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": "https://www.maxxbuilders.com/san-antonio-commercial-construction-cost-per-square-foot-2026/"
+    }
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://www.maxxbuilders.com/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Blog",
+        "item": "https://www.maxxbuilders.com/blog/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": "San Antonio Commercial Construction Cost Per Square Foot (2026)",
+        "item": "https://www.maxxbuilders.com/san-antonio-commercial-construction-cost-per-square-foot-2026/"
+      }
+    ]
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "How much does it cost to build a commercial building in San Antonio in 2026?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Commercial construction in San Antonio costs roughly $135–$430 per square foot in 2026, depending on building type and finish — about 5% below the DFW baseline. Warehouse and industrial shells sit at the low end; restaurants, medical offices, and Class A office sit at the high end. Figures exclude land, FF&E, and major off-site work."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is it cheaper to build in San Antonio than in Austin?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Generally, yes. San Antonio typically builds for less than Austin because its construction labor market is less overheated. Austin commonly runs 8–12% above the DFW baseline, while San Antonio runs about 5% below it, so the same building can cost noticeably less in San Antonio than roughly 80 miles north in Austin."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How much does it cost to build a warehouse in San Antonio?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "A warehouse in San Antonio typically runs $70–$150 per square foot for the shell, depending on clear height, dock count, and fire suppression. Tenant office build-out, racking, and dock equipment add to that shell cost."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How much does it cost to build retail space in San Antonio?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Retail and strip-center construction in San Antonio generally runs $150–$285 per square foot, driven by façade complexity, glazing, and the level of tenant white-box finish included in the base building."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How long does commercial permitting take in San Antonio?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "San Antonio commercial permitting is handled by the Development Services Department (DSD) and typically takes from several weeks to a few months, depending on project scope, submittal completeness, and department workload. A complete, coordinated submittal is the most reliable way to shorten review."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What contingency should I budget for a San Antonio commercial project?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Budget 10–15% contingency with complete construction documents, and 20–25% on early-stage estimates with incomplete design. In San Antonio specifically, early geotechnical investigation helps quantify rock-excavation risk before it becomes a change order."
+        }
+      }
+    ]
+  }
+]
