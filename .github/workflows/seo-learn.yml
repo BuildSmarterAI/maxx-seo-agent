@@ -27,9 +27,11 @@ jobs:
         env:
           GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/gcp.json
           GSC_SITE_URL: ${{ vars.GSC_SITE_URL }}
+          SITE_URL: ${{ vars.SITE_URL || '' }}
+          GA4_PROPERTY_ID: ${{ vars.GA4_PROPERTY_ID || '' }}
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-          # optional: CITATIONS_CSV / CONVERSIONS_CSV checked into the repo or produced by a prior step
+          # optional: CITATIONS_CSV checked into the repo or produced by a prior step
         run: |
           node scripts/collect-outcomes.mjs
           node scripts/attribute.mjs
