@@ -3,74 +3,23 @@
 // subagents for SAFE-class items only, validates, and opens ONE pull request.
 // Risky classes are logged as escalations and skipped. Human merges the PR.
 //
-// Reaches L2 locally; the scheduled workflow (Phase 2) calls this after the sensors.
+// Thin coordinator: the run/skip decision lives in lib/preflight.mjs, the goal
+// prompts in goal.mjs, and repo-mode git delivery in lib/git-delivery.mjs.
 import { query } from "@anthropic-ai/claude-agent-sdk";
-import { execSync } from "node:child_process";
-import { isPaused, resetMonthIfNew, getMonthSpend, addSpend, pendingQueue } from "./lib/supabase.mjs";
+import { addSpend } from "./lib/supabase.mjs";
+import { check } from "./lib/preflight.mjs";
+import { startBranch, openPR, rollback } from "./lib/git-delivery.mjs";
+import { GOAL_REPO, goalCms } from "./goal.mjs";
 
 const BUDGET_USD = Number(process.env.MONTHLY_BUDGET_USD || 50);
 const PLATFORM = (process.env.SITE_PLATFORM || "repo").toLowerCase();
 const IS_CMS = PLATFORM === "wordpress" || PLATFORM === "webflow";
-const sh = (c) => execSync(c, { stdio: "pipe" }).toString().trim();
-const shq = (c) => { try { return sh(c); } catch { return ""; } };
-
-async function preflight() {
-  if (await isPaused()) { console.log("control.paused = true → exiting."); process.exit(0); }
-  await resetMonthIfNew();
-  const spent = await getMonthSpend();
-  if (spent >= BUDGET_USD) { console.log(`budget hit ($${spent}/$${BUDGET_USD}) → exiting.`); process.exit(0); }
-  const queue = await pendingQueue(25);
-  if (!queue.length) { console.log("queue empty → nothing to do."); process.exit(0); }
-  return queue;
-}
-
-const GOAL_REPO = `
-You are the SEO orchestrator. Work ONLY from the pending work_queue.
-
-1. Get the queue:  run \`node scripts/mem.mjs queue\`  (Bash). It returns JSON rows {url,task,risk_class}.
-2. For each row where risk_class == "safe": dispatch the seo-fixer subagent to run the kit
-   skill named in \`task\` against \`url\`, then run the validators. If validation fails, revert
-   that file and log action="skip".
-3. For any row where risk_class != "safe" (or the change would delete/301/touch brand,
-   pricing, YMYL, or a do_not_touch URL): DO NOT act. Log it:
-   \`node scripts/mem.mjs log --url <U> --action escalate --risk gated --reason "<why>"\`
-   and \`node scripts/mem.mjs status --url <U> --task <T> --to escalated\`.
-4. After each applied fix:
-   \`node scripts/mem.mjs log --url <U> --action applied --risk safe --type <task> --reason "<what>"\`
-   and mark the queue row \`--to done\`.
-5. Respect every threshold in CLAUDE.md. Never push to main. Never publish directly.
-Stop when the queue is processed. Do not invent data; the 80% rule applies.
-`;
-
-const GOAL_CMS = `
-You are the SEO orchestrator targeting a live CMS (${PLATFORM}).
-Work ONLY from the pending work_queue. Do NOT edit files or create git branches.
-
-1. Get the queue:  run \`node scripts/mem.mjs queue\`  (Bash). It returns JSON rows {url,task,risk_class}.
-2. For each row where risk_class == "safe":
-   a. Dispatch the seo-fixer subagent with the url and task.
-   b. The subagent MUST:
-      - Resolve page_id: call the ${PLATFORM} API to look up the page by URL/slug.
-      - Read base_value: fetch the current live value of the field being changed.
-      - Generate the new value using the kit skill named in \`task\`.
-      - Write the change_set row (DO NOT write to the CMS directly):
-        \`node scripts/mem.mjs changeset --url <U> --page-id <ID> --field <F> --base "<current>" --new "<generated>" --type <task>\`
-      - Log the decision:
-        \`node scripts/mem.mjs log --url <U> --action queued --risk safe --type <task> --reason "change_set row written, awaiting approval"\`
-      - Mark the queue row done:
-        \`node scripts/mem.mjs status --url <U> --task <task> --to done\`
-3. For any row where risk_class != "safe": escalate — do not write a change_set row.
-   \`node scripts/mem.mjs log --url <U> --action escalate --risk gated --reason "<why>"\`
-   \`node scripts/mem.mjs status --url <U> --task <T> --to escalated\`
-4. Respect every threshold in CLAUDE.md. Never write to the CMS directly. Never publish.
-Stop when the queue is processed. Do not invent data; the 80% rule applies.
-`;
 
 async function runRepo(queue) {
-  const branch = `seo/auto-${new Date().toISOString().slice(0, 10)}-${Date.now().toString().slice(-5)}`;
-  sh(`git checkout -b ${branch}`);
+  const branch = startBranch();
   let costUsd = 0;
 
+  // Agent failure: roll back the branch and bail — nothing useful was produced.
   try {
     for await (const msg of query({
       prompt: GOAL_REPO,
@@ -93,21 +42,22 @@ async function runRepo(queue) {
       if (typeof msg?.total_cost_usd === "number") costUsd = msg.total_cost_usd;
       if ("result" in msg) console.log(msg.result);
     }
-
-    if (costUsd) await addSpend(costUsd);
-
-    sh("git add -A");
-    const dirty = shq("git status --porcelain");
-    if (!dirty) { console.log("no changes produced → cleaning up."); sh(`git checkout - && git branch -D ${branch}`); return; }
-
-    sh(`git commit -m "seo: automated safe-class fixes [skip ci]"`);
-    sh(`git push -u origin ${branch}`);
-    const pr = shq(`gh pr create --fill --label seo-auto`);
-    console.log(`PR opened: ${pr}  (cost ≈ $${costUsd.toFixed(2)})`);
   } catch (err) {
     console.error("orchestrator failed, rolling back:", err?.message || err);
-    shq("git reset --hard");
-    shq(`git checkout - && git branch -D ${branch}`);
+    rollback(branch);
+    process.exit(1);
+  }
+
+  if (costUsd) await addSpend(costUsd);
+
+  // Delivery failure (commit/push/PR) is handled separately from agent failure.
+  try {
+    const { empty, prUrl } = openPR(branch, "seo: automated safe-class fixes [skip ci]", "seo-auto");
+    if (empty) { console.log("no changes produced → cleaning up."); return; }
+    console.log(`PR opened: ${prUrl}  (cost ≈ $${costUsd.toFixed(2)})`);
+  } catch (err) {
+    console.error("delivery failed, rolling back:", err?.message || err);
+    rollback(branch);
     process.exit(1);
   }
 }
@@ -118,7 +68,7 @@ async function runCms(queue) {
 
   try {
     for await (const msg of query({
-      prompt: GOAL_CMS,
+      prompt: goalCms(PLATFORM),
       options: {
         model: process.env.ORCHESTRATOR_MODEL || "claude-sonnet-4-6",
         allowedTools: ["Read", "Bash", "Agent"],
@@ -167,11 +117,13 @@ Never write to the CMS directly. Never create git branches.`,
 }
 
 async function main() {
-  const queue = await preflight();
+  const decision = await check(BUDGET_USD);
+  if (!decision.ok) { console.log(decision.reason); process.exit(0); }
+
   if (IS_CMS) {
-    await runCms(queue);
+    await runCms(decision.queue);
   } else {
-    await runRepo(queue);
+    await runRepo(decision.queue);
   }
 }
 
