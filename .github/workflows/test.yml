@@ -1,0 +1,23 @@
+name: tests
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+
+      - run: npm ci
+
+      # node:test discovers test/**/*.test.mjs. Tests are hermetic (mocked fetch,
+      # injected store, dummy env) — no secrets required.
+      - run: npm test
