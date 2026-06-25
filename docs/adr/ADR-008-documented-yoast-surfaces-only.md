@@ -18,8 +18,13 @@ Yoast REST surfaces of varying stability (verified 2026-06-25):
   **unauthenticated** but an undocumented contract.
 - `yoast/v1/prominent_words/*` — internal NLP indexing routes; auth+nonce gated, **no
   public reader** (`prominent_words/{id}` → 404).
-- `yoast/v1/semrush/related_keyphrases` — Yoast→Semrush proxy; Yoast-account auth, built
-  for the admin UI.
+- `yoast/v1/semrush/related_keyphrases` — Yoast→Semrush proxy. Spiked 2026-06-25
+  (`docs/spikes/semrush-proxy-auth-2026-06-25.md`): reachable **headlessly** via the
+  existing Editor Application Password (Basic auth returned HTTP 200 + real keyword data),
+  *because a human already completed the Semrush OAuth connect in the Yoast admin*. The
+  token is human-established (the `authenticate` POST exchanges a browser-redirect `code`)
+  and cannot be re-created headlessly; it can expire/be revoked, and it spends Semrush
+  account quota.
 
 The temptation is to reach for the richer endpoints (`get_head` as a universal readback,
 `prominent_words` for topic words, the Semrush proxy for keyword expansion).

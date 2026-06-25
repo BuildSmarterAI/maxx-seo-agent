@@ -161,8 +161,11 @@ flag** and documented here first):
 - `yoast/v1/prominent_words/*` — internal NLP indexing routes (`get_content`, `save`,
   `complete`); auth+nonce gated, **no public reader** (a direct `prominent_words/{id}`
   read returns 404). Not usable without reverse-engineering the admin nonce flow.
-- `yoast/v1/semrush/related_keyphrases` — Yoast→Semrush proxy; auth-gated via a Yoast
-  account, intended for the WP admin UI.
+- `yoast/v1/semrush/related_keyphrases` — Yoast→Semrush proxy for keyword expansion.
+  Spiked 2026-06-25 (`docs/spikes/semrush-proxy-auth-2026-06-25.md`): reachable headlessly
+  via the existing Editor Application Password (Basic auth → 200 + real data) because a
+  human pre-connected the Semrush OAuth token in WP admin. The token can't be re-created
+  headlessly and spends Semrush quota — so any use stays fail-soft behind a flag.
 
 ---
 
