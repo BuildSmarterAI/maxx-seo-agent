@@ -29,8 +29,24 @@ async function wp(path, init = {}) {
   return r.json();
 }
 
-const readMeta = async (id, key) => (await wp(`posts/${id}?context=edit`)).meta?.[key] ?? null;
+const readMeta  = async (id, key) => (await wp(`posts/${id}?context=edit`)).meta?.[key] ?? null;
 const writeMeta = (id, key, value) => wp(`posts/${id}`, { method: "POST", body: JSON.stringify({ meta: { [key]: value } }) });
+
+// Soft post-write check: confirm the written value appears in Yoast's rendered head.
+// Never throws — if yoast_head is absent (plugin inactive, old version) we degrade silently.
+async function verifyYoastHead(id, field, expectedValue) {
+  try {
+    const post = await wp(`posts/${id}?context=edit`);
+    const head = post?.yoast_head;
+    if (!head) return;
+    if (!head.includes(expectedValue)) {
+      await logDecision({
+        url: post?.link ?? null, action: "skip", risk_class: "safe", change_type: "metadata",
+        reason: `yoast_head verification: ${field} written but not found in rendered head (may need cache flush)`,
+      });
+    }
+  } catch { /* degrade silently */ }
+}
 
 async function main() {
   const rows = await approvedRows("wordpress");
@@ -51,6 +67,7 @@ async function main() {
       }
 
       await writeMeta(row.page_id, key, row.new_value);
+      await verifyYoastHead(row.page_id, row.field, row.new_value);
       await setStatus(row.id, "applied", { applied_at: new Date().toISOString() });
       await logDecision({ url: row.url, action: "applied", risk_class: "safe", change_type: "metadata", reason: `wp ${row.field}` });
       applied++;
