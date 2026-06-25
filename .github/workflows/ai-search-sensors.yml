@@ -1,0 +1,58 @@
+name: ai-search-sensors
+on:
+  schedule:
+    - cron: "30 6 * * 1"   # Mondays 06:30 UTC — before the Monday operator review
+  workflow_dispatch: {}
+
+jobs:
+  ai-search:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - run: npm ci
+
+      - name: Write GCP service-account key
+        run: printf '%s' "${{ secrets.GCP_SA_JSON }}" > gcp.json
+        env:
+          GCP_SA_JSON: ${{ secrets.GCP_SA_JSON }}
+
+      - name: AI citation sensor
+        run: node scripts/sensor-ai-citations.mjs
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          PERPLEXITY_API_KEY: ${{ secrets.PERPLEXITY_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          TARGET_DOMAIN: ${{ vars.TARGET_DOMAIN }}
+          WP_BASE_URL: ${{ vars.WP_BASE_URL }}
+          COMPETITOR_DOMAINS: ${{ vars.COMPETITOR_DOMAINS }}
+
+      - name: PAA / related-questions sensor
+        run: node scripts/sensor-paa.mjs
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          PERPLEXITY_API_KEY: ${{ secrets.PERPLEXITY_API_KEY }}
+          SERPAPI_KEY: ${{ secrets.SERPAPI_KEY }}
+
+      - name: AI-referred traffic sensor
+        run: node scripts/sensor-ai-referrals.mjs
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/gcp.json
+          GA4_PROPERTY_ID: ${{ vars.GA4_PROPERTY_ID }}
+
+      - name: Attribute citation outcomes -> learned_patterns
+        run: node scripts/attribute-citations.mjs
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+
+      - name: Remove key
+        if: always()
+        run: rm -f gcp.json
