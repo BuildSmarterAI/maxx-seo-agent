@@ -40,20 +40,70 @@ async function slugExists(slug) {
   return Array.isArray(posts) && posts.length > 0 ? posts[0].id : null;
 }
 
+// ── Live-value drift gate (UPDATE path only) ────────────────────────────────
+
+// Read live title + Yoast meta for an existing post.
+async function liveValuesFor(id) {
+  const r = await fetch(`${BASE}/wp-json/wp/v2/posts/${id}?context=edit`, { headers: { Authorization: AUTH } });
+  if (!r.ok) return null;
+  const d = await r.json();
+  return { title: d.title?.raw ?? "", meta: d.meta ?? {} };
+}
+
+// Mirrors apply.mjs's drift gate: drop any field whose LIVE value is populated and
+// DIFFERS from what we're about to write, so an update can never clobber a human edit.
+// Returns { refuse: true } if live can't be read (caller must not write — fail-safe).
+async function dropClobbering(existingId, title, metaPayload) {
+  const live = await liveValuesFor(existingId);
+  if (!live) return { refuse: true };
+  const safe = { refuse: false, title: null, meta: {} };
+  if (title && (!live.title || live.title === title)) safe.title = title;
+  else if (live.title && live.title !== title) console.log(`  ↳ keep live title (human-edited): ${JSON.stringify(live.title)}`);
+  for (const [k, v] of Object.entries(metaPayload)) {
+    const lv = live.meta?.[k] ?? "";
+    if (lv && String(lv) !== String(v)) { console.log(`  ↳ keep live ${k} (human-edited)`); continue; }
+    safe.meta[k] = v;
+  }
+  return safe;
+}
+
 // ── Frontmatter parser ──────────────────────────────────────────────────────
 
 function parseFrontmatter(raw) {
-  const m = raw.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
-  if (!m) return { meta: {}, body: raw };
-  const meta = {};
-  for (const line of m[1].split("\n")) {
-    const idx = line.indexOf(":");
-    if (idx === -1) continue;
-    const key = line.slice(0, idx).trim();
-    const val = line.slice(idx + 1).trim().replace(/^"|"$/g, "");
-    if (key) meta[key] = val;
+  // 1) real YAML frontmatter — unchanged, kept for any YAML drafts
+  const yaml = raw.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
+  if (yaml) {
+    const meta = {};
+    for (const line of yaml[1].split("\n")) {
+      const idx = line.indexOf(":");
+      if (idx === -1) continue;
+      const key = line.slice(0, idx).trim();
+      const val = line.slice(idx + 1).trim().replace(/^"|"$/g, "");
+      if (key) meta[key] = val;
+    }
+    return { meta, body: yaml[2] };
   }
-  return { meta, body: m[2] };
+  // 2) markdown bold-label convention our drafts use:
+  //    "# Heading" + "**Key (optional note):** value" lines; block ends at the first "---".
+  const sepIdx = raw.search(/^\s*---\s*$/m);
+  const head = sepIdx === -1 ? raw : raw.slice(0, sepIdx);
+  let body = sepIdx === -1 ? raw : raw.slice(sepIdx).replace(/^\s*---\s*$/m, "");
+  body = body.replace(/^\s+/, "");
+
+  const labels = {};
+  for (const m of head.matchAll(/^\*\*\s*([^:*()]+?)\s*(?:\([^)]*\))?\s*:\*\*\s*(.+?)\s*$/gm)) {
+    labels[m[1].trim().toLowerCase()] = m[2].trim().replace(/^`|`$/g, "").replace(/^"|"$/g, "");
+  }
+  const h = head.match(/^#\s+(.+?)\s*$/m);
+  const headingTitle = h ? h[1].trim() : "";
+
+  const meta = {
+    title:           labels["title"] || headingTitle || "",   // heading fallback — never the slug
+    description:     labels["meta description"] || labels["description"] || "",
+    canonical:       labels["canonical"] || "",
+    focus_keyphrase: labels["focus keyphrase"] || labels["focus"] || "",
+  };
+  return { meta, body };
 }
 
 // ── Strip internal-only sections ────────────────────────────────────────────
@@ -125,7 +175,7 @@ async function main() {
   const schemaDir = join(ROOT, "schema");
   const files = (await readdir(draftsDir)).filter(f => f.endsWith(".md"));
 
-  let created = 0, skipped = 0, failed = 0;
+  let created = 0, updated = 0, skipped = 0, failed = 0;
 
   for (const file of files) {
     const slug = basename(file, ".md");
@@ -147,36 +197,72 @@ async function main() {
       schemaBlock = `\n<!-- wp:html --><script type="application/ld+json">${jsonld}</script><!-- /wp:html -->`;
     } catch { /* no schema file */ }
 
-    // Skip if slug already exists
+    // ── GUARD (invariants 1 & 2): resolve fields. NEVER fall back to slug. NEVER emit "". ──
+    const title = (meta.title || "").trim();
+    const desc  = (meta.description || "").trim();
+    const canon = (meta.canonical || "").trim();
+    const focus = (meta.focus_keyphrase || "").trim();
+
+    // Invariant 1: a post MUST have a real title — never the slug. A missing title refuses the publish.
+    if (!title) {
+      console.error(`✗ refused  ${slug}: no title parsed — refusing to publish (would have been a slug title). Fix the draft.`);
+      failed++;
+      continue;
+    }
+
+    // Invariant 2: build meta from ONLY non-empty values; empty fields are omitted, never sent as "".
+    const metaPayload = {};
+    if (title) metaPayload[META_KEYS.title]     = title;
+    if (desc)  metaPayload[META_KEYS.desc]      = desc;
+    if (canon) metaPayload[META_KEYS.canonical] = canon;
+    if (focus) metaPayload[META_KEYS.focus]     = focus;
+
     const existingId = await slugExists(slug);
+
+    // POLICY: this script creates only. Removing the next block enables the GUARDED update
+    // path below — which (invariant 3) cannot clobber a populated, human-edited live value.
+    // The guard lives in the write path and does NOT depend on this skip.
     if (existingId) {
-      console.log(`~ skipped  ${slug}  (already exists — post ${existingId})`);
+      console.log(`~ skipped  ${slug}  (already exists — post ${existingId}; this script does not update existing posts)`);
       skipped++;
       continue;
     }
 
     try {
-      const post = await wp("posts", {
-        title:   meta.title  || slug,
-        slug,
-        content: html + schemaBlock,
-        status:  "draft",
-        meta: {
-          [META_KEYS.title]:     meta.title           || "",
-          [META_KEYS.desc]:      meta.description     || "",
-          [META_KEYS.canonical]: meta.canonical       || "",
-          [META_KEYS.focus]:     meta.focus_keyphrase || "",
-        },
-      });
-      console.log(`✓ created  id=${post.id}  /${slug}/  → ${BASE}/?p=${post.id}&preview=true`);
-      created++;
+      if (existingId) {
+        // GUARDED UPDATE PATH (invariant 3) — reachable only if the skip above is removed.
+        const safe = await dropClobbering(existingId, title, metaPayload);
+        if (safe.refuse) {
+          console.error(`✗ refused  ${slug}: cannot read live values to verify — not updating (fail-safe).`);
+          failed++;
+          continue;
+        }
+        const body = {};
+        if (safe.title) body.title = safe.title;
+        if (Object.keys(safe.meta).length) body.meta = safe.meta;
+        if (!Object.keys(body).length) {
+          console.log(`= no-op    ${slug}  (live values preserved; nothing safe to write)`);
+          skipped++;
+          continue;
+        }
+        const post = await wp(`posts/${existingId}`, body);
+        console.log(`✓ updated  id=${post.id}  /${slug}/  (guarded — no human edit overwritten)`);
+        updated++;
+      } else {
+        // CREATE PATH — no live value to protect, so no live-compare read.
+        const payload = { title, slug, content: html + schemaBlock, status: "draft" };
+        if (Object.keys(metaPayload).length) payload.meta = metaPayload;
+        const post = await wp("posts", payload);
+        console.log(`✓ created  id=${post.id}  /${slug}/  → ${BASE}/?p=${post.id}&preview=true`);
+        created++;
+      }
     } catch (e) {
       console.error(`✗ failed   ${slug}: ${e.message}`);
       failed++;
     }
   }
 
-  console.log(`\nDone — created ${created}, skipped ${skipped}, failed ${failed}`);
+  console.log(`\nDone — created ${created}, updated ${updated}, skipped ${skipped}, failed ${failed}`);
   if (created > 0) console.log(`Review drafts: ${BASE}/wp-admin/edit.php?post_status=draft&post_type=post`);
 }
 
