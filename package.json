@@ -5,6 +5,7 @@
   "type": "module",
   "engines": { "node": ">=20" },
   "scripts": {
+    "test": "node --test",
     "gsc:test": "node --env-file=.env scripts/sensor-gsc.mjs",
     "sensors": "node --env-file=.env scripts/sensor-gsc.mjs && node --env-file=.env scripts/sensor-sitemap.mjs",
     "orchestrate": "node --env-file=.env orchestrator/run.mjs",

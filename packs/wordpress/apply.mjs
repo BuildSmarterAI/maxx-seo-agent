@@ -1,13 +1,14 @@
 #!/usr/bin/env node
 // packs/wordpress/apply.mjs — applies APPROVED change_set rows to WordPress via REST.
 // Snapshots the current value first, escalates on drift, and logs every action.
+// The per-row lifecycle lives in cms.applyRow; this file is the WordPress adapter.
 //
 // WP META WRITES ARE IMMEDIATELY LIVE. Point WP_BASE_URL at a STAGING clone first,
 // and require the SEO meta keys to be REST-exposed (see packs/wordpress/seo-rest-bridge.php).
 //
 // env: WP_BASE_URL, WP_USER, WP_APP_PASSWORD, SEO_PLUGIN=yoast|rankmath
-import { approvedRows, snapshot, drifted, setStatus, latestSnapshot, logDecision }
-  from "../../orchestrator/lib/cms.mjs";
+import { fileURLToPath } from "node:url";
+import { approvedRows, applyRow, logDecision } from "../../orchestrator/lib/cms.mjs";
 
 const BASE = process.env.WP_BASE_URL?.replace(/\/$/, "");
 const AUTH = "Basic " + Buffer.from(`${process.env.WP_USER}:${process.env.WP_APP_PASSWORD}`).toString("base64");
@@ -50,48 +51,40 @@ async function verifyYoastHead(id, field, expectedValue) {
   } catch { /* degrade silently */ }
 }
 
+const isContent = (row) => row.field === "post_content";
+
+export const wordpressAdapter = {
+  platform: "wordpress",
+  supports: (row) => isContent(row) || Boolean(KEYS?.[row.field]),
+  // post_content drift is unreliable (Gutenberg block wrappers); the approval gate is
+  // the safety net for full-body rewrites. Metadata fields are drift-checked.
+  driftCheckable: (row) => !isContent(row),
+  read: (row) => isContent(row) ? readContent(row.page_id) : readMeta(row.page_id, KEYS[row.field]),
+  write: (row) => isContent(row)
+    ? writeContent(row.page_id, row.new_value)
+    : writeMeta(row.page_id, KEYS[row.field], row.new_value),
+  verify: (row) => isContent(row) ? undefined : verifyYoastHead(row.page_id, row.field, row.new_value),
+  narrate: {
+    unsupported: (row) => ({ reason: `unsupported field ${row.field}` }),
+    drift:       (row) => ({ change_type: row.change_type ?? "content" }),
+    applied:     (row) => ({ change_type: row.change_type ?? row.field, reason: `wp ${row.field}` }),
+    failed:      (row, err) => ({ reason: `wp apply failed: ${err.message}` }),
+  },
+};
+
 async function main() {
   const rows = await approvedRows("wordpress");
   let applied = 0, escalated = 0, failed = 0;
 
   for (const row of rows) {
-    const isContent = row.field === "post_content";
-    const key = isContent ? null : KEYS?.[row.field];
-    try {
-      if (!isContent && !key) {
-        await setStatus(row.id, "escalated");
-        await logDecision({ url: row.url, action: "escalate", risk_class: "gated", reason: `unsupported field ${row.field}` });
-        escalated++; continue;
-      }
-
-      const current = isContent ? await readContent(row.page_id) : await readMeta(row.page_id, key);
-      await snapshot(row, current);
-
-      // Drift check is meaningful for short metadata fields but not for post_content —
-      // Gutenberg block wrappers make byte-level comparison unreliable and the approval
-      // gate is the primary safety net for full-body content rewrites.
-      if (!isContent && drifted(row, current)) {
-        await setStatus(row.id, "escalated");
-        await logDecision({ url: row.url, action: "escalate", risk_class: "gated", change_type: row.change_type ?? "content", reason: "drift: live value changed since generation" });
-        escalated++; continue;
-      }
-
-      if (isContent) {
-        await writeContent(row.page_id, row.new_value);
-      } else {
-        await writeMeta(row.page_id, key, row.new_value);
-        await verifyYoastHead(row.page_id, row.field, row.new_value);
-      }
-      await setStatus(row.id, "applied", { applied_at: new Date().toISOString() });
-      await logDecision({ url: row.url, action: "applied", risk_class: "safe", change_type: row.change_type ?? row.field, reason: `wp ${row.field}` });
-      applied++;
-    } catch (e) {
-      await setStatus(row.id, "failed");
-      await logDecision({ url: row.url, action: "skip", risk_class: "safe", reason: `wp apply failed: ${e.message}` });
-      failed++;
-    }
+    const outcome = await applyRow(row, wordpressAdapter);
+    if (outcome === "applied") applied++;
+    else if (outcome === "escalated") escalated++;
+    else failed++;
   }
   console.log(`WordPress apply — applied ${applied}, escalated ${escalated}, failed ${failed}`);
 }
 
-main().catch((e) => { console.error(e); process.exit(1); });
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  main().catch((e) => { console.error(e); process.exit(1); });
+}

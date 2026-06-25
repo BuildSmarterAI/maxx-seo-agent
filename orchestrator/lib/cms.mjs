@@ -1,6 +1,7 @@
 // cms.mjs — shared engine for the live-CMS apply layer (WordPress + Webflow).
-// Handles the three jobs git gives you for free: review state, snapshot/rollback, and
-// drift detection. Adapters (wordpress/, webflow/) supply read() and write().
+// Handles the jobs git gives you for free: review state, snapshot/rollback, and drift
+// detection. applyRow() owns the per-row apply lifecycle; a platform adapter supplies
+// the I/O (read/write/verify) and the small per-platform audit labels (narrate).
 import { db } from "./client.mjs";
 import { logDecision } from "./supabase.mjs";
 
@@ -37,6 +38,46 @@ export async function latestSnapshot(platform, page_id, field) {
     .eq("platform", platform).eq("page_id", page_id).eq("field", field)
     .order("captured_at", { ascending: false }).limit(1).maybeSingle();
   return data?.old_value ?? null;
+}
+
+const DRIFT_REASON = "drift: live value changed since generation";
+
+// Persistence the apply loop touches. Injectable so the loop is testable without a DB.
+const defaultStore = { snapshot, setStatus, logDecision };
+
+// The apply loop body, run once per approved row. The adapter owns all platform I/O
+// (supports/read/write/verify) and the per-platform audit labels (narrate.*); this
+// owns the invariant lifecycle — snapshot → drift gate → write → status + decision-log —
+// with a single failure path. Returns "applied" | "escalated" | "failed" so the caller
+// can tally a summary.
+export async function applyRow(row, adapter, store = defaultStore) {
+  try {
+    if (!adapter.supports(row)) {
+      await store.setStatus(row.id, "escalated");
+      await store.logDecision({ url: row.url, action: "escalate", risk_class: "gated", ...adapter.narrate.unsupported(row) });
+      return "escalated";
+    }
+
+    const current = await adapter.read(row);
+    await store.snapshot(row, current);
+
+    if (adapter.driftCheckable(row) && drifted(row, current)) {
+      await store.setStatus(row.id, "escalated");
+      await store.logDecision({ url: row.url, action: "escalate", risk_class: "gated", reason: DRIFT_REASON, ...adapter.narrate.drift(row) });
+      return "escalated";
+    }
+
+    await adapter.write(row);
+    if (adapter.verify) await adapter.verify(row);
+
+    await store.setStatus(row.id, "applied", { applied_at: new Date().toISOString() });
+    await store.logDecision({ url: row.url, action: "applied", risk_class: "safe", ...adapter.narrate.applied(row) });
+    return "applied";
+  } catch (err) {
+    await store.setStatus(row.id, "failed");
+    await store.logDecision({ url: row.url, action: "skip", risk_class: "safe", ...adapter.narrate.failed(row, err) });
+    return "failed";
+  }
 }
 
 export { logDecision };
