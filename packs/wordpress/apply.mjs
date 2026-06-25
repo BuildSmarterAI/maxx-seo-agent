@@ -29,8 +29,23 @@ async function wp(path, init = {}) {
   return r.json();
 }
 
-const readMeta = async (id, key) => (await wp(`posts/${id}?context=edit`)).meta?.[key] ?? null;
-const writeMeta = (id, key, value) => wp(`posts/${id}`, { method: "POST", body: JSON.stringify({ meta: { [key]: value } }) });
+// Fetch the post/page object, discovering and caching its type so a page with
+// several queued fields is probed once, not per field.
+const typeCache = new Map();
+async function fetchObj(id) {
+  const known = typeCache.get(id);
+  if (known) return { type: known, obj: await wp(`${known}/${id}?context=edit`) };
+  try {
+    const obj = await wp(`posts/${id}?context=edit`);
+    typeCache.set(id, "posts");
+    return { type: "posts", obj };
+  } catch {
+    typeCache.set(id, "pages");
+    return { type: "pages", obj: await wp(`pages/${id}?context=edit`) };
+  }
+}
+const writeMeta = (type, id, key, value) =>
+  wp(`${type}/${id}`, { method: "POST", body: JSON.stringify({ meta: { [key]: value } }) });
 
 async function main() {
   const rows = await approvedRows("wordpress");
@@ -41,7 +56,8 @@ async function main() {
     try {
       if (!key) { await setStatus(row.id, "escalated"); await logDecision({ url: row.url, action: "escalate", risk_class: "gated", reason: `unsupported field ${row.field}` }); escalated++; continue; }
 
-      const current = await readMeta(row.page_id, key);
+      const { type, obj } = await fetchObj(row.page_id);
+      const current = obj.meta?.[key] ?? null;           // unset stays null — drifted() distinguishes null from "" (human-gate)
       await snapshot(row, current);                      // rollback tape, always
 
       if (drifted(row, current)) {                       // human edited since → don't clobber
@@ -50,7 +66,7 @@ async function main() {
         escalated++; continue;
       }
 
-      await writeMeta(row.page_id, key, row.new_value);
+      await writeMeta(type, row.page_id, key, row.new_value);
       await setStatus(row.id, "applied", { applied_at: new Date().toISOString() });
       await logDecision({ url: row.url, action: "applied", risk_class: "safe", change_type: "metadata", reason: `wp ${row.field}` });
       applied++;
