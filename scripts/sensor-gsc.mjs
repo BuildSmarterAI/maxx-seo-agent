@@ -2,8 +2,13 @@
 // sensor-gsc.mjs — GSC sensor config + entry point.
 // Fetch logic lives here; harness (orchestrator/lib/sensor.mjs) owns doNotTouch filtering,
 // queue mapping, enqueue, and error isolation.
+import { fileURLToPath } from "node:url";
 import { google } from "googleapis";
 import { runSensor } from "../orchestrator/lib/sensor.mjs";
+
+// The decay signal maps to blog-write, which is meaningless on the site root —
+// the homepage is never a blog post. Skip it so it stops escalating as blog-write.
+export const isHomepage = (u) => { try { return new URL(u).pathname === "/"; } catch { return false; } };
 
 function range(daysAgoStart, daysAgoEnd) {
   const d = (n) => new Date(Date.now() - n * 864e5).toISOString().slice(0, 10);
@@ -51,7 +56,7 @@ export const gscSensor = {
     for (const [page, clicksPrev] of prev) {
       if (clicksPrev < minPrevClicks) continue;
       const drop = (clicksPrev - (cur.get(page) ?? 0)) / clicksPrev;
-      if (drop >= minDrop) items.push({ url: page, signalType: "decay", value: drop });
+      if (drop >= minDrop && !isHomepage(page)) items.push({ url: page, signalType: "decay", value: drop });
     }
 
     // 2) Striking distance: position in band with sufficient impressions
@@ -71,5 +76,7 @@ export const gscSensor = {
   },
 };
 
-const { error } = await runSensor(gscSensor, process.env);
-if (error) process.exit(1);
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  const { error } = await runSensor(gscSensor, process.env);
+  if (error) process.exit(1);
+}
