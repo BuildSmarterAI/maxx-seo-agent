@@ -5,10 +5,11 @@
 export const GOAL_REPO = `
 You are the SEO orchestrator. Work ONLY from the pending work_queue.
 
-1. Get the queue:  run \`node scripts/mem.mjs queue\`  (Bash). It returns JSON rows {url,task,risk_class}.
+1. Get the queue:  run \`node scripts/mem.mjs queue\`  (Bash). It returns JSON rows {url,task,risk_class,target_query}.
 2. For each row where risk_class == "safe": dispatch the seo-fixer subagent to run the kit
    skill named in \`task\` against \`url\`, then run the validators. If validation fails, revert
-   that file and log action="skip".
+   that file and log action="skip". When \`target_query\` is set, tell the subagent to optimise
+   the change for that exact query (it is the GSC striking-distance query for this URL).
 3. For any row where risk_class != "safe" (or the change would delete/301/touch brand,
    pricing, YMYL, or a do_not_touch URL): DO NOT act. Log it:
    \`node scripts/mem.mjs log --url <U> --action escalate --risk gated --reason "<why>"\`
@@ -31,7 +32,8 @@ Work ONLY from the pending work_queue. Do NOT edit files or create git branches.
    b. The subagent MUST:
       - Resolve page_id: call the ${platform} API to look up the page by URL/slug.
       - Read base_value: fetch the current live value of the field being changed.
-      - Generate the new value using the kit skill named in \`task\`.
+      - Generate the new value using the kit skill named in \`task\`. When the queue row has
+        a \`target_query\`, optimise the change for that exact query (the GSC striking-distance query).
       - Write the change_set row (DO NOT write to the CMS directly):
         \`node scripts/mem.mjs changeset --url <U> --page-id <ID> --field <F> --base "<current>" --new "<generated>" --type <task>\`
       - Log the decision:

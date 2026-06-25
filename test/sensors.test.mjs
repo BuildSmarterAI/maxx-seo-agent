@@ -12,6 +12,35 @@ process.env.SUPABASE_SERVICE_ROLE_KEY ||= "dummy_service_role_key_000000";
 
 const { collectPageUrls } = await import("../scripts/sensor-sitemap.mjs");
 const { isHomepage } = await import("../scripts/sensor-gsc.mjs");
+const { toQueueItem } = await import("../orchestrator/lib/sensor.mjs");
+
+const fakeSensor = {
+  name: "gsc",
+  thresholds: {
+    decay: { task: "blog-write", priority: 3 },
+    "striking-distance": { task: "metadata-generate", priority: 2 },
+  },
+};
+
+test("toQueueItem carries the GSC query onto striking-distance rows (R1)", () => {
+  const row = toQueueItem(
+    { url: "https://x.com/a/", signalType: "striking-distance", value: 120, query: "warehouse cost texas" },
+    fakeSensor,
+  );
+  assert.equal(row.target_query, "warehouse cost texas");
+  assert.equal(row.task, "metadata-generate");
+  assert.equal(row.status, "pending");
+});
+
+test("toQueueItem omits target_query when the item has no query", () => {
+  const row = toQueueItem({ url: "https://x.com/b/", signalType: "decay", value: 0.4 }, fakeSensor);
+  assert.equal(row.task, "blog-write");
+  assert.ok(!("target_query" in row), "no target_query key on query-less rows");
+});
+
+test("toQueueItem returns null for an unknown signalType", () => {
+  assert.equal(toQueueItem({ url: "https://x.com/c/", signalType: "nope" }, fakeSensor), null);
+});
 
 test("collectPageUrls recurses a sitemap index and drops .xml entries", async () => {
   const index = "<sitemapindex><sitemap><loc>https://x.com/post-sitemap.xml</loc></sitemap>" +

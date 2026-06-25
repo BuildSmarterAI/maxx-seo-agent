@@ -5,6 +5,20 @@
 // The harness owns: doNotTouch filtering, queue-item mapping, enqueue, error isolation.
 import { doNotTouch, enqueue } from "./supabase.mjs";
 
+// Map one raw sensor item to a work_queue row. Returns null for an unknown signalType
+// (the harness logs + drops it). Carries the GSC query through as target_query when the
+// item has one (R1) so metadata-generate can optimise for the exact striking-distance query.
+export function toQueueItem(item, sensor) {
+  const mapping = sensor.thresholds[item.signalType];
+  if (!mapping) return null;
+  const row = {
+    url: item.url, task: mapping.task, risk_class: "safe",
+    priority: mapping.priority, source: sensor.name, status: "pending",
+  };
+  if (item.query) row.target_query = item.query;
+  return row;
+}
+
 export async function runSensor(sensor, env) {
   let rawItems = [];
   let fetchError = null;
@@ -22,13 +36,12 @@ export async function runSensor(sensor, env) {
   const skippedCount = rawItems.length - filtered.length;
 
   const queueItems = filtered.flatMap((item) => {
-    const mapping = sensor.thresholds[item.signalType];
-    if (!mapping) {
+    const row = toQueueItem(item, sensor);
+    if (!row) {
       console.warn(`[${sensor.name}] unknown signalType "${item.signalType}" — skipping`);
       return [];
     }
-    return [{ url: item.url, task: mapping.task, risk_class: "safe",
-              priority: mapping.priority, source: sensor.name, status: "pending" }];
+    return [row];
   });
 
   let enqueueError = null;

@@ -64,9 +64,11 @@ snapshot before writing and escalate on drift.
 ## Supabase tables (memory layer)
 
 **work_queue** — pending actions. Columns: `url, task, risk_class, priority, status,
-source, linear_issue_id`. Status values: `pending | in_progress | done | escalated`.
+source, linear_issue_id, target_query`. Status values: `pending | in_progress | done | escalated`.
 `linear_issue_id` is the escalation-mirror pointer: null until `push-escalations.mjs`
 records the Linear issue it created for an escalated row (makes the mirror idempotent).
+`target_query` is the GSC striking-distance query carried from `sensor-gsc.mjs` so
+`metadata-generate` optimises for that exact query (ADR-009 R1); null on non-query rows.
 
 **change_set** — one row per field edit the `seo-fixer` wants to make on a CMS page.
 Columns: `platform, page_id, collection_id, url, field, base_value, new_value, status,

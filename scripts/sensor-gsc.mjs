@@ -66,9 +66,9 @@ export const gscSensor = {
       requestBody: { ...range(28, 1), dimensions: ["page", "query"], rowLimit: 5000 },
     });
     for (const row of data.rows ?? []) {
-      const [page] = row.keys;
+      const [page, query] = row.keys;
       if (row.position >= posMin && row.position <= posMax && (row.impressions ?? 0) >= minImpressions) {
-        items.push({ url: page, signalType: "striking-distance", value: row.impressions });
+        items.push({ url: page, signalType: "striking-distance", value: row.impressions, query });
       }
     }
 
