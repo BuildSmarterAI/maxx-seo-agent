@@ -30,16 +30,30 @@ async function wp(path, init = {}) {
   return r.json();
 }
 
-const readMeta    = async (id, key) => (await wp(`posts/${id}?context=edit`)).meta?.[key] ?? null;
-const writeMeta   = (id, key, value) => wp(`posts/${id}`, { method: "POST", body: JSON.stringify({ meta: { [key]: value } }) });
-const readContent = async (id) => (await wp(`posts/${id}?context=edit`)).content?.raw ?? null;
-const writeContent = (id, value) => wp(`posts/${id}`, { method: "POST", body: JSON.stringify({ content: { raw: value } }) });
+// WP posts and pages live at different REST roots (/posts/{id} vs /pages/{id}).
+// Resolve which once per id (memoized) so the pack can write meta/content to both.
+// Without this, page ids (services, about, location pages) 404 against /posts/.
+const _kind = new Map();
+async function resolve(id) {
+  if (_kind.has(id)) return _kind.get(id);
+  for (const k of ["posts", "pages"]) {
+    const r = await fetch(`${BASE}/wp-json/wp/v2/${k}/${id}?context=edit`,
+      { headers: { Authorization: AUTH, "Content-Type": "application/json" } });
+    if (r.ok) { _kind.set(id, k); return k; }
+  }
+  throw new Error(`WP: id ${id} is neither a post nor a page`);
+}
+
+const readMeta    = async (id, key) => (await wp(`${await resolve(id)}/${id}?context=edit`)).meta?.[key] ?? null;
+const writeMeta   = async (id, key, value) => wp(`${await resolve(id)}/${id}`, { method: "POST", body: JSON.stringify({ meta: { [key]: value } }) });
+const readContent = async (id) => (await wp(`${await resolve(id)}/${id}?context=edit`)).content?.raw ?? null;
+const writeContent = async (id, value) => wp(`${await resolve(id)}/${id}`, { method: "POST", body: JSON.stringify({ content: { raw: value } }) });
 
 // Soft post-write check: confirm the written value appears in Yoast's rendered head.
 // Never throws — if yoast_head is absent (plugin inactive, old version) we degrade silently.
 async function verifyYoastHead(id, field, expectedValue) {
   try {
-    const post = await wp(`posts/${id}?context=edit`);
+    const post = await wp(`${await resolve(id)}/${id}?context=edit`);
     const head = post?.yoast_head;
     if (!head) return;
     if (!head.includes(expectedValue)) {

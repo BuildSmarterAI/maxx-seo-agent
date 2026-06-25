@@ -67,6 +67,24 @@ export async function setQueueStatus(url, task, to) {
   await db.from("work_queue").update({ status: to }).eq("url", url).eq("task", task);
 }
 
+// Escalated items not yet mirrored to Linear. The linear_issue_id pointer stays
+// null until push-escalations records the created issue, which makes the mirror
+// idempotent across runs.
+export async function escalatedQueue(limit = 50) {
+  const { data, error } = await db
+    .from("work_queue").select("*")
+    .eq("status", "escalated").is("linear_issue_id", null)
+    .order("priority", { ascending: false }).limit(limit);
+  // Surface the error instead of returning [] — a missing linear_issue_id column
+  // (migration not run) must fail loudly, not silently mirror nothing.
+  if (error) throw new Error(`escalatedQueue failed: ${error.message}`);
+  return data ?? [];
+}
+
+export async function setLinearIssueId(id, linearIssueId) {
+  await db.from("work_queue").update({ linear_issue_id: linearIssueId }).eq("id", id);
+}
+
 export async function logDecision(row) {
   await db.from("decision_log").insert(row);
 }
