@@ -1,31 +1,43 @@
 #!/usr/bin/env node
-// sensor-sitemap.mjs — fetches the sitemap, diffs against sitemap_seen,
-// and enqueues newly-discovered URLs for an audit.
-import { db, enqueue, doNotTouch } from "../orchestrator/lib/supabase.mjs";
-
-const SITEMAP = process.env.SITEMAP_URL;     // e.g. https://example.com/sitemap.xml
-if (!SITEMAP) throw new Error("Set SITEMAP_URL");
+// sensor-sitemap.mjs — sitemap sensor config + entry point.
+// fetch() handles sitemap_seen state (sensor-specific); doNotTouch filtering is
+// owned by the harness. Note: db is used directly here for sitemap_seen because
+// supabase.mjs does not yet expose a sitemap-seen helper (Candidate 1 follow-on).
+import { db } from "../orchestrator/lib/supabase.mjs";
+import { runSensor } from "../orchestrator/lib/sensor.mjs";
 
 function extractUrls(xml) {
   return [...xml.matchAll(/<loc>\s*([^<\s]+)\s*<\/loc>/g)].map((m) => m[1]);
 }
 
-async function main() {
-  const xml = await (await fetch(SITEMAP)).text();
-  const urls = extractUrls(xml);
+export const sitemapSensor = {
+  name: "sitemap",
+  thresholds: {
+    "new-url": { task: "seo-audit", priority: 1 },
+  },
 
-  const { data: seenRows } = await db.from("sitemap_seen").select("url");
-  const seen = new Set((seenRows ?? []).map((r) => r.url));
-  const skip = await doNotTouch();
+  async fetch(env, thresholds) {
+    const { SITEMAP_URL } = env;
+    if (!SITEMAP_URL) throw new Error("Set SITEMAP_URL");
 
-  const fresh = urls.filter((u) => !seen.has(u) && !skip.has(u));
-  if (fresh.length) {
-    await db.from("sitemap_seen").upsert(fresh.map((url) => ({ url })), { onConflict: "url", ignoreDuplicates: true });
-    await enqueue(fresh.map((url) => ({
-      url, task: "seo-audit", risk_class: "safe", priority: 1, source: "sitemap", status: "pending",
-    })));
-  }
-  console.log(`sitemap: ${urls.length} total, ${fresh.length} new enqueued`);
-}
+    const xml = await (await fetch(SITEMAP_URL)).text();
+    const urls = extractUrls(xml);
 
-main().catch((e) => { console.error(e); process.exit(1); });
+    const { data: seenRows } = await db.from("sitemap_seen").select("url");
+    const seen = new Set((seenRows ?? []).map((r) => r.url));
+    const fresh = urls.filter((u) => !seen.has(u));
+
+    if (fresh.length) {
+      await db.from("sitemap_seen").upsert(
+        fresh.map((url) => ({ url })),
+        { onConflict: "url", ignoreDuplicates: true }
+      );
+    }
+
+    console.log(`[sitemap] ${urls.length} total, ${fresh.length} new`);
+    return fresh.map((url) => ({ url, signalType: "new-url", value: 1 }));
+  },
+};
+
+const { error } = await runSensor(sitemapSensor, process.env);
+if (error) process.exit(1);
