@@ -1,4 +1,9 @@
 {
+  "permissions": {
+    "allow": [],
+    "deny": [],
+    "defaultMode": "default"
+  },
   "hooks": {
     "PreToolUse": [
       {
@@ -10,6 +15,15 @@
       {
         "matcher": "Edit|Write",
         "hooks": [{ "type": "command", "command": ".claude/hooks/post-validate.sh" }]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '✅ Tool call complete'"
+          }
+        ]
       }
     ]
   }

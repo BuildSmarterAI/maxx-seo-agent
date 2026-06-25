@@ -1,22 +1,41 @@
 # CLAUDE.md — Universal SEO Operating Context
 
-Platform-neutral brain. The audit, generate, and monitor layers work on ANY website. The APPLY step depends on the platform — add a pack from `packs/` (WordPress, Webflow) or use the repo-native kit for code-accessible stacks. Edit bracketed values before first run.
+Platform-neutral brain. The audit, generate, and monitor layers work on ANY website. The APPLY step depends on the platform — add a pack from `packs/` (WordPress, Webflow) or use the repo-native kit for code-accessible stacks.
 
 ## Site
 
-- **Property / domain:** [domain]
-- **Platform:** [Next.js repo | WordPress | Webflow | Shopify | static | other]
-- **Apply method:** [direct repo edits | WP-CLI/REST | Webflow Data API v2 | CMS UI paste]
+- **Property / domain:** `https://www.maxxbuilders.com`
+- **GSC site URL:** `sc-domain:maxxbuilders.com`
+- **Platform:** WordPress
+- **Apply method:** WP-CLI/REST via `packs/wordpress/` (`npm run wp:apply`). SEO meta written via REST + Application Password; `SEO_PLUGIN` env var selects Yoast or Rank Math.
 - **Inputs available:** crawl export at `./crawl/*.csv` (Screaming Frog/Sitebulb/Firecrawl), GSC (MCP or export), URL list at `config/urls.txt`
 
 ## Primary entities (E-E-A-T + schema)
 
-- Organization: [legal name], [brand], sameAs: [LinkedIn, GBP, etc.]
-- Authors: real, named experts with verifiable credentials. No "Editorial Team" bylines.
+- **Organization:** Maxx Builders, brand: Maxx Builders, sameAs: [add LinkedIn URL, GBP URL, Yelp URL]
+- **Business type:** Commercial general contractor / construction management, Texas
+- **Service area:** Texas (primary: Houston, Dallas, Austin metro). No virtual-office location pages.
+- **Key projects (operator truth for content):** Home2Suites by Hilton Richmond TX (90,500 sq ft), Comfort Suites Pasadena TX, Holiday Inn Express Pflugerville TX (114,700 sq ft).
+- **Authors:** real, named construction experts with verifiable project history. No "Editorial Team" bylines. Credit must trace to a named Maxx Builders team member or principal.
 
 ## Keyword / intent map
 
-[Paste or link the cluster→page map. One topic owned deeply per cluster. Note known cannibalization.]
+Top clusters (one page per cluster — do not cannibalize across clusters):
+
+| Cluster | Primary page | Intent |
+| --- | --- | --- |
+| Hotel construction cost Texas | `/the-ultimate-2026-hotel-construction-cost-guide-texas-edition/` | Commercial info |
+| Medical office construction cost Texas | `/medical-office-construction-costs-texas-2026-comprehensive-guide/` | Commercial info |
+| Warehouse construction cost TX | `/warehouse-construction-cost-per-square-foot-a-comprehensive-guide/` | Commercial info |
+| Commercial construction cost Houston | `/commercial-construction-cost-houston-tx/` | Local commercial |
+| Commercial construction cost Dallas | `/dallas-commercial-construction-costs-2025-2026/` | Local commercial |
+| Design-build Houston | `/design-build-construction-houston/` | Service/transactional |
+| Restaurant construction tips/cost | `/8-key-considerations-for-building-a-restaurant/` + `/cost-efficient-strategies-restaurant-construction/` | Commercial info — watch cannibalization |
+| Car wash construction cost TX | `/cost-to-build-a-car-wash-in-texas/` | Commercial info |
+| Retail contractor rankings Houston | `/best-retail-construction-contractors-in-houston-2026-rankings/` | Commercial info |
+| Mock-up rooms hospitality | `/importance-of-mock-up-rooms-in-the-hospitality-industry/` | Informational |
+
+Known cannibalization risk: restaurant cluster has two pages targeting overlapping intent — audit before creating new restaurant content.
 
 ## SEO rules to enforce (platform-independent)
 
