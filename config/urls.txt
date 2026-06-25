@@ -1,0 +1,30 @@
+# Maxx Builders — priority URL set for SEO audits and CWV sampling
+# Order: homepage first, then money pages by commercial value, then informational
+# Update after any major publish batch
+
+# Homepage
+https://www.maxxbuilders.com/
+
+# High-value cost guides (primary revenue intent)
+https://www.maxxbuilders.com/the-ultimate-2026-hotel-construction-cost-guide-texas-edition/
+https://www.maxxbuilders.com/medical-office-construction-costs-texas-2026-comprehensive-guide/
+https://www.maxxbuilders.com/warehouse-construction-cost-per-square-foot-a-comprehensive-guide/
+https://www.maxxbuilders.com/commercial-construction-cost-houston-tx/
+https://www.maxxbuilders.com/dallas-commercial-construction-costs-2025-2026/
+https://www.maxxbuilders.com/cost-to-build-a-car-wash-in-texas/
+
+# Service / transactional pages
+https://www.maxxbuilders.com/design-build-construction-houston/
+
+# Ranking / commercial info
+https://www.maxxbuilders.com/best-retail-construction-contractors-in-houston-2026-rankings/
+
+# Secondary cost guides
+https://www.maxxbuilders.com/8-key-considerations-for-building-a-restaurant/
+https://www.maxxbuilders.com/cost-efficient-strategies-restaurant-construction/
+https://www.maxxbuilders.com/commercial-construction-project-timelines/
+https://www.maxxbuilders.com/complete-guide-commercial-building-planning-execution/
+
+# Informational / thought leadership
+https://www.maxxbuilders.com/importance-of-mock-up-rooms-in-the-hospitality-industry/
+https://www.maxxbuilders.com/3-most-common-obstacles-in-commercial-construction-projects/
