@@ -6,7 +6,7 @@
 // Reaches L2 locally; the scheduled workflow (Phase 2) calls this after the sensors.
 import { query } from "@anthropic-ai/claude-agent-sdk";
 import { execSync } from "node:child_process";
-import { isPaused, monthSpend, addSpend, pendingQueue } from "./lib/supabase.mjs";
+import { isPaused, resetMonthIfNew, getMonthSpend, addSpend, pendingQueue } from "./lib/supabase.mjs";
 
 const BUDGET_USD = Number(process.env.MONTHLY_BUDGET_USD || 50);
 const PLATFORM = (process.env.SITE_PLATFORM || "repo").toLowerCase();
@@ -16,7 +16,8 @@ const shq = (c) => { try { return sh(c); } catch { return ""; } };
 
 async function preflight() {
   if (await isPaused()) { console.log("control.paused = true → exiting."); process.exit(0); }
-  const spent = await monthSpend();
+  await resetMonthIfNew();
+  const spent = await getMonthSpend();
   if (spent >= BUDGET_USD) { console.log(`budget hit ($${spent}/$${BUDGET_USD}) → exiting.`); process.exit(0); }
   const queue = await pendingQueue(25);
   if (!queue.length) { console.log("queue empty → nothing to do."); process.exit(0); }
