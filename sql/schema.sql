@@ -50,6 +50,9 @@ create unique index if not exists learned_patterns_change_type_key on learned_pa
 -- decision_log gains change_type so outcomes can be attributed per skill (safe on re-run)
 alter table decision_log add column if not exists change_type text;
 
+-- work_queue gains linear_issue_id so escalated items mirror to Linear idempotently (safe on re-run)
+alter table work_queue add column if not exists linear_issue_id text;
+
 -- sitemap diff state
 create table if not exists sitemap_seen (
   url        text primary key,
