@@ -7,12 +7,15 @@
   "status": "pending_review",
   "apply_policy": {
     "allowed_now": false,
-    "reason": "Human review required before WordPress REST or WP-CLI apply. WordPress writes are immediately live.",
+    "reason": "Human review required before WordPress REST or WP-CLI apply. This WordPress site has no staging environment, so any apply target is production.",
     "required_before_apply": [
       "Resolve WordPress page_id for each row",
       "Verify author names and credentials with Maxx Builders",
       "Verify project proof claims against Maxx Builders source records",
-      "Run staging apply before production",
+      "Take a production backup or confirm a recent restorable host backup",
+      "Export current affected post/page content and SEO meta before writing",
+      "Apply only a small approved batch during a low-traffic window",
+      "Verify rendered page source and search snippets after each batch",
       "Snapshot base values and escalate on drift"
     ]
   },
