@@ -1,11 +1,6 @@
-// Memory-layer helpers (service-role; server/CI only — never ship this key to a browser).
-import { createClient } from "@supabase/supabase-js";
-
-const url = process.env.SUPABASE_URL;
-const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-if (!url || !key) throw new Error("Set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY");
-
-export const db = createClient(url, key, { auth: { persistSession: false } });
+// Memory-layer helpers — the persistence seam. Callers (scripts, orchestrator) reach
+// every table through these named helpers; the raw client stays private in client.mjs.
+import { db } from "./client.mjs";
 
 export async function isPaused() {
   const { data } = await db.from("control").select("paused").eq("id", 1).single();
@@ -46,6 +41,10 @@ export async function pendingQueue(limit = 25) {
   return data ?? [];
 }
 
+export async function setQueueStatus(url, task, to) {
+  await db.from("work_queue").update({ status: to }).eq("url", url).eq("task", task);
+}
+
 export async function logDecision(row) {
   await db.from("decision_log").insert(row);
 }
@@ -54,6 +53,15 @@ export async function logDecision(row) {
 
 export async function recordOutcomes(rows) {
   if (rows?.length) await db.from("outcomes").insert(rows);
+}
+
+// URLs with recent click activity, most-trafficked first, deduplicated.
+export async function activeUrls(limit, sinceDays = 28) {
+  const since = new Date(Date.now() - sinceDays * 864e5).toISOString();
+  const { data } = await db.from("outcomes")
+    .select("url").eq("metric", "clicks").gte("captured_at", since)
+    .order("value", { ascending: false }).limit(limit);
+  return [...new Set((data ?? []).map((r) => r.url))];
 }
 
 export async function appliedDecisions(sinceDays = 120) {
@@ -102,4 +110,17 @@ export async function insertChangeset(row) {
 
 export async function setPriority(id, priority) {
   await db.from("work_queue").update({ priority }).eq("id", id);
+}
+
+// ---- sitemap diff state ----
+
+export async function sitemapSeen() {
+  const { data } = await db.from("sitemap_seen").select("url");
+  return new Set((data ?? []).map((r) => r.url));
+}
+
+export async function markSitemapSeen(urls) {
+  if (!urls?.length) return;
+  await db.from("sitemap_seen")
+    .upsert(urls.map((url) => ({ url })), { onConflict: "url", ignoreDuplicates: true });
 }

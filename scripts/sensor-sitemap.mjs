@@ -1,9 +1,8 @@
 #!/usr/bin/env node
 // sensor-sitemap.mjs — sitemap sensor config + entry point.
-// fetch() handles sitemap_seen state (sensor-specific); doNotTouch filtering is
-// owned by the harness. Note: db is used directly here for sitemap_seen because
-// supabase.mjs does not yet expose a sitemap-seen helper (Candidate 1 follow-on).
-import { db } from "../orchestrator/lib/supabase.mjs";
+// fetch() handles sitemap_seen state (sensor-specific) via the memory module;
+// doNotTouch filtering is owned by the harness.
+import { sitemapSeen, markSitemapSeen } from "../orchestrator/lib/supabase.mjs";
 import { runSensor } from "../orchestrator/lib/sensor.mjs";
 
 function extractUrls(xml) {
@@ -23,16 +22,10 @@ export const sitemapSensor = {
     const xml = await (await fetch(SITEMAP_URL)).text();
     const urls = extractUrls(xml);
 
-    const { data: seenRows } = await db.from("sitemap_seen").select("url");
-    const seen = new Set((seenRows ?? []).map((r) => r.url));
+    const seen = await sitemapSeen();
     const fresh = urls.filter((u) => !seen.has(u));
 
-    if (fresh.length) {
-      await db.from("sitemap_seen").upsert(
-        fresh.map((url) => ({ url })),
-        { onConflict: "url", ignoreDuplicates: true }
-      );
-    }
+    if (fresh.length) await markSitemapSeen(fresh);
 
     console.log(`[sitemap] ${urls.length} total, ${fresh.length} new`);
     return fresh.map((url) => ({ url, signalType: "new-url", value: 1 }));

@@ -1,7 +1,8 @@
 // cms.mjs — shared engine for the live-CMS apply layer (WordPress + Webflow).
 // Handles the three jobs git gives you for free: review state, snapshot/rollback, and
 // drift detection. Adapters (wordpress/, webflow/) supply read() and write().
-import { db, logDecision } from "./supabase.mjs";
+import { db } from "./client.mjs";
+import { logDecision } from "./supabase.mjs";
 
 export async function approvedRows(platform, limit = 200) {
   const { data } = await db.from("change_set").select("*")

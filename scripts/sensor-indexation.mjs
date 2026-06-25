@@ -4,19 +4,8 @@
 // Capped at thresholds["not-indexed"].limit per run to stay within the
 // 2,000 requests/day/property quota.
 import { google } from "googleapis";
-import { db } from "../orchestrator/lib/supabase.mjs";
+import { activeUrls } from "../orchestrator/lib/supabase.mjs";
 import { runSensor } from "../orchestrator/lib/sensor.mjs";
-
-async function activeUrls(limit) {
-  const day = (n) => new Date(Date.now() - n * 864e5).toISOString();
-  const { data } = await db.from("outcomes")
-    .select("url")
-    .eq("metric", "clicks")
-    .gte("captured_at", day(28))
-    .order("value", { ascending: false })
-    .limit(limit);
-  return [...new Set((data ?? []).map((r) => r.url))];
-}
 
 export const indexationSensor = {
   name: "indexation",
