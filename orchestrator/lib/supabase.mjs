@@ -7,20 +7,30 @@ export async function isPaused() {
   return Boolean(data?.paused);
 }
 
-export async function monthSpend() {
-  const month = new Date().toISOString().slice(0, 7);
+const currentMonth = () => new Date().toISOString().slice(0, 7);
+
+// Read-only: spend recorded for the current month. Returns 0 if the stored month
+// is stale (the reset is a separate, explicit call — see resetMonthIfNew).
+export async function getMonthSpend() {
   const { data } = await db.from("control").select("month, spend_usd").eq("id", 1).single();
-  if (data?.month !== month) {
-    await db.from("control").update({ month, spend_usd: 0 }).eq("id", 1);
-    return 0;
-  }
+  if (data?.month !== currentMonth()) return 0;
   return Number(data?.spend_usd ?? 0);
 }
 
+// Write: if the stored month rolled over, zero the counter. Returns true if it reset.
+export async function resetMonthIfNew() {
+  const month = currentMonth();
+  const { data } = await db.from("control").select("month").eq("id", 1).single();
+  if (data?.month === month) return false;
+  await db.from("control").update({ month, spend_usd: 0 }).eq("id", 1);
+  return true;
+}
+
 export async function addSpend(usd) {
-  const current = await monthSpend();
-  const month = new Date().toISOString().slice(0, 7);
-  await db.from("control").update({ month, spend_usd: current + Number(usd || 0) }).eq("id", 1);
+  // getMonthSpend returns 0 on a stale month and the explicit month write below
+  // rolls the counter over, so no separate reset is needed on the write path.
+  const current = await getMonthSpend();
+  await db.from("control").update({ month: currentMonth(), spend_usd: current + Number(usd || 0) }).eq("id", 1);
 }
 
 export async function doNotTouch() {
@@ -28,8 +38,20 @@ export async function doNotTouch() {
   return new Set((data ?? []).map((r) => r.url));
 }
 
+// Fail fast on malformed rows with a domain error instead of letting them die
+// silently at the Supabase (url,task,status) constraint layer.
+function validateQueueItem(item) {
+  if (!item || typeof item !== "object")
+    throw new Error(`enqueue: queue item must be an object, got ${typeof item}`);
+  for (const field of ["url", "task", "status"]) {
+    if (typeof item[field] !== "string" || !item[field].trim())
+      throw new Error(`enqueue: queue item missing/invalid "${field}": ${JSON.stringify(item)}`);
+  }
+}
+
 export async function enqueue(items) {
   if (!items?.length) return;
+  items.forEach(validateQueueItem);
   // upsert ignores duplicates via the (url,task,status) unique constraint
   await db.from("work_queue").upsert(items, { onConflict: "url,task,status", ignoreDuplicates: true });
 }
