@@ -56,8 +56,10 @@ async function runRepo(queue) {
     if (empty) { console.log("no changes produced → cleaning up."); return; }
     console.log(`PR opened: ${prUrl}  (cost ≈ $${costUsd.toFixed(2)})`);
   } catch (err) {
-    console.error("delivery failed, rolling back:", err?.message || err);
-    rollback(branch);
+    // Unlike an agent failure, a delivery failure (push/PR) leaves the agent's work
+    // committed locally on `branch` — keep it for hand-inspection/retry rather than
+    // discarding it (and the spend) with a hard reset.
+    console.error(`delivery failed; changes are committed locally on ${branch}:`, err?.message || err);
     process.exit(1);
   }
 }
