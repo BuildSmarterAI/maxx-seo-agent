@@ -86,6 +86,12 @@ create table if not exists change_set (
   applied_at  timestamptz
 );
 
+-- change_set gains change_type so the kit skill that produced a change flows through to
+-- decision_log.change_type → learned_patterns attribution. mem.mjs `changeset --type` and
+-- cms.mjs both already write/read it; without this column PostgREST rejects every insert
+-- (the CMS apply path is dead until this runs). Safe on re-run.
+alter table change_set add column if not exists change_type text;
+
 -- pre-overwrite snapshots = the rollback tape (no git revert on a live CMS)
 create table if not exists snapshots (
   id          bigint generated always as identity primary key,

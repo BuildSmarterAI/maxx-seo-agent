@@ -70,7 +70,9 @@ records the Linear issue it created for an escalated row (makes the mirror idemp
 
 **change_set** — one row per field edit the `seo-fixer` wants to make on a CMS page.
 Columns: `platform, page_id, collection_id, url, field, base_value, new_value, status,
-batch`. (`collection_id` scopes a Webflow CMS item; `batch` groups rows from one run.)
+batch, change_type`. (`collection_id` scopes a Webflow CMS item; `batch` groups rows from
+one run; `change_type` is the kit skill that produced the change, carried to
+`decision_log.change_type` → `learned_patterns` for per-skill attribution.)
 Status values: `pending | approved | applied | published | failed | escalated | rolledback`.
 The `base_value` is what the agent read from the live CMS when generating the change —
 used for drift detection at apply time.
