@@ -1,0 +1,315 @@
+{
+  "manifest": "geo-ai-seo-wordpress-manifest",
+  "generated_at": "2026-06-25",
+  "platform": "wordpress",
+  "site": "https://www.maxxbuilders.com",
+  "source_audit": "seo-audit.md",
+  "status": "pending_review",
+  "apply_policy": {
+    "allowed_now": false,
+    "reason": "Human review required before WordPress REST or WP-CLI apply. WordPress writes are immediately live.",
+    "required_before_apply": [
+      "Resolve WordPress page_id for each row",
+      "Verify author names and credentials with Maxx Builders",
+      "Verify project proof claims against Maxx Builders source records",
+      "Run staging apply before production",
+      "Snapshot base values and escalate on drift"
+    ]
+  },
+  "global_guardrails": [
+    "No fake city pages",
+    "No virtual-office location pages",
+    "No fake author bylines",
+    "No keyword-variation page spam",
+    "No llms.txt claims as a Google ranking or citation hack",
+    "No live publishing from this manifest"
+  ],
+  "metadata_rows": [
+    {
+      "platform": "wordpress",
+      "page_id": null,
+      "url": "https://www.maxxbuilders.com/",
+      "field": "title",
+      "base_value": "Maxx Builders | Texas&#039; Premier Commercial General Contractors",
+      "new_value": "Maxx Builders | Texas Commercial GC",
+      "status": "pending_review",
+      "change_type": "metadata",
+      "reason": "Current title is 66 chars and exceeds project threshold."
+    },
+    {
+      "platform": "wordpress",
+      "page_id": null,
+      "url": "https://www.maxxbuilders.com/",
+      "field": "description",
+      "base_value": "Maxx Builders, the Premier Commercial Construction in Texas. Serving Houston, Dallas, Austin, and San Antonio. Start your project today!",
+      "new_value": "Texas commercial general contractor serving Houston, Dallas and Austin with design-build, construction management, preconstruction and tenant improvement.",
+      "status": "pending_review",
+      "change_type": "metadata",
+      "reason": "Aligns snippet with commercial GC intent and primary markets without adding a virtual-office claim."
+    },
+    {
+      "platform": "wordpress",
+      "page_id": null,
+      "url": "https://www.maxxbuilders.com/design-build-construction-houston-2/",
+      "field": "title",
+      "base_value": "Design-Build Construction Houston | Maxx Builders | Maxx Builders",
+      "new_value": "Design-Build Construction Houston | Maxx Builders",
+      "status": "pending_review",
+      "change_type": "metadata",
+      "reason": "Current title duplicates brand and exceeds the 60-char threshold."
+    },
+    {
+      "platform": "wordpress",
+      "page_id": null,
+      "url": "https://www.maxxbuilders.com/design-build-construction-houston-2/",
+      "field": "description",
+      "base_value": "",
+      "new_value": "Houston design-build construction guide for commercial owners. Compare delivery models, cost control, schedule risk and when to use one team.",
+      "status": "pending_review",
+      "change_type": "metadata",
+      "reason": "Live page had no meta description."
+    },
+    {
+      "platform": "wordpress",
+      "page_id": null,
+      "url": "https://www.maxxbuilders.com/importance-of-mock-up-rooms-in-the-hospitality-industry/",
+      "field": "title",
+      "base_value": "importance-of-mock-up-rooms-in-the-hospitality-industry | Maxx Builders",
+      "new_value": "Hotel Mock-Up Rooms | Maxx Builders",
+      "status": "pending_review",
+      "change_type": "metadata",
+      "reason": "Current title is slug-like and 71 chars."
+    },
+    {
+      "platform": "wordpress",
+      "page_id": null,
+      "url": "https://www.maxxbuilders.com/importance-of-mock-up-rooms-in-the-hospitality-industry/",
+      "field": "description",
+      "base_value": "",
+      "new_value": "Learn how hotel mock-up rooms reduce brand, ADA, FF&E, MEP and rework risk before full production in Texas hospitality construction.",
+      "status": "pending_review",
+      "change_type": "metadata",
+      "reason": "Live page had no meta description."
+    },
+    {
+      "platform": "wordpress",
+      "page_id": null,
+      "url": "https://www.maxxbuilders.com/3-most-common-obstacles-in-commercial-construction-projects/",
+      "field": "description",
+      "base_value": "blueprints",
+      "new_value": "Maxx Builders explains common commercial construction obstacles including delays, outdated drawings, cost surprises and field coordination issues.",
+      "status": "pending_review",
+      "change_type": "metadata",
+      "reason": "Current meta description is not a usable search snippet."
+    }
+  ],
+  "canonical_slug_rows": [
+    {
+      "url_in_config": "https://www.maxxbuilders.com/warehouse-construction-cost-per-square-foot-a-comprehensive-guide/",
+      "observed_final_url": "https://www.maxxbuilders.com/cost-per-square-foot-build-warehouse-texas/",
+      "observed_canonical": "https://www.maxxbuilders.com/cost-per-square-foot-build-warehouse-texas/",
+      "status": "pending_review",
+      "recommended_action": "Use the final canonical URL in SEO tooling and internal links. Keep the old URL as a redirect only if it has link equity.",
+      "blocked_apply_reason": "Slug and redirect changes need explicit WordPress review."
+    },
+    {
+      "url_in_config": "https://www.maxxbuilders.com/design-build-construction-houston/",
+      "observed_final_url": "https://www.maxxbuilders.com/design-build-construction-houston-2/",
+      "observed_canonical": "https://www.maxxbuilders.com/design-build-construction-houston-2/",
+      "status": "pending_review",
+      "recommended_action": "Prefer the clean slug /design-build-construction-houston/ as the final canonical if WordPress can safely swap it. Otherwise update config and internal links to the -2 slug.",
+      "blocked_apply_reason": "Slug/canonical decision affects redirects and should not be automated from this manifest."
+    }
+  ],
+  "content_brief_rows": [
+    {
+      "url": "https://www.maxxbuilders.com/the-ultimate-2026-hotel-construction-cost-guide-texas-edition/",
+      "change_type": "answer_first_block",
+      "status": "pending_review",
+      "insert_location": "Immediately after H1 and before Introduction",
+      "target_query": "hotel construction cost Texas 2026",
+      "required_elements": [
+        "Direct cost answer by key and square foot",
+        "Texas metro cost variance",
+        "Named project proof: Home2Suites Richmond TX, Comfort Suites Pasadena TX, Holiday Inn Express Pflugerville TX",
+        "Internal links to mock-up rooms, planning guide, project timelines and design-build Houston"
+      ]
+    },
+    {
+      "url": "https://www.maxxbuilders.com/commercial-construction-cost-houston-tx/",
+      "change_type": "answer_first_block",
+      "status": "pending_review",
+      "insert_location": "Immediately after H1 before sidebar/template headings",
+      "target_query": "commercial construction cost Houston TX",
+      "required_elements": [
+        "Direct Houston per-square-foot range",
+        "Building-type cost drivers",
+        "Sitework, permitting and MEP risk",
+        "Internal links to Dallas cost, retail ranking, design-build Houston, timeline and planning guide"
+      ]
+    },
+    {
+      "url": "https://www.maxxbuilders.com/cost-to-build-a-car-wash-in-texas/",
+      "change_type": "answer_first_block",
+      "status": "pending_review",
+      "insert_location": "Immediately after H1",
+      "target_query": "cost to build a car wash in Texas",
+      "required_elements": [
+        "Direct range by car wash type",
+        "Land, utilities, water reclamation, equipment and permitting drivers",
+        "Table: model vs sitework vs equipment vs risk",
+        "Internal links to retail contractors, planning guide, project timelines and design-build Houston"
+      ]
+    },
+    {
+      "url": "https://www.maxxbuilders.com/best-retail-construction-contractors-in-houston-2026-rankings/",
+      "change_type": "answer_first_block",
+      "status": "pending_review",
+      "insert_location": "Immediately after H1",
+      "target_query": "best retail construction contractors in Houston",
+      "required_elements": [
+        "Transparent ranking methodology",
+        "Conflict-of-interest note because Maxx ranks itself",
+        "Comparison table",
+        "Visible Maxx retail project proof or remove unsupported claims"
+      ]
+    },
+    {
+      "url": "https://www.maxxbuilders.com/8-key-considerations-for-building-a-restaurant/",
+      "change_type": "cannibalization_resolution",
+      "status": "pending_review",
+      "target_query": "restaurant construction planning Texas",
+      "required_elements": [
+        "Make this the planning/checklist page",
+        "Point cost-control intent to the cost-efficient strategies page",
+        "Add answer-first block and internal link to the cost-control page",
+        "Do not create another restaurant page"
+      ]
+    },
+    {
+      "url": "https://www.maxxbuilders.com/cost-efficient-strategies-restaurant-construction/",
+      "change_type": "cannibalization_resolution",
+      "status": "pending_review",
+      "target_query": "restaurant construction cost-saving strategies Texas",
+      "required_elements": [
+        "Make this the cost-control page",
+        "Add cost-saving table",
+        "Link back to restaurant planning page",
+        "Avoid duplicating the planning checklist angle"
+      ]
+    },
+    {
+      "url": "https://www.maxxbuilders.com/commercial-construction-project-timelines/",
+      "change_type": "answer_first_block",
+      "status": "pending_review",
+      "target_query": "commercial construction project timeline Texas",
+      "required_elements": [
+        "Short answer: typical timeline by project type",
+        "Table by phase and delay driver",
+        "Links to planning guide, design-build Houston, Houston cost and Dallas cost"
+      ]
+    },
+    {
+      "url": "https://www.maxxbuilders.com/complete-guide-commercial-building-planning-execution/",
+      "change_type": "answer_first_block",
+      "status": "pending_review",
+      "target_query": "commercial building planning guide",
+      "required_elements": [
+        "TLDR for feasibility, due diligence, budget, design, permits, procurement, construction and closeout",
+        "Connect named hospitality projects to what they prove",
+        "Links to timeline, hotel cost, Houston/Dallas cost and design-build Houston"
+      ]
+    },
+    {
+      "url": "https://www.maxxbuilders.com/3-most-common-obstacles-in-commercial-construction-projects/",
+      "change_type": "answer_first_block",
+      "status": "pending_review",
+      "target_query": "common commercial construction problems",
+      "required_elements": [
+        "Short answer: delays, outdated drawings, unforeseen costs and field coordination",
+        "Table: obstacle vs warning sign vs owner action vs contractor mitigation",
+        "Links to planning guide, timeline and design-build Houston"
+      ]
+    }
+  ],
+  "schema_author_rows": [
+    {
+      "scope": "priority Article pages",
+      "status": "pending_review",
+      "current_pattern": "Most Article JSON-LD authors observed as Maxx Builders",
+      "required_action": "Replace generic Article author with a real named Maxx Builders expert only after credentials are verified.",
+      "candidate_if_verified": "Harris Khan",
+      "do_not_do": "Do not use Editorial Team or generic Maxx Builders Team as an author."
+    },
+    {
+      "url": "https://www.maxxbuilders.com/design-build-construction-houston-2/",
+      "status": "pending_review",
+      "current_pattern": "Article author observed as Harris Khan",
+      "required_action": "Keep only if Harris Khan is the verified author for this page and visible byline matches JSON-LD."
+    }
+  ],
+  "template_fix_rows": [
+    {
+      "urls": [
+        "https://www.maxxbuilders.com/medical-office-construction-costs-texas-2026-comprehensive-guide/",
+        "https://www.maxxbuilders.com/cost-per-square-foot-build-warehouse-texas/",
+        "https://www.maxxbuilders.com/importance-of-mock-up-rooms-in-the-hospitality-industry/"
+      ],
+      "change_type": "h1_cleanup",
+      "status": "pending_review",
+      "required_action": "Remove duplicate or slug-like H1 output so each page has exactly one human-readable H1."
+    },
+    {
+      "urls": [
+        "https://www.maxxbuilders.com/commercial-construction-cost-houston-tx/",
+        "https://www.maxxbuilders.com/dallas-commercial-construction-costs-2025-2026/",
+        "https://www.maxxbuilders.com/commercial-construction-project-timelines/",
+        "https://www.maxxbuilders.com/complete-guide-commercial-building-planning-execution/"
+      ],
+      "change_type": "heading_order",
+      "status": "pending_review",
+      "required_action": "Prevent sidebar headings such as Search, Categories, Latest Posts, Tags and Follow Us from polluting the early content heading outline."
+    }
+  ],
+  "internal_link_rows": [
+    {
+      "source_url": "https://www.maxxbuilders.com/",
+      "target_urls": [
+        "https://www.maxxbuilders.com/the-ultimate-2026-hotel-construction-cost-guide-texas-edition/",
+        "https://www.maxxbuilders.com/commercial-construction-cost-houston-tx/",
+        "https://www.maxxbuilders.com/dallas-commercial-construction-costs-2025-2026/",
+        "https://www.maxxbuilders.com/design-build-construction-houston-2/",
+        "https://www.maxxbuilders.com/complete-guide-commercial-building-planning-execution/"
+      ],
+      "status": "pending_review",
+      "anchor_guidance": "Use descriptive service or cost-guide anchors in body sections, not generic click here links."
+    },
+    {
+      "source_url": "https://www.maxxbuilders.com/importance-of-mock-up-rooms-in-the-hospitality-industry/",
+      "target_urls": [
+        "https://www.maxxbuilders.com/the-ultimate-2026-hotel-construction-cost-guide-texas-edition/",
+        "https://www.maxxbuilders.com/commercial-construction-project-timelines/",
+        "https://www.maxxbuilders.com/complete-guide-commercial-building-planning-execution/"
+      ],
+      "status": "pending_review",
+      "anchor_guidance": "Use hospitality proof and schedule-risk anchors."
+    },
+    {
+      "source_url": "https://www.maxxbuilders.com/commercial-construction-cost-houston-tx/",
+      "target_urls": [
+        "https://www.maxxbuilders.com/design-build-construction-houston-2/",
+        "https://www.maxxbuilders.com/commercial-construction-project-timelines/",
+        "https://www.maxxbuilders.com/complete-guide-commercial-building-planning-execution/"
+      ],
+      "status": "pending_review",
+      "anchor_guidance": "Link from cost drivers to delivery model, schedule and planning support."
+    }
+  ],
+  "blocked_until_verified": [
+    "Any healthcare project proof on the medical office page",
+    "Any warehouse project proof on the warehouse page",
+    "Any retail project proof on the rankings page",
+    "Any restaurant project proof on either restaurant page",
+    "Any claim that design-build saves a precise percentage unless already visible and sourced on the page"
+  ]
+}
