@@ -64,16 +64,25 @@ export async function appliedDecisions(sinceDays = 120) {
   return data ?? [];
 }
 
-// latest clicks snapshot at/just-before a date, and earliest at/after date+lagDays
-export async function clicksAround(url, isoDate, lagDays = 28) {
+async function metricAround(url, metric, isoDate, lagDays) {
   const after = new Date(new Date(isoDate).getTime() + lagDays * 864e5).toISOString();
-  const before = await db.from("outcomes").select("value, captured_at")
-    .eq("url", url).eq("metric", "clicks").lte("captured_at", isoDate)
+  const before = await db.from("outcomes").select("value")
+    .eq("url", url).eq("metric", metric).lte("captured_at", isoDate)
     .order("captured_at", { ascending: false }).limit(1).maybeSingle();
-  const post = await db.from("outcomes").select("value, captured_at")
-    .eq("url", url).eq("metric", "clicks").gte("captured_at", after)
+  const post = await db.from("outcomes").select("value")
+    .eq("url", url).eq("metric", metric).gte("captured_at", after)
     .order("captured_at", { ascending: true }).limit(1).maybeSingle();
   return { before: before.data?.value ?? null, after: post.data?.value ?? null };
+}
+
+// latest clicks snapshot at/just-before a date, and earliest at/after date+lagDays
+export async function clicksAround(url, isoDate, lagDays = 28) {
+  return metricAround(url, "clicks", isoDate, lagDays);
+}
+
+// latest position snapshot at/just-before a date, and earliest at/after date+lagDays
+export async function positionAround(url, isoDate, lagDays = 28) {
+  return metricAround(url, "position", isoDate, lagDays);
 }
 
 export async function upsertPattern(change_type, avg_effect, n) {
@@ -85,6 +94,10 @@ export async function upsertPattern(change_type, avg_effect, n) {
 export async function learnedPatterns() {
   const { data } = await db.from("learned_patterns").select("change_type, avg_effect");
   return new Map((data ?? []).map((r) => [r.change_type, Number(r.avg_effect)]));
+}
+
+export async function insertChangeset(row) {
+  await db.from("change_set").insert(row);
 }
 
 export async function setPriority(id, priority) {

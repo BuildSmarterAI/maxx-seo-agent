@@ -9,6 +9,8 @@ import { execSync } from "node:child_process";
 import { isPaused, monthSpend, addSpend, pendingQueue } from "./lib/supabase.mjs";
 
 const BUDGET_USD = Number(process.env.MONTHLY_BUDGET_USD || 50);
+const PLATFORM = (process.env.SITE_PLATFORM || "repo").toLowerCase();
+const IS_CMS = PLATFORM === "wordpress" || PLATFORM === "webflow";
 const sh = (c) => execSync(c, { stdio: "pipe" }).toString().trim();
 const shq = (c) => { try { return sh(c); } catch { return ""; } };
 
@@ -21,7 +23,7 @@ async function preflight() {
   return queue;
 }
 
-const GOAL = `
+const GOAL_REPO = `
 You are the SEO orchestrator. Work ONLY from the pending work_queue.
 
 1. Get the queue:  run \`node scripts/mem.mjs queue\`  (Bash). It returns JSON rows {url,task,risk_class}.
@@ -39,20 +41,43 @@ You are the SEO orchestrator. Work ONLY from the pending work_queue.
 Stop when the queue is processed. Do not invent data; the 80% rule applies.
 `;
 
-async function main() {
-  await preflight();
+const GOAL_CMS = `
+You are the SEO orchestrator targeting a live CMS (${PLATFORM}).
+Work ONLY from the pending work_queue. Do NOT edit files or create git branches.
+
+1. Get the queue:  run \`node scripts/mem.mjs queue\`  (Bash). It returns JSON rows {url,task,risk_class}.
+2. For each row where risk_class == "safe":
+   a. Dispatch the seo-fixer subagent with the url and task.
+   b. The subagent MUST:
+      - Resolve page_id: call the ${PLATFORM} API to look up the page by URL/slug.
+      - Read base_value: fetch the current live value of the field being changed.
+      - Generate the new value using the kit skill named in \`task\`.
+      - Write the change_set row (DO NOT write to the CMS directly):
+        \`node scripts/mem.mjs changeset --url <U> --page-id <ID> --field <F> --base "<current>" --new "<generated>" --type <task>\`
+      - Log the decision:
+        \`node scripts/mem.mjs log --url <U> --action queued --risk safe --type <task> --reason "change_set row written, awaiting approval"\`
+      - Mark the queue row done:
+        \`node scripts/mem.mjs status --url <U> --task <task> --to done\`
+3. For any row where risk_class != "safe": escalate — do not write a change_set row.
+   \`node scripts/mem.mjs log --url <U> --action escalate --risk gated --reason "<why>"\`
+   \`node scripts/mem.mjs status --url <U> --task <T> --to escalated\`
+4. Respect every threshold in CLAUDE.md. Never write to the CMS directly. Never publish.
+Stop when the queue is processed. Do not invent data; the 80% rule applies.
+`;
+
+async function runRepo(queue) {
   const branch = `seo/auto-${new Date().toISOString().slice(0, 10)}-${Date.now().toString().slice(-5)}`;
   sh(`git checkout -b ${branch}`);
   let costUsd = 0;
 
   try {
     for await (const msg of query({
-      prompt: GOAL,
+      prompt: GOAL_REPO,
       options: {
         model: process.env.ORCHESTRATOR_MODEL || "claude-sonnet-4-6",
         allowedTools: ["Read", "Write", "Edit", "Glob", "Grep", "Bash", "Agent"],
         permissionMode: "acceptEdits",
-        settingSources: ["project"],         // load .claude/ skills + hooks + CLAUDE.md
+        settingSources: ["project"],
         agents: {
           "seo-fixer": {
             description: "Runs ONE kit skill against ONE url and validates the result.",
@@ -70,7 +95,6 @@ async function main() {
 
     if (costUsd) await addSpend(costUsd);
 
-    // Open a PR only if the agent actually changed something.
     sh("git add -A");
     const dirty = shq("git status --porcelain");
     if (!dirty) { console.log("no changes produced → cleaning up."); sh(`git checkout - && git branch -D ${branch}`); return; }
@@ -84,6 +108,55 @@ async function main() {
     shq("git reset --hard");
     shq(`git checkout - && git branch -D ${branch}`);
     process.exit(1);
+  }
+}
+
+async function runCms(queue) {
+  let costUsd = 0;
+  console.log(`CMS mode (${PLATFORM}): writing change_set rows for ${queue.length} pending items.`);
+
+  try {
+    for await (const msg of query({
+      prompt: GOAL_CMS,
+      options: {
+        model: process.env.ORCHESTRATOR_MODEL || "claude-sonnet-4-6",
+        allowedTools: ["Read", "Bash", "Agent"],
+        permissionMode: "acceptEdits",
+        settingSources: ["project"],
+        agents: {
+          "seo-fixer": {
+            description: "Resolves page_id, reads base_value, generates new value, writes change_set row via mem.mjs. Never writes to the CMS directly.",
+            prompt: `You are fixing ONE URL on a ${PLATFORM} site. Steps in order:
+1. Resolve page_id by calling the ${PLATFORM} API with the URL/slug.
+2. Read the current field value (base_value) from the API.
+3. Generate the improved value using the named kit skill.
+4. Write the change_set row: node scripts/mem.mjs changeset --url <U> --page-id <ID> --field <F> --base "<current>" --new "<generated>" --type <task>
+5. Log: node scripts/mem.mjs log --url <U> --action queued --risk safe --type <task> --reason "change_set row written"
+6. Mark done: node scripts/mem.mjs status --url <U> --task <task> --to done
+Never write to the CMS directly. Never create git branches.`,
+            tools: ["Read", "Bash", "Glob", "Grep"],
+          },
+        },
+      },
+    })) {
+      if (typeof msg?.total_cost_usd === "number") costUsd = msg.total_cost_usd;
+      if ("result" in msg) console.log(msg.result);
+    }
+
+    if (costUsd) await addSpend(costUsd);
+    console.log(`CMS run complete — check change_set table for pending rows. (cost ≈ $${costUsd.toFixed(2)})`);
+  } catch (err) {
+    console.error("orchestrator (CMS) failed:", err?.message || err);
+    process.exit(1);
+  }
+}
+
+async function main() {
+  const queue = await preflight();
+  if (IS_CMS) {
+    await runCms(queue);
+  } else {
+    await runRepo(queue);
   }
 }
 
