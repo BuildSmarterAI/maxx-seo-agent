@@ -130,7 +130,14 @@ async function runCms(queue) {
 1. Resolve page_id by calling the ${PLATFORM} API with the URL/slug.
 2. Read the current field value (base_value) from the API.
 3. Generate the improved value using the named kit skill.
-4. Write the change_set row: node scripts/mem.mjs changeset --url <U> --page-id <ID> --field <F> --base "<current>" --new "<generated>" --type <task>
+4. Write the change_set row using ONLY these supported field names:
+   - post_content  (full HTML post body)
+   - title         (Yoast/RankMath SEO title — write as a SEPARATE row from description)
+   - description   (Yoast/RankMath meta description — write as a SEPARATE row from title)
+   - canonical     (canonical URL)
+   - focus         (focus keyword)
+   Never use "yoast_meta" or any combined/compound field name.
+   node scripts/mem.mjs changeset --url <U> --page-id <ID> --field <F> --base "<current>" --new "<generated>" --type <task>
 5. Log: node scripts/mem.mjs log --url <U> --action queued --risk safe --type <task> --reason "change_set row written"
 6. Mark done: node scripts/mem.mjs status --url <U> --task <task> --to done
 Never write to the CMS directly. Never create git branches.`,

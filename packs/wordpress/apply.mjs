@@ -29,8 +29,10 @@ async function wp(path, init = {}) {
   return r.json();
 }
 
-const readMeta  = async (id, key) => (await wp(`posts/${id}?context=edit`)).meta?.[key] ?? null;
-const writeMeta = (id, key, value) => wp(`posts/${id}`, { method: "POST", body: JSON.stringify({ meta: { [key]: value } }) });
+const readMeta    = async (id, key) => (await wp(`posts/${id}?context=edit`)).meta?.[key] ?? null;
+const writeMeta   = (id, key, value) => wp(`posts/${id}`, { method: "POST", body: JSON.stringify({ meta: { [key]: value } }) });
+const readContent = async (id) => (await wp(`posts/${id}?context=edit`)).content?.raw ?? null;
+const writeContent = (id, value) => wp(`posts/${id}`, { method: "POST", body: JSON.stringify({ content: { raw: value } }) });
 
 // Soft post-write check: confirm the written value appears in Yoast's rendered head.
 // Never throws — if yoast_head is absent (plugin inactive, old version) we degrade silently.
@@ -53,23 +55,35 @@ async function main() {
   let applied = 0, escalated = 0, failed = 0;
 
   for (const row of rows) {
-    const key = KEYS[row.field];
+    const isContent = row.field === "post_content";
+    const key = isContent ? null : KEYS?.[row.field];
     try {
-      if (!key) { await setStatus(row.id, "escalated"); await logDecision({ url: row.url, action: "escalate", risk_class: "gated", reason: `unsupported field ${row.field}` }); escalated++; continue; }
-
-      const current = await readMeta(row.page_id, key);
-      await snapshot(row, current);                      // rollback tape, always
-
-      if (drifted(row, current)) {                       // human edited since → don't clobber
+      if (!isContent && !key) {
         await setStatus(row.id, "escalated");
-        await logDecision({ url: row.url, action: "escalate", risk_class: "gated", change_type: "metadata", reason: "drift: live value changed since generation" });
+        await logDecision({ url: row.url, action: "escalate", risk_class: "gated", reason: `unsupported field ${row.field}` });
         escalated++; continue;
       }
 
-      await writeMeta(row.page_id, key, row.new_value);
-      await verifyYoastHead(row.page_id, row.field, row.new_value);
+      const current = isContent ? await readContent(row.page_id) : await readMeta(row.page_id, key);
+      await snapshot(row, current);
+
+      // Drift check is meaningful for short metadata fields but not for post_content —
+      // Gutenberg block wrappers make byte-level comparison unreliable and the approval
+      // gate is the primary safety net for full-body content rewrites.
+      if (!isContent && drifted(row, current)) {
+        await setStatus(row.id, "escalated");
+        await logDecision({ url: row.url, action: "escalate", risk_class: "gated", change_type: row.change_type ?? "content", reason: "drift: live value changed since generation" });
+        escalated++; continue;
+      }
+
+      if (isContent) {
+        await writeContent(row.page_id, row.new_value);
+      } else {
+        await writeMeta(row.page_id, key, row.new_value);
+        await verifyYoastHead(row.page_id, row.field, row.new_value);
+      }
       await setStatus(row.id, "applied", { applied_at: new Date().toISOString() });
-      await logDecision({ url: row.url, action: "applied", risk_class: "safe", change_type: "metadata", reason: `wp ${row.field}` });
+      await logDecision({ url: row.url, action: "applied", risk_class: "safe", change_type: row.change_type ?? row.field, reason: `wp ${row.field}` });
       applied++;
     } catch (e) {
       await setStatus(row.id, "failed");
