@@ -5,7 +5,7 @@
 //   node scripts/mem.mjs queue                         # print pending items as JSON
 //   node scripts/mem.mjs log    --url U --action applied --risk safe --reason "..." --pr URL
 //   node scripts/mem.mjs status --url U --task T --to done|escalated|in_progress
-import { pendingQueue, logDecision, insertChangeset, db } from "../orchestrator/lib/supabase.mjs";
+import { pendingQueue, logDecision, insertChangeset, setQueueStatus } from "../orchestrator/lib/supabase.mjs";
 
 function args(argv) {
   const o = {};
@@ -25,7 +25,7 @@ if (cmd === "queue") {
   });
   console.log("logged");
 } else if (cmd === "status") {
-  await db.from("work_queue").update({ status: a.to }).eq("url", a.url).eq("task", a.task);
+  await setQueueStatus(a.url, a.task, a.to);
   console.log("updated");
 } else if (cmd === "changeset") {
   // node scripts/mem.mjs changeset --url U --page-id 123 --field title --base "old" --new "new" --type metadata-generate --platform wordpress
