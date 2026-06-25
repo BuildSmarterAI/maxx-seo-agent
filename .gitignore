@@ -2,3 +2,7 @@
 gcp.json
 node_modules/
 *.log
+
+# Ephemeral agent worktrees and crawl caches
+.claude/worktrees/
+.firecrawl/
