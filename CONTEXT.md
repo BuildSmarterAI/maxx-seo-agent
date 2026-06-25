@@ -9,7 +9,10 @@ ADRs, and runbooks. Do not substitute synonyms.
 
 **sensing layer** — scripts that poll external APIs (GSC, sitemap) and write items into
 the `work_queue`. No LLM involved. Sources: `scripts/sensor-gsc.mjs`,
-`scripts/sensor-sitemap.mjs`.
+`scripts/sensor-sitemap.mjs`, `scripts/sensor-indexation.mjs` (GSC URL Inspection API,
+quota-capped). Each sensor is a config object (thresholds + a `fetch`) driven by the
+shared harness `orchestrator/lib/sensor.mjs`, which owns `do_not_touch` filtering, queue
+mapping, `enqueue`, and per-sensor error isolation.
 
 **orchestrator** — the master agent (`orchestrator/run.mjs`) that reads the `work_queue`,
 dispatches `seo-fixer` subagents, and routes output to either the repo path or the CMS
@@ -27,8 +30,17 @@ every `seo-auto` PR. Contains two steps: diff-size guard and LLM-as-judge
 (`scripts/eval-judge.mjs`, Haiku 4.5). Fails closed on any error. Not a rubber stamp.
 
 **learning loop** — the weekly pipeline: `collect-outcomes.mjs` → `attribute.mjs` →
-`prioritize.mjs`. Snapshots GSC metrics into `outcomes`, attributes click lift to
-`change_type` in `learned_patterns`, then re-scores the `work_queue` by priority.
+`prioritize.mjs`. Snapshots GSC metrics (and GA4 conversions/sessions when
+`GA4_PROPERTY_ID` is set; CSV fallback otherwise) into `outcomes`, attributes a blended
+click+position lift to `change_type` in `learned_patterns`, then re-scores the
+`work_queue` by priority.
+
+**escalation mirror** — `scripts/push-escalations.mjs`. A one-directional mirror that
+reads `work_queue` rows with `status='escalated'` and a null `linear_issue_id`, creates
+one Linear issue per row via the Linear GraphQL API, and writes the issue id back so
+re-runs never duplicate. Runs in the weekly `learn` job. No LLM involved. Supabase stays
+the source of truth; Linear is the human-facing mirror. Closing an escalated item
+(Linear done → `work_queue` done) is a human/SQL action, not automated.
 
 ---
 
@@ -52,10 +64,13 @@ snapshot before writing and escalate on drift.
 ## Supabase tables (memory layer)
 
 **work_queue** — pending actions. Columns: `url, task, risk_class, priority, status,
-source`. Status values: `pending | in_progress | done | escalated`.
+source, linear_issue_id`. Status values: `pending | in_progress | done | escalated`.
+`linear_issue_id` is the escalation-mirror pointer: null until `push-escalations.mjs`
+records the Linear issue it created for an escalated row (makes the mirror idempotent).
 
 **change_set** — one row per field edit the `seo-fixer` wants to make on a CMS page.
-Columns: `platform, page_id, url, field, base_value, new_value, status, change_type`.
+Columns: `platform, page_id, collection_id, url, field, base_value, new_value, status,
+batch`. (`collection_id` scopes a Webflow CMS item; `batch` groups rows from one run.)
 Status values: `pending | approved | applied | published | failed | escalated | rolledback`.
 The `base_value` is what the agent read from the live CMS when generating the change —
 used for drift detection at apply time.
@@ -111,12 +126,39 @@ unparseable output, low score, or fabrication risk → exit 1 → PR blocked.
 headless/CI mode. Commands: `queue`, `log`, `status`, `changeset`. Avoids MCP
 tool-approval friction in autonomous runs.
 
+**yoast_head verify** — the fail-soft post-write check in `packs/wordpress/apply.mjs`.
+After writing a meta field it re-reads the page's documented `yoast_head` REST field and,
+if the written value is absent, logs a `skip` (likely a cache flush is needed). Never
+throws — if `yoast_head` is missing (plugin inactive/old) it degrades silently.
+
 ---
 
 ## Reverse-engineered dependencies
 
-None currently. If any are added, document them here with a **fail-soft** note: the
-integration must degrade gracefully behind a feature flag and never hard-break a run.
+**None in use.** Verified 2026-06-25 against the live WordPress install
+(`www.maxxbuilders.com`, Yoast SEO Premium v27.5). Every Yoast/WordPress surface the code
+touches is **documented**, not reverse-engineered:
+
+- **`seo-rest-bridge.php`** — an mu-plugin on the WP host that calls `register_post_meta`
+  with `show_in_rest` on the Yoast/Rank Math meta keys for both `post` and `page`. This
+  is the documented WP REST meta API. *Soft dependency:* it is installed on the host, not
+  loaded by this repo. If it is absent, REST silently drops meta writes (the write
+  succeeds, the meta no-ops). Treat its absence as a fail-soft condition, not a hard error.
+- **`yoast_head` / `yoast_head_json`** — the documented Yoast REST fields on `wp/v2`
+  responses. `packs/wordpress/apply.mjs` reads `yoast_head` for a fail-soft post-write
+  verify (`verifyYoastHead`): if absent, it degrades silently.
+
+**Fragile Yoast endpoints that exist on the install but the code does NOT use** (reachable,
+but adopting any of them is a reverse-engineering decision — must be **fail-soft behind a
+flag** and documented here first):
+
+- `yoast/v1/get_head` — renders the full SEO head HTML for any URL (verified 200,
+  unauthenticated). A simpler readback than `yoast_head_json`, but undocumented contract.
+- `yoast/v1/prominent_words/*` — internal NLP indexing routes (`get_content`, `save`,
+  `complete`); auth+nonce gated, **no public reader** (a direct `prominent_words/{id}`
+  read returns 404). Not usable without reverse-engineering the admin nonce flow.
+- `yoast/v1/semrush/related_keyphrases` — Yoast→Semrush proxy; auth-gated via a Yoast
+  account, intended for the WP admin UI.
 
 ---
 
