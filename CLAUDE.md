@@ -12,7 +12,10 @@ Platform-neutral brain. The audit, generate, and monitor layers work on ANY webs
 
 ## Primary entities (E-E-A-T + schema)
 
-- **Organization:** Maxx Builders, brand: Maxx Builders, sameAs: [add LinkedIn URL, GBP URL, Yelp URL]
+- **Organization:** Maxx Builders, brand: Maxx Builders, sameAs:
+  - `https://www.linkedin.com/company/maxxbuilders`
+  - `https://www.facebook.com/maxxbuildersco`
+  - `https://www.google.com/maps/place/Maxx+Builders/@29.636208,-95.574546,17z/data=!3m1!4b1!4m6!3m5!1s0x8640e7cdfebb1fef:0x3de403dca549748f!8m2!3d29.636208!4d-95.574546!16s%2Fg%2F11zcjh2x4p`
 - **Business type:** Commercial general contractor / construction management, Texas
 - **Service area:** Texas (primary: Houston, Dallas, Austin metro). No virtual-office location pages.
 - **Key projects (operator truth for content):** Home2Suites by Hilton Richmond TX (90,500 sq ft), Comfort Suites Pasadena TX, Holiday Inn Express Pflugerville TX (114,700 sq ft).
