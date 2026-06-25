@@ -153,6 +153,24 @@ test("wordpressAdapter: read/write hit the right REST shapes", async () => {
   } finally { globalThis.fetch = realFetch; }
 });
 
+test("wordpressAdapter: falls back to pages/{id} when id is not a post", async () => {
+  const seen = [];
+  const realFetch = globalThis.fetch;
+  globalThis.fetch = async (url, init = {}) => {
+    seen.push({ url, method: init.method ?? "GET" });
+    const postProbe = /\/posts\/6567/.test(url);   // 6567 is a Page, not a post
+    return {
+      ok: !postProbe, status: postProbe ? 404 : 200,
+      json: async () => ({ meta: { _yoast_wpseo_metadesc: "PAGEDESC" } }), text: async () => "not found",
+    };
+  };
+  try {
+    assert.equal(await wordpressAdapter.read({ page_id: 6567, field: "description" }), "PAGEDESC");
+    assert.ok(seen.some((s) => /\/posts\/6567\?context=edit/.test(s.url)), "probes posts first");
+    assert.match(seen.at(-1).url, /\/pages\/6567\?context=edit/);     // resolved to pages
+  } finally { globalThis.fetch = realFetch; }
+});
+
 test("webflowAdapter: page vs CMS-item routing", async () => {
   const seen = [];
   const realFetch = globalThis.fetch;
