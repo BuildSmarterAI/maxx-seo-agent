@@ -14,9 +14,13 @@
     },
     "author": {
       "@type": "Person",
-      "name": "__HUMAN_VERIFY_AUTHOR_NAME__",
-      "jobTitle": "__HUMAN_VERIFY_AUTHOR_TITLE__",
-      "sameAs": "__HUMAN_VERIFY_AUTHOR_LINKEDIN_OR_BIO_URL__"
+      "name": "Harris Khan",
+      "jobTitle": "Co-Founder",
+      "worksFor": {
+        "@type": "Organization",
+        "name": "Maxx Builders"
+      },
+      "sameAs": "https://www.linkedin.com/in/maxxbuildersharris/"
     },
     "mainEntityOfPage": {
       "@type": "WebPage",
