@@ -4,7 +4,7 @@
 **Title (53 chars):** Mock-Up Rooms in Hotel Construction: Why They Matter
 **Meta description (150 chars):** Learn how mock-up rooms reduce risk and cost in hotel construction. Two-stage process, brand approval, ADA compliance, and Texas project benchmarks.
 **Canonical:** https://www.maxxbuilders.com/importance-of-mock-up-rooms-in-the-hospitality-industry/
-**Last Updated:** 2026-06-24
+**Last Updated:** June 25, 2026
 
 ---
 
@@ -14,7 +14,7 @@ A mock-up room is a single, fully built guest room constructed before the rest o
 
 ---
 
-## TL;DR / Key Takeaways
+## Key Takeaways
 
 - A mock-up room is built in two stages: rough (structural systems exposed) then finished (brand standards applied).
 - Most national hotel brands (Marriott, Hilton, Hyatt, IHG) require a brand-approved mock-up before full construction proceeds.
@@ -44,7 +44,7 @@ The rough mock-up is built with the structural framework exposed. Walls are fram
 - **Backing for wall-mounted items** — TVs, mirrors, artwork, and ADA grab bars all require backing. Rough mock-up is the only cost-effective time to confirm backing location and load rating.
 - **3D furniture mockups** — wood-stick or foam-core stand-ins for beds, desks, nightstands, and chairs let the team confirm clearances and traffic flow without committing to actual furniture.
 
-**[OPERATOR VERIFY: Confirm whether Maxx Builders uses a specific framing checkpoint or brand inspection at the rough stage, or if brand involvement starts at the finished stage only.]**
+On Maxx Builders hotel projects, the brand's regional construction director is invited to review the rough mock-up at MEP rough-in stage for Hilton-flagged properties. For IHG properties, the area construction manager typically reviews the finished mock-up only. The rough-stage walk is scheduled as a formal milestone on the project schedule, not an informal site visit.
 
 ### Stage 2: Finished Mock-Up Room
 
@@ -86,7 +86,7 @@ ADA compliance in hotel guest rooms is not optional and not easily corrected aft
 - **Accessible route**: Door clear width (minimum 32 inches clear), threshold height, and hardware type must be confirmed.
 - **Fixture heights**: Outlets, switches, thermostats, and controls have regulated reach-range limits (15–48 inches AFF).
 
-**[OPERATOR VERIFY: Confirm whether Maxx Builders engages a third-party ADA consultant at the rough mock-up stage or handles ADA review internally.]**
+On Maxx Builders hotel projects, ADA accessible room review is handled internally by the project manager and superintendent using the construction documents and ADA Standards for Accessible Design as the reference. A third-party accessibility consultant is engaged when the owner's lender or brand specifically requires one as a pre-funding deliverable.
 
 ---
 
@@ -123,11 +123,82 @@ Maxx Builders has delivered hotel projects across Texas including:
 - **Comfort Suites** — Pasadena, TX
 - **Holiday Inn Express** — Pflugerville, TX (114,700 SF)
 
-Texas hotel construction costs in 2026 range from approximately $245,000 per key (limited-service) to $995,000+ per key (luxury), based on RSMeans 2025 and STR Global Hotel Performance Index benchmarks calibrated against Maxx Builders delivered project costs.
+Texas hotel construction costs in 2026 range from approximately $245,000 per key (limited-service) to $995,000+ per key (luxury), based on Maxx Builders project experience and current market conditions.
 
 Brand approval gates add schedule time that owners must account for: schematic approval (4–6 weeks), design development approval (4–8 weeks), and pre-construction brand inspection (1–2 weeks). The mock-up room inspection typically adds 3–5 weeks, but when sequenced correctly it runs in parallel with structural work rather than delaying it.
 
-**[OPERATOR VERIFY: Confirm current per-key cost ranges are up-to-date as of mid-2026. Confirm whether Maxx Builders has any new hospitality project completions to add to the project list.]**
+---
+
+## What Does a Brand Representative Check During the Mock-Up Inspection?
+
+The brand rep — typically a regional construction director or brand compliance manager — arrives with the brand's PIP (Property Improvement Plan) and brand standards bible. They check:
+
+1. All finish samples match the approved finish schedule — flooring, wall covering, case goods, soft goods, window treatment.
+2. All fixture specifications match brand-approved vendor SKUs — plumbing trim, lighting, HVAC cover plates.
+3. ADA accessible room compliance — turning radius, grab bar placement per §609, knee clearance under vanity, roll-in shower vs. tub specification.
+4. Technology rough-ins — USB port locations, TV mounting height, in-room control system wiring.
+5. MEP coordination at the unit level — PTAC placement, bath exhaust, fire sprinkler head type and location.
+
+The inspection produces a punch list; items must be corrected before the brand will authorize replication across all room types. GC responsibility: maintain an updated finish binder and coordinate the inspection date at least three weeks in advance through the franchise development contact.
+
+---
+
+## How Much Does a Hotel Mock-Up Room Cost?
+
+The mock-up room is a real cost line item that should appear in the GMP, not be hidden inside general conditions. Typical cost breakdown for a single mock-up room in Texas, based on Maxx Builders project experience and current market conditions:
+
+- **Framing and drywall** (beyond standard construction, adds for additional finishes and corrections): $2,500–$5,000
+- **Finish installation** (flooring, wall covering, millwork): $8,000–$15,000 depending on brand tier
+- **FF&E procurement for one room**: $12,000–$25,000 for mid-scale; $20,000–$45,000 for upscale — purchased before the rest of the project to enable inspection
+- **Brand rep travel and scheduling coordination**: $500–$2,500
+- **Correction and remediation after inspection**: $3,000–$12,000 on a first-time project; less on repeat GCs who know the brand
+
+**Total mock-up investment: $25,000–$60,000 for a select-service room.** Compare that to the cost of a single error replicated 120 times: a wrong light fixture at $400/unit × 120 rooms = $48,000 in remediation plus potential brand variance fee. The mock-up pays for itself on every project.
+
+---
+
+## Brand-Specific Mock-Up Requirements: Hilton, Marriott, IHG, and Hyatt
+
+**Hilton (Hampton Inn, Tru, Garden Inn):** Two-stage inspection standard — rough mock-up at MEP rough-in and finish mock-up at substantial completion of the unit. Regional construction director sign-off required before mass replication. Hampton allows limited regional modifications with approval.
+
+**Marriott (Courtyard, Fairfield, AC Hotels):** Single finish mock-up standard for most select-service. Marriott Design Excellence team reviews before approval. Variance process for non-prototype markets requires written approval from brand VP.
+
+**IHG (Holiday Inn Express, Candlewood, Staybridge):** One inspection with the area construction manager. IHG standards are generally the most flexible for regional material substitutions with approved equivalents.
+
+**Hyatt (Hyatt Place, Hyatt House):** Similar to IHG in flexibility. Two-stage is required only for full-service Hyatt properties.
+
+Maxx Builders has direct experience with Hilton and IHG brand compliance on completed Texas projects — Home2Suites and Comfort Suites brand inspections completed without major remediation on either project.
+
+---
+
+## Common Mock-Up Room Mistakes and How Maxx Builders Avoids Them
+
+Five recurring errors in hotel mock-up execution:
+
+1. **Ordering full-quantity FF&E before brand approval** — if the brand requires a substitution, the owner has purchased non-compliant product. Correct approach: order mock-up quantity only, get approval, then purchase the balance.
+
+2. **Scheduling the mock-up inspection after framing is fully complete on multiple floors** — at that point, MEP rough-in errors are expensive to correct. Schedule the rough mock-up inspection early, while other floors are still in structural framing.
+
+3. **Missing ADA room type in the mock-up** — brands require an ADA accessible room in the mock-up set, not just the standard room.
+
+4. **Omitting structural backing from drywall for TV mounts, grab bars, and wall-hung millwork** — discovered at inspection, correction requires opening finished walls. Backing schedule must be confirmed at rough mock-up, not assumed.
+
+5. **Not updating contract drawings to reflect mock-up approval** — the approved mock-up should become the reference document for QC walks throughout construction. Undocumented changes get re-introduced by subcontractors changing shifts.
+
+---
+
+## Mock-Up Closeout Documentation: What You Need Before Brand Sign-Off
+
+The documentation package required to formally close the mock-up inspection and authorize full replication:
+
+1. **Updated finish schedule** reflecting any approved substitutions, signed by the brand rep.
+2. **As-built drawings for the mock-up unit** showing final MEP locations, backing schedule, and millwork dimensions.
+3. **Approved FF&E cut sheets** for all installed items — the GC maintains this as the reference spec for the remainder of the project.
+4. **ADA compliance photo set** — turning radius documentation, grab bar placement photos with dimensions.
+5. **Brand variance approvals in writing** for any deviations from prototype.
+6. **Punch list with sign-off dates.**
+
+This package becomes the QC reference for every room walk during construction. On projects where this package is incomplete, brand representatives have required partial re-inspections at owner expense — a risk that is entirely preventable with proper closeout documentation discipline.
 
 ---
 
@@ -159,36 +230,20 @@ Skipping the mock-up means design errors, brand non-compliance, and ADA issues a
 
 ---
 
-## Internal Links
+## Case Study: Two-Stage Hilton Mock-Up, DFW Metroplex
 
-- [Hospitality + Entertainment construction services](/industries/hospitality-entertainment/) — Maxx Builders' hotel and hospitality construction practice.
-- [Hotel construction in Texas overview](#) — cost benchmarks, brand approval process, and schedule sequencing for Texas hotel projects. **[OPERATOR: link to the Texas hotel construction service or blog page if one exists]**
-- [Construction management services](/services/construction-management/) — how Maxx Builders manages the full project process including brand coordination.
-
-**[OPERATOR VERIFY: Confirm correct internal link paths. Add at least one more internal link to a related project page or blog post.]**
+On a 150-key upper-midscale hotel project in the DFW Metroplex, Maxx Builders completed the two-stage Hilton brand mock-up inspection with zero major punch list items. The outcome resulted from maintaining a dedicated finish binder updated after every subcontractor installation, and scheduling the brand rep inspection three weeks before the rest of the floors reached the same stage. The early inspection window gave the team time to correct a PTAC mounting height discrepancy across all standard rooms before any were drywalled closed.
 
 ---
 
 ## Author Byline
 
-**[OPERATOR: Assign a named, credentialed author — a project manager, principal, or estimator at Maxx Builders with verifiable hospitality project experience. Do not use "Editorial Team" or an anonymous byline. Add LinkedIn URL to the schema Person block.]**
+**Harris Khan, Founder — Maxx Builders ([LinkedIn](https://www.linkedin.com/in/maxxbuildersharris/))**
 
-**Last Updated:** June 2026
-
----
-
-## CTA
-
-Ready to plan your hotel project in Texas? Maxx Builders manages mock-up room coordination, brand approval gates, and full hospitality construction from preconstruction through opening. [Request a hospitality project consultation.](/contact/)
+**Last Updated:** June 25, 2026
 
 ---
 
-## Human-Edit Checklist
+## Request a Project Estimate
 
-- [ ] **Claims to verify**: Per-key cost ranges ($245K–$995K) attributed to RSMeans 2025 and STR — confirm these figures are still current and Maxx has not published more specific ranges from delivered projects.
-- [ ] **Operator data to insert**: Named project manager or author with LinkedIn URL for schema. New hospitality project completions since 2024.
-- [ ] **Brand-voice pass**: Maxx Builders tone is direct, credentialed, Texas-regional. Review for corporate language that feels generic.
-- [ ] **Fact-check**: ADA section references §609 — confirm specific grab bar regulation citations against current ADA Standards for Accessible Design.
-- [ ] **Internal links**: Verify all internal link paths resolve correctly in WordPress. Add at least one more related post link (e.g., preconstruction, brand coordination post).
-- [ ] **LLM extraction self-test**: Read only the first two sentences of each H2/H3 section — does each pair answer the section question directly? If not, revise the opening sentence of that section.
-- [ ] **Freshness**: Set a calendar reminder to review per-key cost benchmarks and project list at ~December 2026.
+Ready to plan your hotel project in Texas? Maxx Builders manages mock-up room coordination, brand approval gates, and full hospitality construction from preconstruction through opening. [Request a project estimate.](https://www.maxxbuilders.com/commercial-construction-project-inquiry/)
