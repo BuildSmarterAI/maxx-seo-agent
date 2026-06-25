@@ -1,6 +1,6 @@
-# CLAUDE.md — Universal SEO Operating Context
+# AGENTS.md - Universal SEO Operating Context
 
-Platform-neutral brain. The audit, generate, and monitor layers work on ANY website. The APPLY step depends on the platform — add a pack from `packs/` (WordPress, Webflow) or use the repo-native kit for code-accessible stacks.
+Platform-neutral brain. The audit, generate, and monitor layers work on ANY website. The APPLY step depends on the platform - add a pack from `packs/` (WordPress, Webflow) or use the repo-native kit for code-accessible stacks.
 
 ## Site
 
@@ -24,7 +24,7 @@ Platform-neutral brain. The audit, generate, and monitor layers work on ANY webs
 
 ## Keyword / intent map
 
-Top clusters (one page per cluster — do not cannibalize across clusters):
+Top clusters (one page per cluster - do not cannibalize across clusters):
 
 | Cluster | Primary page | Intent |
 | --- | --- | --- |
@@ -34,24 +34,24 @@ Top clusters (one page per cluster — do not cannibalize across clusters):
 | Commercial construction cost Houston | `/commercial-construction-cost-houston-tx/` | Local commercial |
 | Commercial construction cost Dallas | `/dallas-commercial-construction-costs-2025-2026/` | Local commercial |
 | Design-build Houston | `/design-build-construction-houston/` | Service/transactional |
-| Restaurant construction tips/cost | `/8-key-considerations-for-building-a-restaurant/` + `/cost-efficient-strategies-restaurant-construction/` | Commercial info — watch cannibalization |
+| Restaurant construction tips/cost | `/8-key-considerations-for-building-a-restaurant/` + `/cost-efficient-strategies-restaurant-construction/` | Commercial info - watch cannibalization |
 | Car wash construction cost TX | `/cost-to-build-a-car-wash-in-texas/` | Commercial info |
 | Retail contractor rankings Houston | `/best-retail-construction-contractors-in-houston-2026-rankings/` | Commercial info |
 | Mock-up rooms hospitality | `/importance-of-mock-up-rooms-in-the-hospitality-industry/` | Informational |
 
-Known cannibalization risk: restaurant cluster has two pages targeting overlapping intent — audit before creating new restaurant content.
+Known cannibalization risk: restaurant cluster has two pages targeting overlapping intent - audit before creating new restaurant content.
 
 ## SEO rules to enforce (platform-independent)
 
-**Thresholds (mobile, field-aware):** LCP < 2.5s, INP < 200ms, CLS < 0.1 at CrUX p75. Fix CWV at the template level, order TTFB → LCP → INP → CLS. Never lazy-load the LCP element.
+**Thresholds (mobile, field-aware):** LCP < 2.5s, INP < 200ms, CLS < 0.1 at CrUX p75. Fix CWV at the template level, order TTFB -> LCP -> INP -> CLS. Never lazy-load the LCP element.
 
-**Metadata:** unique per page; titles ≤ 60 chars (lead with primary entity); descriptions present, ≤ 155 chars; self-referencing canonical by default.
+**Metadata:** unique per page; titles <= 60 chars (lead with primary entity); descriptions present, <= 155 chars; self-referencing canonical by default.
 
 **Crawl/index:** only indexable, canonical, 200-status URLs in the sitemap; max one redirect hop; no soft-404s; noindex filter/faceted URLs.
 
 **Structured data:** valid JSON-LD, server-rendered where possible. Organization on homepage only; LocalBusiness subtype per location page. Schema NAP must match visible page text and GBP byte-for-byte.
 
-**Programmatic quality gates:** eligibility (skip rows that can't support a useful page), uniqueness ratio ≥ 0.5, unique intro + recommendation block per page, minimum content threshold, ≥ 3 internal links. One template = one intent = one conversion path.
+**Programmatic quality gates:** eligibility (skip rows that can't support a useful page), uniqueness ratio >= 0.5, unique intro + recommendation block per page, minimum content threshold, >= 3 internal links. One template = one intent = one conversion path.
 
 **Doorway guardrail:** warn at 30 generated location pages, hard-stop at 50 pending human review.
 
@@ -59,7 +59,7 @@ Known cannibalization risk: restaurant cluster has two pages targeting overlappi
 
 ## Workflow rules
 
-- Audits are READ-ONLY → produce `seo-audit.md`.
+- Audits are READ-ONLY -> produce `seo-audit.md`.
 - Generators OUTPUT portable artifacts (CSV/JSON/markdown). The matching pack APPLIES them to the platform.
 - Operate at the template level wherever a pattern is shared.
 - Split crawl exports over context by path prefix.
