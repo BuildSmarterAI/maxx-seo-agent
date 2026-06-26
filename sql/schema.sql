@@ -100,3 +100,57 @@ create table if not exists snapshots (
 -- seed: URLs humans own by hand (the agent never edits these)
 -- insert into do_not_touch (url, note, added_by) values
 --   ('https://example.com/legal/', 'YMYL — counsel owns', 'harris');
+
+-- ---- AutoResearch Phase A: measurement substrate ----
+-- Why: the optimizer loops in AUTORESEARCH-ROADMAP.md need provenance on every decision
+-- (which prompt variant + model produced a given lift) and a registry to record
+-- experiments / eval examples / judge calibration. All additive + idempotent.
+
+-- decision_log provenance: tie realized lift back to the variant + model that produced it.
+alter table decision_log add column if not exists prompt_variant_id text;
+alter table decision_log add column if not exists model             text;
+alter table decision_log add column if not exists cost_usd          numeric;  -- nullable: run-level cost lives in control.spend_usd until per-item metering (Phase B)
+
+-- A/B + bandit registry every optimizer writes to.
+create table if not exists experiments (
+  id          bigint generated always as identity primary key,
+  surface     text,                          -- skill | judge | router | threshold
+  target      text,                          -- e.g. blog-write | metadata-generate | eval-judge
+  variant_id  text,                          -- stable id of the prompt/config under test
+  arm         text,                          -- control | treatment | bandit arm label
+  allocation  numeric default 0,             -- traffic share 0..1
+  metric      text,                          -- avg_effect | judge_pass | cost_usd | ctr_delta
+  value       numeric,
+  n           int     default 0,
+  status      text    default 'active',      -- active | promoted | retired | shadow
+  started_at  timestamptz default now(),
+  updated_at  timestamptz default now()
+);
+create index if not exists experiments_surface_target_idx on experiments(surface, target, status);
+
+-- Golden positives + synthetic negatives for the eval benchmark (RO-6) and judge (RO-1).
+create table if not exists eval_set (
+  id            bigint generated always as identity primary key,
+  change_type   text,                        -- which skill this example exercises
+  url           text,
+  artifact      text,                        -- the diff / draft / metadata under judgement
+  label         text,                        -- good | bad
+  failure_mode  text,                        -- doorway | fabricated_stat | cannibalizing | placeholder | null
+  realized_lift numeric,                     -- 28d blended lift when mined from outcomes
+  source        text,                        -- mined | synthetic | human
+  created_at    timestamptz default now()
+);
+create index if not exists eval_set_change_type_label_idx on eval_set(change_type, label);
+
+-- One row per judge-variant evaluated against the eval_set + outcome history (RO-1).
+create table if not exists judge_calibration (
+  id            bigint generated always as identity primary key,
+  judge_variant text,                        -- rubric/threshold/model bundle id
+  auc           numeric,                     -- judge score vs realized lift
+  override_rate numeric,                     -- human overrides on its passes
+  false_pass    numeric,
+  false_block   numeric,
+  n             int,
+  status        text default 'shadow',       -- shadow | champion | retired
+  evaluated_at  timestamptz default now()
+);

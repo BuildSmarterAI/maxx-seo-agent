@@ -13,4 +13,12 @@ case "$file" in
     node -e "JSON.parse(require('fs').readFileSync('$file','utf8'))" \
       || { echo "Invalid JSON-LD in $file" >&2; exit 1; } ;;
 esac
+
+# Deterministic content guards on CONTENT artifacts only (drafts + html). Scoped tightly:
+# the hook fires on every Edit/Write, so code/config files must pass through untouched.
+case "$file" in
+  drafts/*.md|*.html)
+    node scripts/check-content-guards.mjs "$file" \
+      || { echo "content-guards failed on $file" >&2; exit 1; } ;;
+esac
 exit 0

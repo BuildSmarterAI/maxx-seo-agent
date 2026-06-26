@@ -30,6 +30,22 @@ jobs:
           MAX_DIFF_LINES: ${{ vars.MAX_DIFF_LINES }}
         run: node scripts/check-diff-size.mjs
 
+      # Deterministic guard for known live-defect classes (leaked placeholders, raw-slug
+      # H1s, default bylines — see AUTORESEARCH-PHASE-A.md / ACTION-PLAN.md). Runs BEFORE
+      # the LLM judge: cheaper, fail-closed, and independent of judge calibration.
+      - name: Content guards
+        if: contains(github.event.pull_request.labels.*.name, 'seo-auto')
+        env:
+          BASE_REF: origin/${{ github.base_ref }}
+        run: |
+          files=$(git diff --name-only --diff-filter=ACM "$BASE_REF"...HEAD -- 'drafts/*.md' '*.html')
+          if [ -z "$files" ]; then
+            echo "content-guards: no content files changed → pass."
+          else
+            echo "content-guards: checking:"; echo "$files"
+            node scripts/check-content-guards.mjs $files
+          fi
+
       - name: LLM-as-judge
         if: contains(github.event.pull_request.labels.*.name, 'seo-auto')
         env:

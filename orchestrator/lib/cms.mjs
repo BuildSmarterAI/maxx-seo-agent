@@ -4,6 +4,7 @@
 // the I/O (read/write/verify) and the small per-platform audit labels (narrate).
 import { db } from "./client.mjs";
 import { logDecision } from "./supabase.mjs";
+import { scanPlaceholders } from "../../scripts/validators/content-guards.mjs";
 
 export async function approvedRows(platform, limit = 200) {
   const { data } = await db.from("change_set").select("*")
@@ -64,6 +65,20 @@ export async function applyRow(row, adapter, store = defaultStore) {
     if (adapter.driftCheckable(row) && drifted(row, current)) {
       await store.setStatus(row.id, "escalated");
       await store.logDecision({ url: row.url, action: "escalate", risk_class: "gated", reason: DRIFT_REASON, ...adapter.narrate.drift(row) });
+      return "escalated";
+    }
+
+    // Deterministic content guard before a live write: a leaked placeholder / default
+    // byline in new_value must never reach the CMS (the repo/CI guards can't see this
+    // path). Escalate instead of overwriting — reuses the gated escalation path.
+    const guard = scanPlaceholders(row.new_value);
+    if (guard.length) {
+      await store.setStatus(row.id, "escalated");
+      await store.logDecision({
+        url: row.url, action: "escalate", risk_class: "gated",
+        change_type: row.change_type ?? "content",
+        reason: `content-guard: ${guard.map((g) => g.rule).join(", ")}`,
+      });
       return "escalated";
     }
 
