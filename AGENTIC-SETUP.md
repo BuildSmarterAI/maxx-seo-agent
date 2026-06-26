@@ -10,7 +10,7 @@ Stands up the system in order: **Phase 1 (L2 orchestration, mostly local)** → 
 
 | # | Requirement | Why | Check |
 |---|---|---|---|
-| 1 | **Node.js 20+** and **git** | Orchestrator + tooling runtime | `node -v`, `git --version` |
+| 1 | **Node.js 22+** and **git** | Orchestrator + tooling runtime | `node -v`, `git --version` |
 | 2 | **Claude Code** installed | Interactive dev + skills | `claude --version` |
 | 3 | **Anthropic API key** (Console) | Headless/SDK auth + separate billing pool | key in hand |
 | 4 | **GitHub repo** + **GitHub CLI** (`gh`) | Versioned changes, PR-based autonomy, Actions runtime | `gh auth status` |
@@ -258,7 +258,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-        with: { node-version: 20 }
+        with: { node-version: 22 }
       - run: npm ci
       - name: GSC poll → work_queue
         env:

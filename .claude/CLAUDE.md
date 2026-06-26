@@ -15,7 +15,7 @@ See `.claude/rules/` for detailed rule files.
 
 ## Stack
 
-- **Runtime:** Node.js ≥20, ES Modules (`type: "module"`). Run scripts via
+- **Runtime:** Node.js ≥22, ES Modules (`type: "module"`). Run scripts via
   `node --env-file=.env <script>`. No `require()`, no `.cjs` files.
 - **Orchestration:** `@anthropic-ai/claude-agent-sdk` — `query()` autonomous loop in
   `orchestrator/run.mjs`. Dispatches an inline `seo-fixer` subagent per queue item.

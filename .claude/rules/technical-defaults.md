@@ -4,7 +4,7 @@
 
 - ES Modules everywhere. Use `import`/`export`, not `require`. File extension `.mjs`
   for all scripts.
-- `node >=20` required (engines field in `package.json`). Use `node --env-file=.env
+- `node >=22` required (engines field in `package.json`). Use `node --env-file=.env
   <script>` for local runs — no `dotenv` package needed.
 - All async entry points use `async function main() { ... } main().catch((e) => {
   console.error(e); process.exit(1); })`. Top-level `await` is fine inside that pattern.
