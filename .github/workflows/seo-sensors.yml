@@ -32,23 +32,26 @@ jobs:
           GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/gcp.json
           GSC_SITE_URL: ${{ vars.GSC_SITE_URL }}
           SITEMAP_URL: ${{ vars.SITEMAP_URL }}
+          INDEXATION_LIMIT: ${{ vars.INDEXATION_LIMIT || '50' }}
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: |
           node scripts/sensor-gsc.mjs
           node scripts/sensor-sitemap.mjs
+          node scripts/sensor-indexation.mjs
 
       - name: Configure git identity
         run: |
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git config user.name "github-actions[bot]"
 
-      - name: Orchestrate safe-class fixes → PR
+      - name: Orchestrate safe-class fixes → PR or change_set
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           MONTHLY_BUDGET_USD: ${{ vars.MONTHLY_BUDGET_USD }}
+          SITE_PLATFORM: ${{ vars.SITE_PLATFORM }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: node orchestrator/run.mjs
 

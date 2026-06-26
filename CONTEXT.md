@@ -1,11 +1,122 @@
-# CONTEXT.md — SEO Orchestrator Domain Glossary
+# System Context — BuildSmarter Agentic SEO Orchestrator
 
-> Canonical vocabulary for this codebase. Implementation details belong in docs/; this file is a glossary only.
-> Updated inline during domain modeling sessions. See `docs/adr/` for architectural decisions.
+Canonical domain vocabulary for this repo. Use these terms exactly in code, prompts,
+ADRs, and runbooks. Do not substitute synonyms.
 
 ---
 
-## Terms
+## Architecture layers
+
+**sensing layer** — scripts that poll external APIs (GSC, sitemap) and write items into
+the `work_queue`. No LLM involved. Sources: `scripts/sensor-gsc.mjs`,
+`scripts/sensor-sitemap.mjs`.
+
+**orchestrator** — the master agent (`orchestrator/run.mjs`) that reads the `work_queue`,
+dispatches `seo-fixer` subagents, and routes output to either the repo path or the CMS
+path based on `SITE_PLATFORM`. Runs on Sonnet 4.6 by default.
+
+**subagent** — a bounded child agent the orchestrator dispatches via the Agent SDK. The
+only subagent defined today is `seo-fixer`. Do not call subagents "components."
+
+**seo-fixer** — the subagent that executes one kit skill against one URL. In repo mode it
+edits files; in CMS mode it resolves `page_id`, reads `base_value`, generates a new
+value, and writes a `change_set` row via `mem.mjs`. Never writes to a live CMS directly.
+
+**eval-gate** — the GitHub Actions required check (`seo-eval-gate.yml`) that runs on
+every `seo-auto` PR. Contains two steps: diff-size guard and LLM-as-judge
+(`scripts/eval-judge.mjs`, Haiku 4.5). Fails closed on any error. Not a rubber stamp.
+
+**learning loop** — the weekly pipeline: `collect-outcomes.mjs` → `attribute.mjs` →
+`prioritize.mjs`. Snapshots GSC metrics into `outcomes`, attributes click lift to
+`change_type` in `learned_patterns`, then re-scores the `work_queue` by priority.
+
+---
+
+## Publishing paths
+
+**repo path** — for code-accessible sites (Next.js, static). Orchestrator creates a git
+branch, `seo-fixer` edits files, orchestrator opens a PR, eval-gate runs, auto-merge
+fires if all checks pass. Human merge is the gate when checks fail.
+
+**CMS path** — for WordPress and Webflow. Orchestrator runs `seo-fixer` to write
+`change_set` rows (status=`pending`) into Supabase. A human flips rows to `approved`.
+The `seo-apply-cms` workflow applies them via the platform pack. Nothing goes live
+without human approval.
+
+**platform pack** — the adapter that reads `approved` rows from `change_set` and writes
+to a live CMS. Located in `packs/wordpress/` and `packs/webflow/`. Packs always
+snapshot before writing and escalate on drift.
+
+---
+
+## Supabase tables (memory layer)
+
+**work_queue** — pending actions. Columns: `url, task, risk_class, priority, status,
+source`. Status values: `pending | in_progress | done | escalated`.
+
+**change_set** — one row per field edit the `seo-fixer` wants to make on a CMS page.
+Columns: `platform, page_id, url, field, base_value, new_value, status, change_type`.
+Status values: `pending | approved | applied | published | failed | escalated | rolledback`.
+The `base_value` is what the agent read from the live CMS when generating the change —
+used for drift detection at apply time.
+
+**snapshots** — pre-overwrite backups written by the pack before every CMS write. The
+rollback tape. No equivalent needed in repo path (git revert fills that role).
+
+**decision_log** — audit trail of every action the orchestrator took or refused.
+Columns: `url, action, risk_class, change_type, reason, agent, pr_url`.
+Action values: `applied | escalate | skip | queued`.
+
+**do_not_touch** — URLs the agent must never edit. Seeded manually. Checked by sensors
+and orchestrator before any action.
+
+**outcomes** — weekly snapshots of per-URL metrics (clicks, impressions, position,
+citations, conversions). Primary source: GSC. Secondary: CSV imports.
+
+**learned_patterns** — one row per `change_type`, storing `avg_effect` (relative click
+lift) and `n` (sample count). Feeds `prioritize.mjs`.
+
+**control** — single-row table. Holds the kill switch (`paused`) and monthly spend
+tracker (`spend_usd`, `month`). Orchestrator checks both at preflight.
+
+**sitemap_seen** — tracks every URL ever seen in the sitemap so the sensor only enqueues
+newly discovered URLs.
+
+---
+
+## Key concepts
+
+**risk_class** — every `work_queue` row and `decision_log` entry is tagged `safe` or
+`gated`. Safe items are acted on automatically within thresholds. Gated items are always
+escalated to a human.
+
+**SITE_PLATFORM** — env var that tells the orchestrator which publishing path to use.
+Values: `repo` (default), `wordpress`, `webflow`. One value per repo instance.
+
+**base_value** — the live CMS field value at the moment the `seo-fixer` generated a
+proposed change. Stored in `change_set`. Re-read at apply time; if it changed, the pack
+escalates (drift). Prevents the agent from clobbering a human edit.
+
+**drift** — when the live CMS value no longer matches `base_value` by apply time. The
+pack escalates and skips rather than overwrite.
+
+**kill switch** — `UPDATE control SET paused = true WHERE id = 1`. Stops every
+orchestrator run at preflight. Also available via disabling the GitHub Actions workflows.
+
+**eval-judge** — the LLM-as-judge step inside the eval-gate. Runs on Haiku 4.5. Scores
+quality, brand safety, fact-checkability, and information gain. Fails closed: any
+unparseable output, low score, or fabrication risk → exit 1 → PR blocked.
+
+**mem.mjs** — CLI wrapper the orchestrator's Bash calls use for all Supabase writes in
+headless/CI mode. Commands: `queue`, `log`, `status`, `changeset`. Avoids MCP
+tool-approval friction in autonomous runs.
+
+---
+
+## Domain glossary — Phase A additions
+
+> Reasoning and forward-looking terms from the domain-modeling session (commit 4ac53e9).
+> The core terms above remain canonical; these extend them. See `docs/adr/`.
 
 ### blast_radius
 
@@ -15,65 +126,6 @@ The reasoning framework used to assign a `risk_class` label to a task before it 
 - High blast radius → `risk_class = gated` (e.g., a global Webflow site publish that flushes all pending changes across every page)
 
 Related: `risk_class`, `work_queue`
-
-### risk_class
-
-A stored enum on `work_queue` rows. Assigned at enqueue time based on `blast_radius` reasoning.
-
-Values:
-
-- `safe` — orchestrator auto-dispatches; no human approval needed before execution
-- `gated` — orchestrator escalates; human must approve before the action runs
-
-Related: `blast_radius`, `work_queue`, `eval_gate`
-
-### work_queue
-
-A task enqueued by a sensor or operator, representing a unit of SEO work to be dispatched. Each row says "run this skill against this URL."
-
-Key fields: `url`, `task` (skill name), `risk_class`, `priority`, `status` (pending → in_progress → done | escalated), `source` (gsc | sitemap | deploy | citation | manual)
-
-A single `work_queue` row is the *input unit*. Its execution produces zero or more `change_set` rows (the output units). The `batch` field on `change_set` rows is the implied link back to the triggering run — not enforced as a foreign key.
-
-Related: `change_set`, `risk_class`, `blast_radius`
-
-### change_set
-
-A field-level edit produced when the orchestrator executes a skill against a `work_queue` task. One `work_queue` task fans out to 0..N `change_set` rows (e.g., a metadata-generate task on one URL produces one row for `title` and one for `description`).
-
-Key fields: `platform` (wordpress | webflow), `page_id`, `url`, `field` (title | description | canonical), `base_value` (drift baseline captured at decision time), `new_value`, `status` (pending → approved → applied → published | failed | escalated | rolledback), `batch`
-
-**Authorship:** `change_set` rows are created by the Claude agent executing the skill (LLM-side), not by Node.js code. The apply layer (`packs/*/apply.mjs`) only reads approved rows and updates status — it never inserts.
-
-**Approval gate:** rows sit at `status=pending` until a human flips them to `approved`. Only then does the apply layer execute the write.
-
-Related: `work_queue`, `approval-to-publish loop`, `snapshot`
-
-### eval_gate
-
-A required CI check (`.github/workflows/seo-eval-gate.yml`) that runs on every PR with the `seo-auto` label. Blocks auto-merge if either sub-check fails. Human-authored PRs bypass it.
-
-Two sub-checks:
-
-1. **eval-judge** (`scripts/eval-judge.mjs`) — LLM-as-judge (Haiku 4.5) scores the PR diff on four dimensions:
-   - `quality` (1–5)
-   - `brand_safety` (1–5)
-   - `fact_checkability` (1–5)
-   - `information_gain` (1–5)
-
-   Pass requires ALL scores ≥ `JUDGE_MIN_SCORE` (default: 3) AND `fabrication_risk = false`.
-
-   Hard fail regardless of scores:
-   - `fabrication_risk = true`
-   - Diff adds unverifiable statistics
-   - Edits pricing, brand/positioning claims
-   - Edits YMYL content (legal, financial, health, safety)
-
-   Fails closed: model error or unparseable output → exit 1.
-
-2. **diff-size** (`scripts/check-diff-size.mjs`) — blocks if total changed lines (additions + deletions) exceeds `MAX_DIFF_LINES` (default: 400).
-
-Related: `risk_class`, `approval-to-publish loop`
 
 ### approval-to-publish loop
 
@@ -102,13 +154,7 @@ agent writes change_set rows (status=pending)
 
 Key difference: Loop A has an automated `eval_gate` before content goes live. Loop B's quality gate is the human who flips `status=approved` — no automated eval-judge runs in the live-CMS path.
 
-Related: `eval_gate`, `change_set`, `snapshot`, `risk_class`
-
-### snapshot
-
-A pre-overwrite backup captured by the apply layer immediately before writing a `change_set` row. Stored in the `snapshots` table. Consumed by `rollback.mjs` to restore the prior live value if an apply goes wrong. One snapshot per `change_set` row, per apply attempt.
-
-Related: `change_set`
+Related: `eval-gate`, `change_set`, `snapshot`, `risk_class`
 
 ### client_id
 
@@ -117,8 +163,6 @@ A canonical kebab-case slug that uniquely identifies a client across all repos i
 See: [ADR-0001](docs/adr/0001-repo-per-client-with-migration-path.md)
 
 Related: `work_queue`, `change_set`
-
----
 
 ### vertical_config
 
@@ -155,3 +199,25 @@ Related: `work_queue`, `client_id`
 - [ADR-0001](docs/adr/0001-repo-per-client-with-migration-path.md) — Repo-per-client now; migrate to multi-tenant monorepo at 10 clients or when unified dashboard is needed
 - [ADR-0002](docs/adr/0002-human-gate-policy-for-live-actions.md) — Human gate policy: safe-class auto-executes within thresholds; permanently-gated actions (merges, YMYL, GBP, pricing) never auto-execute
 - [ADR-0003](docs/adr/0003-single-configurable-skill-over-vertical-templates.md) — One configurable `blog-write` skill reads `vertical_config` from `CLAUDE.md` rather than a per-vertical template library; revisit at 5+ verticals or first eval regression
+
+---
+
+## Reverse-engineered dependencies
+
+None currently. If any are added, document them here with a **fail-soft** note: the
+integration must degrade gracefully behind a feature flag and never hard-break a run.
+
+---
+
+## Terms NOT used in this system
+
+Do not use these synonyms — they introduce ambiguity with the canonical terms above.
+
+| Avoid | Use instead |
+|---|---|
+| component | subagent |
+| boundary | seam |
+| backlog | work_queue |
+| pipeline | learning loop (for the weekly feedback path) |
+| agent loop | orchestrator |
+| content agent | seo-fixer subagent |

@@ -5,7 +5,7 @@
 //   node scripts/mem.mjs queue                         # print pending items as JSON
 //   node scripts/mem.mjs log    --url U --action applied --risk safe --reason "..." --pr URL
 //   node scripts/mem.mjs status --url U --task T --to done|escalated|in_progress
-import { pendingQueue, logDecision, db } from "../orchestrator/lib/supabase.mjs";
+import { pendingQueue, logDecision, insertChangeset, setQueueStatus } from "../orchestrator/lib/supabase.mjs";
 
 function args(argv) {
   const o = {};
@@ -25,8 +25,21 @@ if (cmd === "queue") {
   });
   console.log("logged");
 } else if (cmd === "status") {
-  await db.from("work_queue").update({ status: a.to }).eq("url", a.url).eq("task", a.task);
+  await setQueueStatus(a.url, a.task, a.to);
   console.log("updated");
+} else if (cmd === "changeset") {
+  // node scripts/mem.mjs changeset --url U --page-id 123 --field title --base "old" --new "new" --type metadata-generate --platform wordpress
+  await insertChangeset({
+    platform:   a.platform || process.env.SITE_PLATFORM || "wordpress",
+    page_id:    a["page-id"] ?? null,
+    url:        a.url,
+    field:      a.field,
+    base_value: a.base ?? null,
+    new_value:  a.new,
+    change_type: a.type ?? null,
+    status:     "pending",
+  });
+  console.log("changeset row inserted");
 } else {
   console.error("unknown command:", cmd);
   process.exit(1);

@@ -4,21 +4,34 @@
 // change) so it is not reacting to a single week. Writes to learned_patterns.
 //
 // This is directional, not causal: core updates and seasonality confound it.
-import { appliedDecisions, clicksAround, upsertPattern } from "../orchestrator/lib/supabase.mjs";
+import { appliedDecisions, clicksAround, positionAround, upsertPattern } from "../orchestrator/lib/supabase.mjs";
 
 const LAG = Number(process.env.ATTR_LAG_DAYS || 28);
 const MIN_N = Number(process.env.ATTR_MIN_N || 3);   // need this many samples to trust a type
+const CLICK_W = Number(process.env.ATTR_CLICK_WEIGHT || 0.7);
+const POS_W   = Number(process.env.ATTR_POSITION_WEIGHT || 0.3);
 
 async function main() {
   const decisions = await appliedDecisions(120);
   const byType = new Map();   // change_type -> { sum, n }
 
   for (const d of decisions) {
-    const { before, after } = await clicksAround(d.url, d.created_at, LAG);
-    if (before == null || after == null) continue;            // not enough history yet
-    const lift = (after - before) / Math.max(before, 1);      // relative click change
+    const [clicks, position] = await Promise.all([
+      clicksAround(d.url, d.created_at, LAG),
+      positionAround(d.url, d.created_at, LAG),
+    ]);
+    if (clicks.before == null || clicks.after == null) continue;  // not enough history yet
+
+    const clickLift = (clicks.after - clicks.before) / Math.max(clicks.before, 1);
+
+    // position: lower number = better rank; improvement = positionBefore > positionAfter
+    const posLift = (position.before != null && position.after != null)
+      ? (position.before - position.after) / Math.max(position.before, 1)
+      : 0;
+
+    const blended = clickLift * CLICK_W + posLift * POS_W;
     const e = byType.get(d.change_type) || { sum: 0, n: 0 };
-    e.sum += lift; e.n += 1; byType.set(d.change_type, e);
+    e.sum += blended; e.n += 1; byType.set(d.change_type, e);
   }
 
   let written = 0;
