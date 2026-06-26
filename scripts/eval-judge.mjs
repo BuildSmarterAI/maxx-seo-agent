@@ -45,6 +45,23 @@ export function decide(verdict) {
   return verdict?.pass === true;
 }
 
+// Judge a single piece of text: build the prompt, call the model, parse the verdict.
+// Throws on model-call failure or unparseable output (callers fail closed). Shared by
+// main() (the PR-diff gate) and scripts/eval-benchmark.mjs (per-example calibration), so
+// both exercise the identical judging path.
+export async function judgeText(text, config = loadConfig()) {
+  let out = "";
+  try {
+    for await (const m of query({ prompt: buildPrompt(config, text), options: { model: config.model, allowedTools: [] } })) {
+      if ("result" in m) out = m.result;
+    }
+  } catch (e) {
+    const err = new Error(e?.message || String(e)); err.kind = "model-call"; throw err;
+  }
+  try { return parseVerdict(out); }
+  catch { const err = new Error("model returned non-JSON output"); err.kind = "unparseable"; err.raw = out; throw err; }
+}
+
 // Distinct GitHub Actions annotation per failure type → breaks down in the checks UI.
 function annotateError(type, detail) {
   console.error(`::error title=eval-judge (${type})::${detail}`);
@@ -66,22 +83,17 @@ async function main(config = loadConfig()) {
     return 1;
   }
 
-  let out = "";
-  try {
-    for await (const m of query({ prompt: buildPrompt(config, diff), options: { model: config.model, allowedTools: [] } })) {
-      if ("result" in m) out = m.result;
-    }
-  } catch (e) {
-    annotateError("model-call", e?.message || String(e));
-    console.error("eval-judge: model call failed, failing closed.");
-    return 1;
-  }
-
   let verdict;
-  try { verdict = parseVerdict(out); }
-  catch {
-    annotateError("unparseable", "model returned non-JSON output");
-    console.error("eval-judge: unparseable output, failing closed:\n", out);
+  try {
+    verdict = await judgeText(diff, config);
+  } catch (e) {
+    if (e?.kind === "unparseable") {
+      annotateError("unparseable", "model returned non-JSON output");
+      console.error("eval-judge: unparseable output, failing closed:\n", e.raw ?? "");
+    } else {
+      annotateError("model-call", e?.message || String(e));
+      console.error("eval-judge: model call failed, failing closed.");
+    }
     return 1;
   }
 
