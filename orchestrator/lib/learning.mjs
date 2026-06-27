@@ -6,9 +6,12 @@
 // Behaviour is frozen to match the previous inline implementations exactly — the
 // impression/position reweighting (ADR-006 #1) is a deliberate, separate change.
 //
-// NOTE (preserved latent quirk): reprioritize looks up patterns by `row.task`, but
-// learned_patterns is keyed by `change_type`. If those vocabularies diverge the effect
-// is silently 0. Kept as-is here to preserve behaviour; flagged for a follow-up.
+// JOIN KEY: reprioritize looks up patterns by `row.task`, and learned_patterns is keyed
+// by `change_type` — these are the SAME vocabulary (the kit-skill name), because the
+// orchestrator logs every applied decision with `--type <task>`. See CONTEXT.md →
+// learned_patterns. A queue row misses only when its task has no learned pattern yet, or
+// when a stray decision_log row carried a non-task change_type; reprioritize counts the
+// match rate (`matched`) so a real no-op is visible, not silent.
 
 // Directional effect of one applied change: blended click + position lift.
 // Higher clicks = better; lower position = better. Denominator floors at 1 so a zero
@@ -66,14 +69,17 @@ export async function reprioritize({ fetchPatterns, fetchQueue, setPriority, log
   const patterns = await fetchPatterns();
   const queue = await fetchQueue();
   let changed = 0;
+  let matched = 0; // rows whose task joined a learned pattern — the learning signal's reach
 
   for (const row of queue) {
     const baseScore = base[row.source] ?? 1;
-    const effect = patterns.get(row.task) ?? 0;
+    const learned = patterns.get(row.task);
+    if (learned != null) matched++;
+    const effect = learned ?? 0;
     const next = priorityScore(baseScore, effect, weight);
     if (next !== row.priority) { await setPriority(row.id, next); changed++; }
   }
 
-  log(`reprioritized ${changed}/${queue.length} pending items.`);
-  return { changed, total: queue.length };
+  log(`reprioritized ${changed}/${queue.length} pending items (${matched} matched a learned pattern).`);
+  return { changed, total: queue.length, matched };
 }

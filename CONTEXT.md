@@ -74,7 +74,17 @@ and orchestrator before any action.
 citations, conversions). Primary source: GSC. Secondary: CSV imports.
 
 **learned_patterns** — one row per `change_type`, storing `avg_effect` (relative click
-lift) and `n` (sample count). Feeds `prioritize.mjs`.
+lift) and `n` (sample count). Feeds `prioritize.mjs`. **`change_type` uses the `task`
+vocabulary** — the kit-skill name (`metadata-generate`, `blog-write`, `seo-audit`, …),
+the same value space as `work_queue.task`. The orchestrator enforces this by logging
+every applied decision with `--type <task>` (see `orchestrator/goal.mjs` and
+`run.mjs`), so `attribute` keys patterns by the task name and `reprioritize` joins them
+back with `patterns.get(row.task)`. This shared key is what makes the learning loop
+actually reweight the queue. A `decision_log` row whose `change_type` is *not* a task
+name — e.g. a CMS apply that fell back to a field name because the `change_set` carried
+no `--type` (`packs/*/apply.mjs`) — produces a `learned_patterns` row that no queue row
+can ever match: dead weight, never a join. `reprioritize` logs the match rate so such a
+no-op is visible rather than silent.
 
 **control** — single-row table. Holds the kill switch (`paused`) and monthly spend
 tracker (`spend_usd`, `month`). Orchestrator checks both at preflight.
