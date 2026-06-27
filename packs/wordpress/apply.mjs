@@ -8,12 +8,10 @@
 //
 // env: WP_BASE_URL, WP_USER, WP_APP_PASSWORD, SEO_PLUGIN=yoast|rankmath
 import { fileURLToPath } from "node:url";
-import { approvedRows, applyRow, logDecision } from "../../orchestrator/lib/cms.mjs";
+import { applyRows, logDecision } from "../../orchestrator/lib/cms.mjs";
+import { wp, BASE, AUTH } from "./http.mjs";
 
-const BASE = process.env.WP_BASE_URL?.replace(/\/$/, "");
-const AUTH = "Basic " + Buffer.from(`${process.env.WP_USER}:${process.env.WP_APP_PASSWORD}`).toString("base64");
 const PLUGIN = (process.env.SEO_PLUGIN || "yoast").toLowerCase();
-if (!BASE) throw new Error("Set WP_BASE_URL (use a staging URL)");
 
 const KEYS = {
   yoast:    { title: "_yoast_wpseo_title", description: "_yoast_wpseo_metadesc",
@@ -21,14 +19,6 @@ const KEYS = {
   rankmath: { title: "rank_math_title", description: "rank_math_description",
               canonical: "rank_math_canonical_url", focus: "rank_math_focus_keyword" },
 }[PLUGIN];
-
-async function wp(path, init = {}) {
-  const r = await fetch(`${BASE}/wp-json/wp/v2/${path}`, {
-    ...init, headers: { Authorization: AUTH, "Content-Type": "application/json", ...(init.headers || {}) },
-  });
-  if (!r.ok) throw new Error(`WP ${r.status}: ${await r.text()}`);
-  return r.json();
-}
 
 // WP posts and pages live at different REST roots (/posts/{id} vs /pages/{id}).
 // Resolve which once per id (memoized) so the pack can write meta/content to both.
@@ -87,15 +77,7 @@ export const wordpressAdapter = {
 };
 
 async function main() {
-  const rows = await approvedRows("wordpress");
-  let applied = 0, escalated = 0, failed = 0;
-
-  for (const row of rows) {
-    const outcome = await applyRow(row, wordpressAdapter);
-    if (outcome === "applied") applied++;
-    else if (outcome === "escalated") escalated++;
-    else failed++;
-  }
+  const { applied, escalated, failed } = await applyRows(wordpressAdapter);
   console.log(`WordPress apply — applied ${applied}, escalated ${escalated}, failed ${failed}`);
 }
 

@@ -1,74 +1,44 @@
-# AGENTS.md - Universal SEO Operating Context
+# AGENTS.md — maxx-seo-agent
 
-Platform-neutral brain. The audit, generate, and monitor layers work on ANY website. The APPLY step depends on the platform - add a pack from `packs/` (WordPress, Webflow) or use the repo-native kit for code-accessible stacks.
+Non-discoverable landmines and workflow gotchas only. Everything else (architecture,
+SEO thresholds, env-var table, npm-script reference) is in the files below — read them.
 
-## Site
+## Source of truth (read before any task)
 
-- **Property / domain:** `https://www.maxxbuilders.com`
-- **GSC site URL:** `sc-domain:maxxbuilders.com`
-- **Platform:** WordPress
-- **Apply method:** WP-CLI/REST via `packs/wordpress/` (`npm run wp:apply`). SEO meta written via REST + Application Password; `SEO_PLUGIN` env var selects Yoast or Rank Math.
-- **WordPress environment:** No staging environment. Treat all WP-CLI/REST applies as production-only. Before any apply, confirm a restorable production backup, export affected post/page content and SEO meta, apply only a small approved batch, and verify rendered output after each batch.
-- **Inputs available:** crawl export at `./crawl/*.csv` (Screaming Frog/Sitebulb/Firecrawl), GSC (MCP or export), URL list at `config/urls.txt`
+This repo's real spec is split across three places that a non-Claude agent won't find on its own:
+- **Root `CLAUDE.md`** — SEO thresholds, CWV limits, entity/NAP data, doorway guardrails, never-touch list.
+- **`.claude/CLAUDE.md`** — how to work inside this repo (stack, architecture, constraints).
+- **`.claude/rules/`** — `workflow.md`, `technical-defaults.md`, `security.md` (risk classes, validators, credentials).
 
-## Primary entities (E-E-A-T + schema)
+## Landmines
 
-- **Organization:** Maxx Builders, brand: Maxx Builders, sameAs:
-  - `https://www.linkedin.com/company/maxxbuilders`
-  - `https://www.facebook.com/maxxbuildersco`
-  - `https://www.google.com/maps/place/Maxx+Builders/@29.636208,-95.574546,17z/data=!3m1!4b1!4m6!3m5!1s0x8640e7cdfebb1fef:0x3de403dca549748f!8m2!3d29.636208!4d-95.574546!16s%2Fg%2F11zcjh2x4p`
-- **Business type:** Commercial general contractor / construction management, Texas
-- **Service area:** Texas (primary: Houston, Dallas, Austin metro). No virtual-office location pages.
-- **Key projects (operator truth for content):** Home2Suites by Hilton Richmond TX (90,500 sq ft), Comfort Suites Pasadena TX, Holiday Inn Express Pflugerville TX (114,700 sq ft).
-- **Authors:** real, named construction experts with verifiable project history. No "Editorial Team" bylines. Credit must trace to a named Maxx Builders team member or principal.
+- **The orchestrator wipes the working tree on failure.** `orchestrator/lib/git-delivery.mjs`
+  `rollback()` runs `git reset --hard` then deletes the branch on any error or no-change run.
+  Commit or stash uncommitted work before `npm run orchestrate` — it will be discarded otherwise.
+- **`.claude/hooks/guard-publish.sh` hard-denies (exit 2)** destructive CMS/DB calls: `wp post delete`,
+  emitting a `301`, `DELETE FROM` on a live table. Don't attempt them — the tool call fails.
+- **Never push to `main`.** All changes flow through a `seo/auto-YYYY-MM-DD-NNNNN` branch → one PR →
+  human merge or `seo-auto-merge` workflow. Never manually merge/rebase/squash PRs.
+- **`drafts/`, `schema/`, `change_set/` are runtime artifacts** the orchestrator and `packs/` apply layer
+  depend on — never delete without explicit instruction.
+- **Don't edit the goal prompt in `orchestrator/run.mjs`** without understanding the eval-gate judge
+  (`scripts/eval-judge.mjs`) — a prompt change alters the diff and can fail the CI gate.
+- **Repo root and `drafts/` carry many untracked scratch files** (`tmp_*.mjs`, `cleanup_*.mjs`,
+  `*-review.md`, ad-hoc `scripts/gen_*`). These are not part of the runtime — don't treat them as canonical.
 
-## Keyword / intent map
+## Commands / environment
 
-Top clusters (one page per cluster - do not cannibalize across clusters):
+- **Windows + PowerShell is primary.** Run scripts via `node --env-file=.env <script>` — there is no
+  `dotenv` dependency, the env file is loaded by Node. Use the `npm run *` aliases (see `package.json`).
+- **Tests:** `npm test` → `node --test` (Node's built-in runner; no Jest/Vitest).
+- **PowerShell + Supabase Mgmt API SQL:** do NOT `ConvertTo-Json` the SQL string when POSTing to the
+  `database/query` endpoint — it serializes the query as an object and returns 400. Pass the raw body.
+- **Supabase has two credential paths:** interactive sessions use `SUPABASE_ACCESS_TOKEN` via MCP;
+  CI/headless uses `SUPABASE_SERVICE_ROLE_KEY` through `orchestrator/lib/supabase.mjs`. Don't write
+  inline Supabase clients elsewhere — extend that file.
 
-| Cluster | Primary page | Intent |
-| --- | --- | --- |
-| Hotel construction cost Texas | `/the-ultimate-2026-hotel-construction-cost-guide-texas-edition/` | Commercial info |
-| Medical office construction cost Texas | `/medical-office-construction-costs-texas-2026-comprehensive-guide/` | Commercial info |
-| Warehouse construction cost TX | `/warehouse-construction-cost-per-square-foot-a-comprehensive-guide/` | Commercial info |
-| Commercial construction cost Houston | `/commercial-construction-cost-houston-tx/` | Local commercial |
-| Commercial construction cost Dallas | `/dallas-commercial-construction-costs-2025-2026/` | Local commercial |
-| Design-build Houston | `/design-build-construction-houston/` | Service/transactional |
-| Restaurant construction tips/cost | `/8-key-considerations-for-building-a-restaurant/` + `/cost-efficient-strategies-restaurant-construction/` | Commercial info - watch cannibalization |
-| Car wash construction cost TX | `/cost-to-build-a-car-wash-in-texas/` | Commercial info |
-| Retail contractor rankings Houston | `/best-retail-construction-contractors-in-houston-2026-rankings/` | Commercial info |
-| Mock-up rooms hospitality | `/importance-of-mock-up-rooms-in-the-hospitality-industry/` | Informational |
+## Before acting
 
-Known cannibalization risk: restaurant cluster has two pages targeting overlapping intent - audit before creating new restaurant content.
-
-## SEO rules to enforce (platform-independent)
-
-**Thresholds (mobile, field-aware):** LCP < 2.5s, INP < 200ms, CLS < 0.1 at CrUX p75. Fix CWV at the template level, order TTFB -> LCP -> INP -> CLS. Never lazy-load the LCP element.
-
-**Metadata:** unique per page; titles <= 60 chars (lead with primary entity); descriptions present, <= 155 chars; self-referencing canonical by default.
-
-**Crawl/index:** only indexable, canonical, 200-status URLs in the sitemap; max one redirect hop; no soft-404s; noindex filter/faceted URLs.
-
-**Structured data:** valid JSON-LD, server-rendered where possible. Organization on homepage only; LocalBusiness subtype per location page. Schema NAP must match visible page text and GBP byte-for-byte.
-
-**Programmatic quality gates:** eligibility (skip rows that can't support a useful page), uniqueness ratio >= 0.5, unique intro + recommendation block per page, minimum content threshold, >= 3 internal links. One template = one intent = one conversion path.
-
-**Doorway guardrail:** warn at 30 generated location pages, hard-stop at 50 pending human review.
-
-**AI-search:** answer-first blocks, TL;DR, comparison tables; cover full query intent. Do NOT use llms.txt citation hacks, content chunking, or keyword-variation rewriting (debunked).
-
-## Workflow rules
-
-- Audits are READ-ONLY -> produce `seo-audit.md`.
-- Generators OUTPUT portable artifacts (CSV/JSON/markdown). The matching pack APPLIES them to the platform.
-- Operate at the template level wherever a pattern is shared.
-- Split crawl exports over context by path prefix.
-- Always confirm the platform + apply method before any write step.
-- For Maxx Builders WordPress, never assume staging exists. All applies are production-only and require backup/export plus small-batch approval.
-- Run `/cost` to monitor spend.
-
-## Never touch
-
-- `.env`, secrets, API tokens, lockfiles, CI credentials
-- Production data without explicit instruction
-- Live publishing without showing a manifest first
+Check the queue (`node scripts/mem.mjs queue`), the `control.paused` kill switch, and the
+`do_not_touch` table in Supabase. A URL in `do_not_touch` is off-limits regardless of the queue.
+Classify every action `safe` vs `gated` (see `.claude/rules/workflow.md`); when unclear, escalate.

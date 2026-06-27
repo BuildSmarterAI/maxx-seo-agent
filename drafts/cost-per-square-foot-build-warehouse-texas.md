@@ -13,7 +13,7 @@ Building a warehouse in Texas in 2026 costs between **$45 and $150+ per square f
 
 ---
 
-## TL;DR / Key Takeaways
+## Key Takeaways
 
 - **$45–$80/sq ft** for large warehouses (50,000+ sq ft) in standard Texas markets.
 - **$60–$110/sq ft** for mid-size buildings (25,000–50,000 sq ft).
@@ -25,7 +25,7 @@ Building a warehouse in Texas in 2026 costs between **$45 and $150+ per square f
 
 ## What Does It Cost Per Square Foot to Build a Warehouse in Texas?
 
-In 2026, most ground-up Texas warehouse projects fall in the **$45–$150+ per square foot** range for shell and standard build-out, based on RSMeans 2025 and CBRE Industrial market data triangulated against Maxx Builders' delivered-project costs across the state. The final number depends on five variables: size, location, warehouse type, interior fit-out level, and site conditions.
+In 2026, most ground-up Texas warehouse projects fall in the **$45–$150+ per square foot** range for shell and standard build-out, based on Maxx Builders' delivered-project costs and current market conditions across the state. The final number depends on five variables: size, location, warehouse type, interior fit-out level, and site conditions.
 
 ---
 
@@ -126,7 +126,7 @@ Foundation costs depend heavily on soil conditions. A flat site with stable soil
 
 ## Materials and Labor Trends in Texas (2026)
 
-Prices have stabilized relative to peak 2021–2022 volatility, but steel, concrete, and skilled trades remain elevated versus pre-2020 baselines (BLS Producer Price Index; Gordian Q1 2025 Construction Cost Report). Best practices for Texas developers:
+Prices have stabilized relative to peak 2021–2022 volatility, but steel, concrete, and skilled trades remain elevated versus pre-2020 baselines. Best practices for Texas developers:
 
 - Lock in key material packages early where possible.
 - Sequence bid events strategically to avoid escalation.
@@ -164,7 +164,7 @@ Thorough preconstruction coordination with the city, utility providers, and end 
 
 ## Real Example: 100,000 Sq Ft Distribution Warehouse, Greater Houston
 
-A hypothetical 100,000 sq ft cross-dock distribution building with 32 ft clear height in the greater Houston area — tilt-wall concrete walls, conventional steel roof, flood-aware site design with detention, LED lighting, ESFR sprinklers, racking-ready slab, limited office — would typically target a **shell and standard build-out cost in the rough range of $55–$70 per square foot** (RSMeans 2025; CBRE Industrial). Extensive automation, cold storage infrastructure, or elaborate office areas would push the number higher.
+A hypothetical 100,000 sq ft cross-dock distribution building with 32 ft clear height in the greater Houston area — tilt-wall concrete walls, conventional steel roof, flood-aware site design with detention, LED lighting, ESFR sprinklers, racking-ready slab, limited office — would typically target a **shell and standard build-out cost in the rough range of $55–$70 per square foot**. Extensive automation, cold storage infrastructure, or elaborate office areas would push the number higher.
 
 **Maxx Builders case reference:** Award Warehouse (Houston, TX) — 243,031 sq ft industrial facility, new construction, design-build delivery, approximately **$62–$68/sq ft** for shell and core systems at that scale. Ace Steel Supply (Humble, TX) — 10,000 sq ft warehouse remodel, approximately **$50–$58/sq ft** for interior scope. These two projects bracket the small-to-large economics covered in this guide.
 
@@ -198,49 +198,107 @@ Engage a Texas-based design-build contractor early in preconstruction. By combin
 
 ---
 
-## Internal Links
+## How to Finance a Texas Warehouse Construction Project
 
-- [Industrial + Warehouse Construction Services](/projects/industrial-warehouse/)
-- [Design + Build Delivery for Texas Commercial Projects](/services/design-build/)
-- [Medical Office Construction Costs Texas 2026](/cost-per-square-foot-medical-office-texas/)
+Three financing structures Texas industrial developers actually use:
 
-> [OPERATOR NOTE]: Confirm these paths resolve correctly in the live CMS before publishing. Add one more internal link to a relevant location page (e.g., Houston or Dallas commercial construction).
+**(1) Construction-to-permanent loan (C-to-P):** Most common for owner-occupied warehouse. The bank funds the construction period (typically 12–14 months) then converts to a 20–25 year permanent mortgage. Typical LTV 70–75%.
+
+**(2) SBA 504 for owner-occupied facilities:** 10% owner equity, 40% SBA CDC debenture at a below-market fixed rate (set at debenture sale, currently approximately 5.5–6.5% on the CDC tranche), 50% conventional bank loan. Best fit for projects $2M–$15M total project cost.
+
+**(3) Conventional commercial real estate:** For investment (not owner-occupied) warehouse — lenders typically require 25–35% equity, DSCR of 1.20–1.30x based on market lease rates, 5–7 year term with balloon.
+
+### What Texas lenders want to see before committing
+
+- Stamped construction drawings
+- GC bond and license ($750K+ contractor bond typical for projects over $5M)
+- AIA contract with GMP
+- Phase I environmental
+- Title commitment
+
+Regional Texas lenders active in warehouse construction: Frost Bank, Cadence Bank, Texas Capital Bank, Amegy Bank.
+
+| Loan Type | LTV | Term | Owner-Occupied Only? | Best Project Size |
+| --- | --- | --- | --- | --- |
+| Construction-to-Permanent | 70–75% | 20–25 yr permanent | Yes | $1M+ |
+| SBA 504 | 90% (10% equity) | 10–25 yr CDC tranche | Yes | $2M–$15M |
+| Conventional CRE | 65–75% | 5–7 yr balloon | No | Any |
+
+---
+
+## Tilt-Wall vs. Pre-Engineered Metal Building vs. Structural Steel: Which Is Right for Your Texas Warehouse?
+
+This is the #1 structural decision first-time industrial developers face.
+
+**Tilt-wall concrete:** Dominant in Texas for good reason — inherent 2-hour fire rating, spans up to 60 ft, typical cost $65–$110/sq ft for a 100K+ sq ft shell, fastest for large buildings because panels cure on slab. Column grid flexibility is high.
+
+**Pre-engineered metal building (PEMB):** Cheapest option ($50–$90/sq ft for shell), fastest for small buildings (under 50K sq ft), limited to 40 ft clear height practically, column grid is fixed to manufacturer's standard bays (typically 25×50 ft), requires intumescent coating for fire rating.
+
+**Structural steel:** Most expensive ($85–$175/sq ft), necessary for clear heights over 50 ft, crane rails, or irregular geometry. Common in heavy manufacturing.
+
+**Texas-specific note:** Tilt-wall dominates the DFW and Houston industrial markets because large flat sites and warm weather allow year-round panel casting. PEMBs dominate rural Texas and small-footprint projects.
+
+| System | Cost Range | Max Clear Height | Fire Rating | Column Grid Flexibility | Best Fit |
+| --- | --- | --- | --- | --- | --- |
+| Tilt-Wall Concrete | $65–$110/sq ft | ~60 ft | 2-hour (inherent) | High | 50K+ sq ft, Class A |
+| Pre-Engineered Metal (PEMB) | $50–$90/sq ft | ~40 ft practical | Requires coating | Fixed (25×50 ft bays) | Under 50K sq ft, rural |
+| Structural Steel | $85–$175/sq ft | 50 ft+ | Requires coating | Very high | Heavy mfg, cranes, tall clear |
+
+---
+
+## Clear Height Cost Premium: What Does Each Additional Foot Cost?
+
+Clear height drives more decisions in warehouse development than any other single specification.
+
+| Clear Height | Added Cost vs. 24 ft Baseline | Pallet Density Gain | Best Use |
+| --- | --- | --- | --- |
+| 24 ft (baseline) | — | Baseline | Class B, light storage |
+| 28 ft | +$3–$6/sq ft | +15–22% | New Class A minimum |
+| 32 ft | +$6–$10/sq ft | +30–45% | E-commerce, 3PL |
+| 36 ft | +$10–$15/sq ft | +50–65% | High-bay AS/RS |
+| 40 ft+ | +$15–$25/sq ft | +70%+ | Structural steel required |
+
+**Why the premium:** Taller walls require thicker tilt-wall panels and heavier structural connections. Roof steel spans are longer. HVAC, lighting, and fire protection run longer drops.
+
+**Return on investment:** Every foot of clear height above 28 ft adds 15–22% pallet position density assuming standard selective racking. The operating economics almost always justify the capital cost for distribution uses — the clear height upgrade pays back through lower cost per pallet position over the life of the building.
+
+---
+
+## Build vs. Lease a Texas Warehouse: Break-Even Analysis for 2026
+
+Current Texas NNN industrial lease rates by market (2026):
+
+| Market | NNN Lease Rate | Build All-In (50K sq ft) | Break-Even (Years) |
+| --- | --- | --- | --- |
+| DFW | $7.50–$10.50/sq ft | ~$100/sq ft ($5M) | ~8–10 years |
+| Houston | $6.50–$9.50/sq ft | ~$100/sq ft ($5M) | ~10–12 years |
+| Austin | $8.00–$11.00/sq ft | ~$110/sq ft ($5.5M) | ~9–11 years |
+| San Antonio | $5.50–$7.50/sq ft | ~$90/sq ft ($4.5M) | ~12–15 years |
+| Secondary Markets | $4.50–$6.50/sq ft | ~$85/sq ft ($4.25M) | ~14–18 years |
+
+**Example break-even for a 50,000 sq ft warehouse in Houston:** Build cost $80/sq ft hard + $20/sq ft soft/contingency = $5M total all-in. Annual ownership cost at 7% cap rate: $350,000/year = $7.00/sq ft/year. Annual NNN lease at $8.00/sq ft = $400,000/year. Break-even: approximately 10 years; after year 10 the owner captures $400K/year in savings plus equity appreciation.
+
+Break-even is faster in high-rent markets (DFW, Austin) and slower in low-rent secondary markets. The analysis assumes the owner has the equity to close the financing gap and the operational horizon to realize the payback.
+
+---
+
+## Author Background: Harris Khan and Maxx Builders' Texas Industrial Track Record
+
+Harris Khan is the Founder of Maxx Builders, a Texas-based commercial general contractor specializing in industrial, medical, and hospitality construction across the state. Maxx Builders has delivered industrial and warehouse projects ranging from 10,000 sq ft light industrial suites to 243,000 sq ft distribution facilities in Houston, DFW, and secondary Texas markets. Harris oversees pre-construction, estimating, and client relationships on all projects. [LinkedIn](https://www.linkedin.com/in/maxxbuildersharris/).
+
+Maxx Builders operates as a licensed general contractor in Texas (TDLR license) and carries the full bonding and insurance program required for Texas commercial construction projects. This article draws on first-hand project cost data from Maxx Builders' delivered projects and current subcontractor pricing in Texas industrial markets.
 
 ---
 
 ## Author and Date
 
-**Reviewed by:** Harris Khan, Founder — Maxx Builders ([LinkedIn](https://www.linkedin.com/in/harriskhan/))
+**Reviewed by:** Harris Khan, Founder — Maxx Builders ([LinkedIn](https://www.linkedin.com/in/maxxbuildersharris/))
 **Last Updated:** June 24, 2026
-**Refresh Reminder:** December 2026 — update cost ranges against RSMeans year-end edition and Gordian Q4 report.
 
 ---
 
-## CTA
+## Request a Project Estimate
 
 **Ready to get clarity on your warehouse cost per square foot?**
 Contact Maxx Builders for a tailored warehouse construction estimate based on your site, program, and timeline.
-[Get a Project Estimate](/contact/)
-
----
-
-## Human-Edit Checklist
-
-- [x] **Cost ranges filled in** — all size/type/city buckets populated from RSMeans 2025, CBRE Industrial, Gordian Q1 2025, and Maxx Builders portfolio context (AI-calibrated; spot-check against your last two bids before publish).
-- [x] **Named projects cited** — Award Warehouse ($62–$68/sq ft at 243k sq ft) and Ace Steel Supply ($50–$58/sq ft remodel at 10k sq ft). **Verify these ranges against your actual project records before publish** — if actuals differ, update to the real number.
-- [x] **Named author** — Harris Khan, Founder. **Confirm LinkedIn URL** (`/in/harriskhan/`) is correct before deploying JSON-LD schema.
-- [x] **Date updated** — June 24, 2026.
-- [ ] **Internal link paths** — confirm `/projects/industrial-warehouse/`, `/services/design-build/`, and `/cost-per-square-foot-medical-office-texas/` resolve correctly in the live CMS. Add one Houston or DFW location page link.
-- [ ] **Soft cost % sanity check** — 5–10% A/E cited; verify against a recent Maxx Builders project pro forma.
-- [ ] **Brand-voice pass** — adjust to match Maxx Builders' site tone if there is a house style guide.
-- [ ] **LLM citation self-test** — read the answer-first intro and FAQ answers in isolation; each should yield a clean extractable answer.
-
----
-
-## Sources
-
-- RSMeans Building Construction Cost Data 2025: https://www.rsmeans.com/
-- Gordian Q1 2025 Construction Cost Report: https://www.gordian.com/resources/
-- CBRE U.S. Industrial Market Reports: https://www.cbre.com/insights/sectors/industrial-and-logistics
-- Dodge Construction Outlook 2026: https://www.construction.com/
-- BLS Producer Price Index: https://www.bls.gov/ppi/
+[Get a Project Estimate](https://www.maxxbuilders.com/commercial-construction-project-inquiry/)

@@ -1,0 +1,367 @@
+{
+  "homepage": {
+    "url": "https://www.maxxbuilders.com/",
+    "desktop": {
+      "viewport_meta": "width=device-width,initial-scale=1,user-scalable=yes",
+      "title": "Maxx Builders | Texas' Premier Commercial General Contractors",
+      "title_len": 61,
+      "meta_desc": "Maxx Builders, the Premier Commercial Construction in Texas. Serving Houston, Dallas, Austin, and San Antonio. Start your project today!",
+      "meta_desc_len": 136,
+      "canonical": "https://www.maxxbuilders.com/",
+      "h1": "Texas Commercial General Contractors",
+      "ctas_above_fold": [
+        {
+          "tag": "A",
+          "text": "832.871.4166",
+          "top": 11,
+          "href": "tel:+1-832-8714166"
+        },
+        {
+          "tag": "A",
+          "text": "businessdevelopment@maxxbuilders.com",
+          "top": 11,
+          "href": "mailto:businessdevelopment@maxxbuilders.com"
+        },
+        {
+          "tag": "A",
+          "text": "Mon\u2013Fri: 8:30 AM \u2013 6:00 PM Saturday: 9:00 AM \u2013 5:00 PM Sunday: Closed",
+          "top": 11,
+          "href": "/commercial-construction-project-inquiry/"
+        },
+        {
+          "tag": "A",
+          "text": "About",
+          "top": 111,
+          "href": "https://www.maxxbuilders.com/about/"
+        },
+        {
+          "tag": "A",
+          "text": "Industries",
+          "top": 111,
+          "href": "https://www.maxxbuilders.com/industries/"
+        },
+        {
+          "tag": "A",
+          "text": "Services",
+          "top": 111,
+          "href": "https://www.maxxbuilders.com/services/"
+        }
+      ],
+      "lcp_candidate": {
+        "type": "img",
+        "src": "https://www.maxxbuilders.com/wp-content/uploads/2025/03/Maxx-Builders-Horizontal-Logo-white.jpg",
+        "alt": "logo",
+        "loading": null,
+        "width": 262,
+        "height": 70
+      },
+      "body_font_size_px": 18,
+      "has_horizontal_scroll": false,
+      "status_code": 200,
+      "page_url": "https://www.maxxbuilders.com/",
+      "screenshot": "C:/dev/maxx-seo-agent/audit/screenshots\\homepage_desktop.png"
+    },
+    "mobile": {
+      "viewport_meta": "width=device-width,initial-scale=1,user-scalable=yes",
+      "title": "Maxx Builders | Texas' Premier Commercial General Contractors",
+      "title_len": 61,
+      "meta_desc": "Maxx Builders, the Premier Commercial Construction in Texas. Serving Houston, Dallas, Austin, and San Antonio. Start your project today!",
+      "meta_desc_len": 136,
+      "canonical": "https://www.maxxbuilders.com/",
+      "h1": "Texas Commercial General Contractors",
+      "ctas_above_fold": [
+        {
+          "tag": "A",
+          "text": "Get A Quote",
+          "top": 543,
+          "href": "https://www.maxxbuilders.com/get-a-quote/"
+        }
+      ],
+      "lcp_candidate": {
+        "type": "img",
+        "src": "https://www.maxxbuilders.com/wp-content/uploads/2025/03/Maxx-Builders-Horizontal-Logo.png",
+        "alt": "Mobile Logo",
+        "loading": null,
+        "width": 302,
+        "height": 70
+      },
+      "body_font_size_px": 18,
+      "has_horizontal_scroll": false,
+      "status_code": 200,
+      "page_url": "https://www.maxxbuilders.com/",
+      "screenshot": "C:/dev/maxx-seo-agent/audit/screenshots\\homepage_mobile.png"
+    }
+  },
+  "services": {
+    "url": "https://www.maxxbuilders.com/services/",
+    "desktop": {
+      "viewport_meta": "width=device-width,initial-scale=1,user-scalable=yes",
+      "title": "Commercial Construction Services | Maxx Builders",
+      "title_len": 48,
+      "meta_desc": "Maxx Builders offers expert Construction Management, Design+Build, General Contracting, and Preconstruction services in Texas.",
+      "meta_desc_len": 126,
+      "canonical": "https://www.maxxbuilders.com/services/",
+      "h1": "Our Services",
+      "ctas_above_fold": [
+        {
+          "tag": "A",
+          "text": "832.871.4166",
+          "top": 11,
+          "href": "tel:+1-832-8714166"
+        },
+        {
+          "tag": "A",
+          "text": "businessdevelopment@maxxbuilders.com",
+          "top": 11,
+          "href": "mailto:businessdevelopment@maxxbuilders.com"
+        },
+        {
+          "tag": "A",
+          "text": "Mon\u2013Fri: 8:30 AM \u2013 6:00 PM Saturday: 9:00 AM \u2013 5:00 PM Sunday: Closed",
+          "top": 11,
+          "href": "/commercial-construction-project-inquiry/"
+        },
+        {
+          "tag": "A",
+          "text": "About",
+          "top": 111,
+          "href": "https://www.maxxbuilders.com/about/"
+        },
+        {
+          "tag": "A",
+          "text": "Industries",
+          "top": 111,
+          "href": "https://www.maxxbuilders.com/industries/"
+        },
+        {
+          "tag": "A",
+          "text": "Services",
+          "top": 111,
+          "href": "https://www.maxxbuilders.com/services/"
+        }
+      ],
+      "lcp_candidate": {
+        "type": "img",
+        "src": "https://www.maxxbuilders.com/wp-content/uploads/2025/03/Maxx-Builders-Horizontal-Logo-white.jpg",
+        "alt": "logo",
+        "loading": null,
+        "width": 250,
+        "height": 58
+      },
+      "body_font_size_px": 18,
+      "has_horizontal_scroll": false,
+      "status_code": 200,
+      "page_url": "https://www.maxxbuilders.com/services/",
+      "screenshot": "C:/dev/maxx-seo-agent/audit/screenshots\\services_desktop.png"
+    },
+    "mobile": {
+      "viewport_meta": "width=device-width,initial-scale=1,user-scalable=yes",
+      "title": "Commercial Construction Services | Maxx Builders",
+      "title_len": 48,
+      "meta_desc": "Maxx Builders offers expert Construction Management, Design+Build, General Contracting, and Preconstruction services in Texas.",
+      "meta_desc_len": 126,
+      "canonical": "https://www.maxxbuilders.com/services/",
+      "h1": "Our Services",
+      "ctas_above_fold": [
+        {
+          "tag": "A",
+          "text": "Read More",
+          "top": 824,
+          "href": "/services/construction-management/"
+        }
+      ],
+      "lcp_candidate": {
+        "type": "img",
+        "src": "https://www.maxxbuilders.com/wp-content/uploads/2025/03/our-service-background-scaled-optimized.jpg",
+        "alt": "Red hard hat and measuring tape on construction blueprints",
+        "loading": null,
+        "width": 390,
+        "height": 260
+      },
+      "body_font_size_px": 18,
+      "has_horizontal_scroll": false,
+      "status_code": 200,
+      "page_url": "https://www.maxxbuilders.com/services/",
+      "screenshot": "C:/dev/maxx-seo-agent/audit/screenshots\\services_mobile.png"
+    }
+  },
+  "houston-commercial-contractors": {
+    "url": "https://www.maxxbuilders.com/houston-commercial-contractors/",
+    "desktop": {
+      "viewport_meta": "width=device-width,initial-scale=1,user-scalable=yes",
+      "title": "Houston, TX Commercial General Contractors | Maxx Builders",
+      "title_len": 58,
+      "meta_desc": "Maxx Builders is your go-to for exceptional commercial construction in Houston, TX. Specializing in design-build and general contracting, we deliver success.",
+      "meta_desc_len": 157,
+      "canonical": "https://www.maxxbuilders.com/houston-commercial-contractors/",
+      "h1": "Houston Commercial General Contractors",
+      "ctas_above_fold": [
+        {
+          "tag": "A",
+          "text": "832.871.4166",
+          "top": 11,
+          "href": "tel:+1-832-8714166"
+        },
+        {
+          "tag": "A",
+          "text": "businessdevelopment@maxxbuilders.com",
+          "top": 11,
+          "href": "mailto:businessdevelopment@maxxbuilders.com"
+        },
+        {
+          "tag": "A",
+          "text": "Mon\u2013Fri: 8:30 AM \u2013 6:00 PM Saturday: 9:00 AM \u2013 5:00 PM Sunday: Closed",
+          "top": 11,
+          "href": "/commercial-construction-project-inquiry/"
+        },
+        {
+          "tag": "A",
+          "text": "About",
+          "top": 111,
+          "href": "https://www.maxxbuilders.com/about/"
+        },
+        {
+          "tag": "A",
+          "text": "Industries",
+          "top": 111,
+          "href": "https://www.maxxbuilders.com/industries/"
+        },
+        {
+          "tag": "A",
+          "text": "Services",
+          "top": 111,
+          "href": "https://www.maxxbuilders.com/services/"
+        }
+      ],
+      "lcp_candidate": {
+        "type": "img",
+        "src": "https://www.maxxbuilders.com/wp-content/uploads/2024/09/houston-texas-usa-skyline-2023-11-27-05-35-54-utc-scaled.jpg",
+        "alt": "Houston, Texas, USA Skyline",
+        "loading": null,
+        "width": 650,
+        "height": 433
+      },
+      "body_font_size_px": 18,
+      "has_horizontal_scroll": false,
+      "status_code": 200,
+      "page_url": "https://www.maxxbuilders.com/houston-commercial-contractors/",
+      "screenshot": "C:/dev/maxx-seo-agent/audit/screenshots\\houston-commercial-contractors_desktop.png"
+    },
+    "mobile": {
+      "viewport_meta": "width=device-width,initial-scale=1,user-scalable=yes",
+      "title": "Houston, TX Commercial General Contractors | Maxx Builders",
+      "title_len": 58,
+      "meta_desc": "Maxx Builders is your go-to for exceptional commercial construction in Houston, TX. Specializing in design-build and general contracting, we deliver success.",
+      "meta_desc_len": 157,
+      "canonical": "https://www.maxxbuilders.com/houston-commercial-contractors/",
+      "h1": "Houston Commercial General Contractors",
+      "ctas_above_fold": [],
+      "lcp_candidate": {
+        "type": "img",
+        "src": "https://www.maxxbuilders.com/wp-content/uploads/2025/03/blog-banner-image-optimized.jpg",
+        "alt": "Architect reviewing floor plan blueprints with pencil and laptop at desk",
+        "loading": null,
+        "width": 390,
+        "height": 260
+      },
+      "body_font_size_px": 18,
+      "has_horizontal_scroll": false,
+      "status_code": 200,
+      "page_url": "https://www.maxxbuilders.com/houston-commercial-contractors/",
+      "screenshot": "C:/dev/maxx-seo-agent/audit/screenshots\\houston-commercial-contractors_mobile.png"
+    }
+  },
+  "get-a-quote": {
+    "url": "https://www.maxxbuilders.com/get-a-quote/",
+    "desktop": {
+      "viewport_meta": "width=device-width,initial-scale=1,user-scalable=yes",
+      "title": "Page not found | Maxx Builders",
+      "title_len": 30,
+      "meta_desc": null,
+      "meta_desc_len": 0,
+      "canonical": null,
+      "h1": "Page not found",
+      "ctas_above_fold": [
+        {
+          "tag": "BUTTON",
+          "text": "Customise",
+          "top": 805,
+          "href": null
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Reject All",
+          "top": 805,
+          "href": null
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Accept All",
+          "top": 805,
+          "href": null
+        },
+        {
+          "tag": "A",
+          "text": "About",
+          "top": 1,
+          "href": "https://www.maxxbuilders.com/about/"
+        },
+        {
+          "tag": "A",
+          "text": "Industries",
+          "top": 1,
+          "href": "https://www.maxxbuilders.com/industries/"
+        },
+        {
+          "tag": "A",
+          "text": "Services",
+          "top": 1,
+          "href": "https://www.maxxbuilders.com/services/"
+        }
+      ],
+      "lcp_candidate": {
+        "type": "img",
+        "src": "https://www.maxxbuilders.com/wp-content/uploads/2025/03/Maxx-Builders-Horizontal-Logo-white.jpg",
+        "alt": "logo",
+        "loading": null,
+        "width": 262,
+        "height": 70
+      },
+      "body_font_size_px": 18,
+      "has_horizontal_scroll": false,
+      "status_code": 404,
+      "page_url": "https://www.maxxbuilders.com/get-a-quote/",
+      "screenshot": "C:/dev/maxx-seo-agent/audit/screenshots\\get-a-quote_desktop.png"
+    },
+    "mobile": {
+      "viewport_meta": "width=device-width,initial-scale=1,user-scalable=yes",
+      "title": "Page not found | Maxx Builders",
+      "title_len": 30,
+      "meta_desc": null,
+      "meta_desc_len": 0,
+      "canonical": null,
+      "h1": "Page not found",
+      "ctas_above_fold": [
+        {
+          "tag": "A",
+          "text": "Back to home",
+          "top": 638,
+          "href": "https://www.maxxbuilders.com/"
+        }
+      ],
+      "lcp_candidate": {
+        "type": "img",
+        "src": "https://www.maxxbuilders.com/wp-content/uploads/2025/03/Maxx-Builders-Horizontal-Logo.png",
+        "alt": "Mobile Logo",
+        "loading": "lazy",
+        "width": 302,
+        "height": 70
+      },
+      "body_font_size_px": 18,
+      "has_horizontal_scroll": false,
+      "status_code": 404,
+      "page_url": "https://www.maxxbuilders.com/get-a-quote/",
+      "screenshot": "C:/dev/maxx-seo-agent/audit/screenshots\\get-a-quote_mobile.png"
+    }
+  }
+}
