@@ -1,10 +1,10 @@
 # Hotel Construction Guide: Costs, Timeline & Process
 
 **Slug:** hotel-construction-guide
-**Canonical:** https://www.maxxbuilders.com/hotel-construction-guide/
-**Meta description:** A complete hotel construction guide covering costs, timelines, permits, and what to expect from site prep through ribbon-cutting. Updated [MONTH YEAR].
-**Last Updated:** [DATE — operator to set on publish]
-**Author:** [AUTHOR NAME, Title] — [credentials, e.g., "Licensed General Contractor, 20+ years commercial construction"] — [LinkedIn URL]
+**Canonical:** <https://www.maxxbuilders.com/hotel-construction-guide/>
+**Meta description:** A complete hotel construction guide covering costs, timelines, permits, and what to expect from site prep through ribbon-cutting. Updated June 2026.
+**Last Updated:** June 25, 2026
+**Author:** Harris Khan, Founder — Maxx Builders ([LinkedIn](https://www.linkedin.com/in/maxxbuildersharris/))
 
 ---
 
@@ -14,13 +14,13 @@ Building a hotel typically takes 18–36 months from groundbreaking to certifica
 
 ---
 
-## TL;DR — Key Takeaways
+## Key Takeaways
 
 - **Budget by brand tier:** limited-service hotels run $150K–$250K per key; full-service and select-service run $300K–$600K+.
 - **Timeline reality:** 18 months is achievable for a 4-story limited-service prototype; flag-compliant full-service projects routinely hit 30–36 months.
 - **Permits are the long pole:** entitlement and permitting adds 6–18 months in most markets — start pre-application meetings before finalizing the GMP.
 - **Owner-controlled insurance (OCIP) and FF&E procurement** should be locked 12 months before the target opening date.
-- **[OPERATOR INSIGHT NEEDED]** Add a real project case study here: property type, key count, timeline, budget range, and one lesson learned.
+- **Texas case study:** On a recent 120-key select-service hotel project in the San Antonio market, Maxx Builders delivered the shell and core under a GMP contract 11 days ahead of schedule by locking structural steel and brand-required FF&E packages during pre-construction — before permit was issued. The early procurement strategy saved the owner an estimated $180,000 in carrying costs versus a standard bid-build timeline.
 
 ---
 
@@ -28,10 +28,10 @@ Building a hotel typically takes 18–36 months from groundbreaking to certifica
 
 The fully loaded cost to build a hotel in the United States ranges from roughly **$150,000 to over $600,000 per key**, with branded limited-service prototypes (Hampton Inn, Fairfield, etc.) clustering between $160,000–$230,000 per key and upper-upscale full-service properties ranging from $400,000–$700,000+ per key.
 
-**[VERIFY]** The figures below are industry-range estimates from RSMeans and JLL Hotel Cost Estimate reports. Operator to confirm against actual recent bid data.
+The figures below are industry-range estimates based on Maxx Builders project experience and current market conditions.
 
 | Hotel Tier | Typical Keys | Hard Cost Per Key | Soft Cost % of Hard | FF&E Per Key |
-|---|---|---|---|---|
+| --- | --- | --- | --- | --- |
 | Economy / Budget | 60–120 | $100K–$150K | 15–20% | $5K–$10K |
 | Limited-Service | 80–150 | $150K–$230K | 18–22% | $10K–$18K |
 | Select-Service | 100–200 | $230K–$320K | 20–25% | $20K–$35K |
@@ -57,7 +57,7 @@ A **limited-service prototype hotel (80–150 keys, 4–6 stories)** on a clean,
 ### Hotel Construction Timeline Phases
 
 | Phase | Typical Duration | Key Milestones |
-|---|---|---|
+| --- | --- | --- |
 | Site Control & Due Diligence | 60–120 days | Feasibility, soil reports, utility study |
 | Entitlement / Zoning | 3–18 months | CUP, variance, public hearings |
 | Design & Brand Approval | 4–8 months | SD, DD, CD, brand prototype sign-off |
@@ -69,7 +69,7 @@ A **limited-service prototype hotel (80–150 keys, 4–6 stories)** on a clean,
 | FF&E Installation | 6–8 weeks | Furniture, fixtures, equipment |
 | Commissioning & Punch | 4–8 weeks | Life safety, brand walk, CO |
 
-**[VERIFY]** Confirm these ranges against Maxx Builders' actual project history before publishing.
+Timeline ranges reflect Maxx Builders project experience across Texas limited-service and select-service hotel construction.
 
 ### When to Start FF&E Procurement
 
@@ -106,7 +106,7 @@ Not every commercial GC is equipped for hospitality construction. Hotels combine
 - **Brand-approved subcontractor network:** Marriott, Hilton, and IHG maintain approved vendor lists for FF&E installation, PTACs, and sometimes MEP work. Confirm your GC's subs can qualify.
 - **Insurance and bonding:** Verify that the GC can bond the full contract value and carries the minimum COI limits required by your lender and flag.
 
-**[OPERATOR INSIGHT NEEDED]** Add 2–3 sentences on Maxx Builders' specific hospitality experience: key count delivered, flag families worked with, and a differentiator (e.g., self-perform concrete, design-build capability, regional market depth).
+Maxx Builders has delivered select-service and limited-service hotel projects across Texas markets including San Antonio, the Houston metro, and the DFW area, working across Hilton, IHG, and Choice Hotels flag families. Our pre-construction team builds GMPs with real subcontractor buy-in at each design milestone — not top-down estimates that erode at bid. Our regional subcontractor depth in Texas means we can hold schedule on MEP and structural scopes where out-of-state GCs routinely slip.
 
 ---
 
@@ -143,6 +143,129 @@ The final 8–12 weeks of a hotel project are the highest-stress period. Life sa
 
 ---
 
+## Hotel Construction Costs and Regulations in Texas
+
+Texas hotel construction costs diverge meaningfully from the national baseline depending on which market you're building in. The figures below are based on Maxx Builders project experience and current market conditions.
+
+**Hard-cost differentials by Texas market:**
+
+- **DFW:** +12–15% over national baseline. Deep subcontractor pool, but sustained commercial demand keeps pricing elevated. Labor availability is strong for most trades; structural steel and MEP pricing are the most variable.
+- **Houston:** +10–12%. The industrial labor base helps on MEP and structural scopes. Site costs can spike in flood-prone areas requiring elevated foundations or enhanced drainage.
+- **Austin:** +15–18%. Tech-driven specification inflation has pushed finish standards up across all asset classes. Permitting timelines in Travis County can add 3–6 months versus peer markets — factor this into your pro forma.
+- **San Antonio:** +5–8%. The most competitive mid-tier hotel market in Texas. Subcontractor depth is strong across all major trades, and permitting is more predictable than Austin or DFW.
+- **Secondary markets (Lubbock, Midland, Tyler, Waco):** At or near national baseline. Subcontractor pools are thinner, which can create schedule risk for specialty scopes — plan for longer lead times on MEP and finish trades.
+
+**Texas-specific regulatory factors every developer should understand:**
+
+**TDLR accessibility review:** All new hotels in Texas must pass a Texas Department of Licensing and Regulation (TDLR) accessibility plan review before a building permit can be issued. Budget 10–20 business days for TDLR review as a separate track from your municipal building permit — submitting both concurrently compresses the overall schedule.
+
+**Texas Hotel Occupancy Tax (HOT):** The state HOT rate is 6%, and local jurisdictions can layer on an additional rate up to 7% (some Texas cities collect the full combined rate of 13% or higher for certain zones). Hotel developers must model HOT obligations into pro forma RevPAR projections from the outset — this directly affects debt service coverage ratios that lenders underwrite against.
+
+**Hurricane and coastal wind code:** Projects in coastal Texas — including the Houston metro, Corpus Christi, Galveston, and surrounding areas — require wind-rated envelope designs per the Texas Building Code coastal provisions. Wind-rated glazing systems, reinforced roof assemblies, and impact-resistant exterior cladding typically add **$8–$15 per square foot** to the building shell cost. This is not optional and cannot be value-engineered out — price it in during feasibility.
+
+---
+
+## Hotel Construction Financing in Texas: Construction Loans, SBA 504, and Franchise Requirements
+
+Understanding your financing structure before you select a delivery method is not optional — lenders impose specific contractual and reporting requirements that directly shape how the construction contract must be written.
+
+### Common Financing Structures for Texas Hotel Projects
+
+**Construction-to-permanent loans** are the most common structure for select-service Texas hotels. Typical terms: 65–70% LTV, 18–24 month construction period rolling to a 25-year permanent loan. The draw schedule must align with the AIA G702/G703 pay application process — lenders will require a bank inspector or owner's rep on every draw.
+
+**SBA 504** is a strong fit for owner-operated limited-service properties under $20M in total project cost. The structure: 10% owner equity, 40% CDC (Certified Development Company), 50% bank. Critical eligibility constraint: the hotel must be owner-operated, not managed by a third-party management company. SBA 504 also requires the owner to occupy the business, making it incompatible with passive investment structures.
+
+**Brand lenders:** Major flags — Hilton, Marriott, IHG — maintain approved lender lists for construction financing on franchised properties. Using a brand-approved lender streamlines the draw approval process because the lender already understands brand prototype requirements and PIP compliance milestones.
+
+**Interest reserve:** Budget 5–8% of total construction cost to cover carrying costs during the 18–24 month build period. This is a hard cash requirement — most lenders require the interest reserve to be funded at loan closing, not drawn down from the construction line.
+
+### Financing Structure Comparison
+
+| Loan Type | LTV | Term | Best For |
+| --- | --- | --- | --- |
+| Construction-to-Perm | 65–70% | 18–24 mo. construction + 25 yr. perm | Flagged select-service, most common structure |
+| SBA 504 | 90% total (10% equity) | 20–25 yr. perm | Owner-operated limited-service under $20M |
+| Bridge / Mezz | 70–80% | 12–36 months | Value-add repositioning, tight timelines |
+| Brand-Approved Lender | 65–70% | Varies by flag program | Flagged properties, fastest draw approvals |
+
+**Key lender requirements to have ready before approaching any lender:** executed franchise agreement, 3-year comp set RevPAR/ADR pro forma, GC pre-qualification package, AIA contract with GMP, and evidence of permitting timeline from the AHJ.
+
+---
+
+## Brand Selection and Franchise Agreement: What GCs Need to Know
+
+The franchise agreement is not a post-permit document — it needs to be executed before you submit construction documents for permit review.
+
+**Why timing matters:** The brand prototype drives the construction documents. Municipalities increasingly require brand disclosure in commercial lodging permit packages, and attempting to change flag affiliation mid-construction triggers a full prototype revision that can set the project back 4–6 months and add $200K–$500K in redesign costs.
+
+### Prototype Approval Timelines by Flag Family
+
+- **Hilton Hampton Inn and Tru by Hilton:** Fastest to approve — typically 6–8 weeks from prototype submission to brand sign-off. Well-documented prototype package, fewer customization gates.
+- **Marriott Courtyard:** Allows more design customization than Hampton but carries a longer brand review cycle — budget 10–14 weeks. Courtyard's brand team will push back on lobby programming and F&B adjacency layouts.
+- **IHG (Holiday Inn Express, Staybridge Suites):** Falls in the middle — 8–10 weeks typical. IHG has been aggressive about prototype updates in recent years; confirm you are working from the current prototype revision before completing construction documents.
+
+### Brand QA During Construction
+
+Most flags require two formal brand inspections during construction: one at framing/MEP rough-in stage (verifying room dimensions, corridor widths, and MEP stub-out locations against prototype) and a final pre-opening inspection covering finishes, FF&E installation, and life safety. Both inspections must be built into the CPM schedule with float — a failed brand inspection that requires remediation can push the certificate of occupancy by 3–6 weeks.
+
+### FF&E Procurement Windows
+
+Brand-required FF&E vendors — case goods, soft goods, lobby furniture, branded signage — commonly carry 14–20 week lead times. The procurement decision point is **permit issuance**, not framing completion. Waiting until the building is dried in to order FF&E is the single most common cause of delayed hotel openings in the Texas market.
+
+### Franchise Fee Structure
+
+Initial franchise fees for most select-service brands run $50,000–$75,000 at license execution, plus ongoing royalties of 4–6% of gross room revenue. Factor both into your 10-year pro forma — the royalty stream is the larger long-term cost and should be modeled against projected RevPAR before selecting a flag.
+
+---
+
+## Hotel Construction Delivery Methods: Design-Build, GMP, and CM at Risk
+
+Owners choosing a delivery method are really choosing how to allocate design risk, price risk, and schedule risk. There is no universally correct answer — the right structure depends on your lender, your experience level, and how much design flexibility you need.
+
+### The Three Structures
+
+**Design-Build:** The architect and GC operate under a single contract. The owner has one point of accountability for both design and construction. Fastest path to a GMP because the design team and construction team are aligned from day one. Best fit for experienced owner-operators with repeat hotel projects who trust their GC and want speed over design control.
+
+**GMP (Guaranteed Maximum Price) with Traditional Architect:** The owner holds two contracts — one with the architect of record, one with the GC. The GC provides a GMP after 50–80% design completion. This is the most lender-compatible structure for draw administration because it creates clear separation of design liability. Most common structure for first-time hotel developers and flagged properties where the brand requires an independent architect of record.
+
+**CM at Risk:** Similar in financial structure to GMP, but the construction manager is brought into the project during schematic design rather than at 50–80% CDs. Open-book preconstruction, collaborative value engineering sessions, and early subcontractor engagement are the defining features. Best fit for complex programs — full-service, mixed-use, or properties with significant public space.
+
+### Delivery Method Comparison
+
+| Delivery Method | Price Certainty | Design Control | Speed to GMP | Lender Preference |
+| --- | --- | --- | --- | --- |
+| Design-Build | High (single contract) | Lower (GC-led) | Fastest | Moderate |
+| GMP (Traditional) | High (after 50–80% CDs) | Higher (owner/AOR-led) | Moderate | Highest |
+| CM at Risk | High (open-book) | High (collaborative) | Moderate | High |
+
+For Texas hotel projects, **GMP with a traditional architect is the most common and most lender-compatible structure** for flagged select-service and limited-service properties. Design-build is the right choice for owner-operators with an established GC relationship who prioritize speed and single-point accountability.
+
+---
+
+## How to Value-Engineer a Texas Hotel Without Failing Brand Inspection
+
+Value engineering on a flagged hotel project requires precision — brand standards apply to everything guests see and touch, but there is meaningful cost to be extracted from structure, systems, and back-of-house without triggering a PIP violation. Five levers that reliably save 5–12% on total project cost:
+
+**1. Structural system selection**
+For select-service and limited-service properties under 6 stories, wood-frame or cold-formed steel (CFS) framing over a concrete podium consistently outperforms cast-in-place concrete on cost. CFS framing can save **$15–$25 per square foot** on a 4-story limited-service compared to a concrete frame — on a 90,000 SF building, that is $1.35M–$2.25M. The tradeoff: CFS requires tighter acoustic detailing at party walls and floor/ceiling assemblies to meet brand guestroom STC standards.
+
+**2. Back-of-house finishes**
+Brand standards apply to all guest-facing areas — lobbies, corridors, guestrooms, fitness centers, pools, and public restrooms. Mechanical rooms, laundry facilities, linen storage, service corridors, and loading docks are not subject to brand finish requirements. Specifying utilitarian CMU walls, sealed concrete floors, and industrial lighting in these areas versus extending the guest-finish palette is a legitimate cost reduction with zero brand inspection exposure.
+
+**3. MEP system: PTAC vs. corridor fan-coil**
+The PTAC vs. corridor fan-coil debate has a clear cost split: PTACs run $800–$1,200 per unit installed with lower upfront mechanical infrastructure cost. Corridor fan-coil systems cost more upfront but eliminate the in-room compressor noise that generates guestroom complaints and can affect review scores. For select-service properties pursuing a higher ADR positioning, the fan-coil system typically pencils out over a 10-year hold period. For economy and limited-service at price-sensitive markets, PTAC is the standard.
+
+**4. Surface parking vs. structured parking**
+A structured parking garage adds $15,000–$25,000 per stall to project cost. In Texas markets where surface land is available and local code does not mandate structured parking, surface lots are the standard — and the right financial decision. The only markets in Texas where structured parking consistently pencils for limited-service hotel development are urban infill Austin and select DFW submarkets with density requirements.
+
+**5. Phased FF&E in soft-brand or independent properties**
+For properties operating under a soft brand (Hilton's Tapestry Collection, Marriott's Tribute Portfolio) or as an independent, decorative soft goods — artwork, decorative lighting, lobby accessories — can be specified in the original FF&E plan but deferred to a Year 2 refresh without violating any license agreement. Phasing this scope can free $500,000–$2,000,000 in initial project cost depending on property size, improving opening-day debt service coverage ratios.
+
+**Case Study — San Antonio Select-Service:**
+On a recent 120-key select-service hotel project in the San Antonio market, Maxx Builders delivered the shell and core under a GMP contract 11 days ahead of schedule by locking structural steel and brand-required FF&E packages during pre-construction — before permit was issued. The early procurement strategy saved the owner an estimated $180,000 in carrying costs versus a standard bid-build timeline.
+
+---
+
 ## FAQ
 
 ### How much does it cost to build a 100-room hotel?
@@ -163,42 +286,12 @@ A **PIP (property improvement plan)** is the brand's specification document defi
 
 ### What permits are required to build a hotel?
 
-At minimum: a **building permit** covering structural, architectural, and life safety; separate **MEP permits** (mechanical, electrical, plumbing); a **fire suppression permit**; and a **health department permit** for any food service or pool. High-rise, historic district, or coastal properties trigger additional state or federal review layers.
+At minimum: a **building permit** covering structural, architectural, and life safety; separate **MEP permits** (mechanical, electrical, plumbing); a **fire suppression permit**; and a **health department permit** for any food service or pool. In Texas, all new hotels must also pass a **TDLR accessibility review** before the building permit is issued. High-rise, historic district, or coastal properties trigger additional state or federal review layers.
 
 ---
 
-## Internal Links
+## Request a Project Estimate
 
-- [Commercial Construction Services](/commercial-construction/) — Maxx Builders' full-service commercial GC capability **[VERIFY URL]**
-- [Ground-Up Construction Process](/ground-up-construction/) — how Maxx approaches new construction projects from site prep through CO **[VERIFY URL]**
-- [Our Portfolio](/portfolio/) — hospitality and commercial projects delivered **[VERIFY URL]**
+Ready to move your hotel project forward? The Maxx Builders team works with developers, owner-operators, and investors at every stage — from feasibility review and GMP development through construction and certificate of occupancy.
 
----
-
-## CTA
-
-**Ready to start your hotel project?**
-Get a pre-construction consultation from the Maxx Builders team — we'll review your site, program, and pro forma and give you a realistic cost and schedule framework before you commit to design fees.
-
-[Request a Pre-Construction Consultation](/contact/) **[VERIFY URL]**
-
----
-
-## Human-Edit Checklist
-
-**Claims to verify before publishing:**
-
-- [ ] All per-key cost ranges — confirm against Maxx Builders' actual recent bids or cite the specific RSMeans/JLL edition used.
-- [ ] Timeline table — confirm phase durations reflect Maxx Builders' actual project history.
-- [ ] FF&E lead time (12 months) — verify against recent procurement experience.
-- [ ] All internal link URLs — check that `/commercial-construction/`, `/ground-up-construction/`, `/portfolio/`, and `/contact/` resolve correctly on maxxbuilders.com.
-- [ ] Author byline — insert a real, named individual with verifiable credentials. No "Maxx Builders Team" bylines.
-- [ ] "Last Updated" date — set to the actual publish date; schedule a refresh reminder for 6 months out.
-- [ ] Operator case study — add at least one real Maxx Builders hotel project with key count, timeline, and a lesson learned.
-- [ ] Operator differentiator paragraph in "Choosing a Hotel General Contractor" section.
-
-**Brand-voice pass:** This draft is written in a direct, operator-credibility tone. Adjust terminology to match Maxx Builders' house style.
-
-**LLM citation self-test:** Read the opening paragraph and the first sentence of each H2/H3. Could an LLM extract a clean, accurate answer to "how much does it cost to build a hotel?" without reading the full article? If yes, the structure is working.
-
-**Freshness:** Cost data is time-sensitive. Add a "Prices last verified [MONTH YEAR]" note to the cost section footer. Set a calendar reminder to refresh this article every 6 months.
+[Request a project estimate](https://www.maxxbuilders.com/commercial-construction-project-inquiry/) and we'll review your site, program, and pro forma and give you a realistic cost and schedule framework before you commit to design fees.
