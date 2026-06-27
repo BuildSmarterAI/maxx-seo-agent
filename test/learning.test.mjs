@@ -84,16 +84,17 @@ test("reprioritize: empty queue is a no-op", async () => {
     weight: 5,
     base: { gsc: 2 },
   });
-  assert.deepEqual(summary, { changed: 0, total: 0 });
+  assert.deepEqual(summary, { changed: 0, total: 0, matched: 0 });
 });
 
-test("reprioritize: recomputes priority, writes only on change, falls back on unknown source/task", async () => {
+test("reprioritize: a learned pattern keyed by the task name produces a real, priority-changing hit", async () => {
   const writes = [];
-  const patterns = new Map([["metadata", 0.5]]); // keyed by change_type; looked up by row.task (preserved)
+  // change_type == task vocabulary (kit-skill name) — the actual join key in production.
+  const patterns = new Map([["metadata-generate", 0.5]]);
   const queue = [
-    { id: 1, source: "gsc", task: "metadata", priority: 0 },          // 2+round(2.5)=5  -> change 0->5
-    { id: 2, source: "mystery", task: "mystery", priority: 1 },        // base??1 + 0 = 1 -> no change
-    { id: 3, source: "manual", task: "metadata", priority: 7 },        // 4+3=7           -> no change
+    { id: 1, source: "gsc", task: "metadata-generate", priority: 0 },    // 2+round(2.5)=5 -> change 0->5, matched
+    { id: 2, source: "mystery", task: "blog-write", priority: 1 },       // base??1 + 0 (no pattern) = 1 -> no change
+    { id: 3, source: "manual", task: "metadata-generate", priority: 7 }, // 4+3=7 -> no change, matched
   ];
   const summary = await reprioritize({
     fetchPatterns: async () => patterns,
@@ -103,6 +104,22 @@ test("reprioritize: recomputes priority, writes only on change, falls back on un
     weight: 5,
     base: { gsc: 2, sitemap: 1, deploy: 2, citation: 3, manual: 4 },
   });
-  assert.deepEqual(writes, [[1, 5]]);
-  assert.deepEqual(summary, { changed: 1, total: 3 });
+  assert.deepEqual(writes, [[1, 5]]);                              // non-zero learned effect moved a real row
+  assert.deepEqual(summary, { changed: 1, total: 3, matched: 2 }); // two rows joined a learned pattern
+});
+
+test("reprioritize: surfaces a silent no-op — patterns present but no task matches yields matched:0", async () => {
+  const writes = [];
+  const patterns = new Map([["schema-generate", 0.9]]); // a real pattern, but for a task not in the queue
+  const queue = [{ id: 1, source: "gsc", task: "metadata-generate", priority: 4 }]; // 2+0=2 -> base-only change 4->2
+  const summary = await reprioritize({
+    fetchPatterns: async () => patterns,
+    fetchQueue: async () => queue,
+    setPriority: async (id, priority) => { writes.push([id, priority]); },
+    log: () => {},
+    weight: 5,
+    base: { gsc: 2 },
+  });
+  assert.deepEqual(writes, [[1, 2]]);
+  assert.deepEqual(summary, { changed: 1, total: 1, matched: 0 }); // priority moved, but NO learned signal contributed
 });
