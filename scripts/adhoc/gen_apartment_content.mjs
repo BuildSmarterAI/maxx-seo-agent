@@ -1,1 +1,0 @@
-import{writeFileSync}from"fs";

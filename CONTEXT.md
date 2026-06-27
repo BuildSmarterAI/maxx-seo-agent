@@ -65,7 +65,7 @@ rollback tape. No equivalent needed in repo path (git revert fills that role).
 
 **decision_log** — audit trail of every action the orchestrator took or refused.
 Columns: `url, action, risk_class, change_type, reason, agent, pr_url`.
-Action values: `applied | escalate | skip | queued`.
+Action values: `applied | escalate | skip | queued | rolledback`.
 
 **do_not_touch** — URLs the agent must never edit. Seeded manually. Checked by sensors
 and orchestrator before any action.

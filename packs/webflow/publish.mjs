@@ -13,19 +13,10 @@
 //      WEBFLOW_PUBLISH_TO_SUBDOMAIN=true|false, PAGESPEED_API_KEY (optional)
 import { execSync } from "node:child_process";
 import { stagedRows, setStatus } from "../../orchestrator/lib/cms.mjs";
+import { wf } from "./http.mjs";
 
-const TOKEN = process.env.WEBFLOW_TOKEN;
-const SITE  = process.env.WEBFLOW_SITE_ID;
-const API   = "https://api.webflow.com/v2";
-if (!TOKEN || !SITE) throw new Error("Set WEBFLOW_TOKEN and WEBFLOW_SITE_ID");
-
-async function wf(path, init = {}) {
-  const r = await fetch(`${API}${path}`, {
-    ...init, headers: { Authorization: `Bearer ${TOKEN}`, "Content-Type": "application/json", "accept-version": "2.0.0", ...(init.headers || {}) },
-  });
-  if (!r.ok) throw new Error(`Webflow ${r.status}: ${await r.text()}`);
-  return r.json();
-}
+const SITE = process.env.WEBFLOW_SITE_ID;
+if (!SITE) throw new Error("Set WEBFLOW_SITE_ID");
 
 // Selective publish for CMS items: group by collection, publish ≤100 at a time.
 async function publishItems(rows) {
