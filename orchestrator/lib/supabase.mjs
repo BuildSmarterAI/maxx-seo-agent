@@ -133,6 +133,11 @@ export async function positionAround(url, isoDate, lagDays = 28) {
   return metricAround(url, "position", isoDate, lagDays);
 }
 
+// latest impressions snapshot at/just-before a date, and earliest at/after date+lagDays
+export async function impressionsAround(url, isoDate, lagDays = 28) {
+  return metricAround(url, "impressions", isoDate, lagDays);
+}
+
 export async function upsertPattern(change_type, avg_effect, n) {
   await db.from("learned_patterns")
     .upsert({ change_type, avg_effect, n, updated_at: new Date().toISOString() },
