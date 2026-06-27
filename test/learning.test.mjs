@@ -34,6 +34,33 @@ test("effectOf denominator floors at 1 (no divide-by-zero on a zero baseline)", 
   assert.equal(effectOf({ clicksBefore: 0, clicksAfter: 5, posBefore: null, posAfter: null }, W), 3.5);
 });
 
+// ADR-006 #1 — impression is the third weighted signal. Dyadic weights keep the
+// assertions on exact binary fractions (no float fuzz).
+const W3 = { click: 0.5, impression: 0.25, position: 0.25 };
+
+test("effectOf blends click + impression + position lift with weights", () => {
+  // clickLift 0.5 ; imprLift (200-100)/max(100,1)=1.0 ; posLift 0.5
+  // 0.5*0.5 + 1.0*0.25 + 0.5*0.25 = 0.25 + 0.25 + 0.125 = 0.625
+  assert.equal(
+    effectOf({ clicksBefore: 10, clicksAfter: 15, imprBefore: 100, imprAfter: 200, posBefore: 20, posAfter: 10 }, W3),
+    0.625,
+  );
+});
+
+test("effectOf degrades impression lift to 0 when either impression snapshot is missing", () => {
+  // imprLift -> 0, so effect = 0.5*0.5 + 0 + 0.5*0.25 = 0.375
+  assert.equal(effectOf({ clicksBefore: 10, clicksAfter: 15, imprBefore: null, imprAfter: 200, posBefore: 20, posAfter: 10 }, W3), 0.375);
+  assert.equal(effectOf({ clicksBefore: 10, clicksAfter: 15, imprBefore: 100, imprAfter: null, posBefore: 20, posAfter: 10 }, W3), 0.375);
+});
+
+test("effectOf ignores impressions when no impression weight is supplied (back-compat)", () => {
+  // impr snapshots present, but W has no impression key -> contributes 0; legacy 2-term result
+  assert.equal(
+    effectOf({ clicksBefore: 10, clicksAfter: 15, imprBefore: 100, imprAfter: 200, posBefore: 20, posAfter: 10 }, W),
+    0.5,
+  );
+});
+
 test("priorityScore = base + round(effect*weight), clamped 0..10", () => {
   assert.equal(priorityScore(2, 0.5, 5), 5);   // 2 + round(2.5)=3 -> 5
   assert.equal(priorityScore(4, 2, 5), 10);    // 4 + round(10)=14 -> clamp 10
@@ -58,6 +85,27 @@ test("attribute: averages by change_type, applies MIN_N gate and null-skip, pers
     weights: W, lagDays: 28, minN: 3,
   });
   assert.deepEqual(upserts, [["metadata", 0.5, 3]]); // 3 valid rows @0.5, schema dropped, /n dropped
+  assert.equal(summary.written, 1);
+});
+
+test("attribute: threads impressionsAround and blends it into the effect", async () => {
+  const upserts = [];
+  const decisions = [
+    { url: "/a", change_type: "metadata", created_at: "2026-01-01" },
+    { url: "/a2", change_type: "metadata", created_at: "2026-01-01" },
+    { url: "/a3", change_type: "metadata", created_at: "2026-01-01" },
+  ];
+  const summary = await attribute({
+    fetchDecisions: async () => decisions,
+    clicksAround: async () => ({ before: 10, after: 15 }),       // lift 0.5
+    positionAround: async () => ({ before: 20, after: 10 }),     // lift 0.5
+    impressionsAround: async () => ({ before: 100, after: 200 }), // lift 1.0
+    upsertPattern: async (change_type, avg_effect, n) => { upserts.push([change_type, avg_effect, n]); },
+    log: () => {},
+    weights: W3, lagDays: 28, minN: 3,
+  });
+  // each row: 0.5*0.5 + 1.0*0.25 + 0.5*0.25 = 0.625
+  assert.deepEqual(upserts, [["metadata", 0.625, 3]]);
   assert.equal(summary.written, 1);
 });
 
