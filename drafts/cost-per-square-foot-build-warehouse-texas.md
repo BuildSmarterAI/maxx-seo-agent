@@ -89,7 +89,7 @@ The same building does not cost the same in every Texas market. Labor depth, lan
 | San Antonio & Secondary Markets | ~$50–$100/sq ft | Lower land costs, less labor pressure, fewer coastal structural premiums |
 
 ### Houston
-Houston's industrial market benefits from Port of Houston activity and strong population growth, but floodplain and windstorm requirements add to structural and civil cost: raised slabs, robust stormwater detention, and wind-rated envelopes. These items typically add several dollars per square foot versus inland markets.
+Houston's industrial market benefits from Port of Houston activity and strong population growth, but floodplain and windstorm requirements add to structural and civil cost: raised slabs, robust stormwater detention, and wind-rated envelopes. These items typically add several dollars per square foot versus inland markets. For how these premiums extend beyond warehouses, see our breakdown of [commercial construction costs in Houston](https://www.maxxbuilders.com/commercial-construction-cost-houston-tx/).
 
 ### Dallas–Fort Worth
 DFW is one of the most active warehouse markets in the country. Tilt-wall construction dominates, and a deep subcontractor pool supports relatively predictable cost structures. Slab thickness and dock count drive most of the variable.
@@ -194,7 +194,7 @@ Straightforward projects typically deliver within **6–12 months** from constru
 
 ### What is the best way to get an accurate cost estimate for my project?
 
-Engage a Texas-based design-build contractor early in preconstruction. By combining conceptual design, site data, and current trade pricing, they can deliver a realistic range and a clear path to refine it as design advances.
+Engage a Texas-based [design-build contractor](https://www.maxxbuilders.com/design-build-construction-houston/) early in preconstruction. By combining conceptual design, site data, and current trade pricing, they can deliver a realistic range and a clear path to refine it as design advances.
 
 ---
 
@@ -284,7 +284,7 @@ Break-even is faster in high-rent markets (DFW, Austin) and slower in low-rent s
 
 ## Author Background: Harris Khan and Maxx Builders' Texas Industrial Track Record
 
-Harris Khan is the Founder of Maxx Builders, a Texas-based commercial general contractor specializing in industrial, medical, and hospitality construction across the state. Maxx Builders has delivered industrial and warehouse projects ranging from 10,000 sq ft light industrial suites to 243,000 sq ft distribution facilities in Houston, DFW, and secondary Texas markets. Harris oversees pre-construction, estimating, and client relationships on all projects. [LinkedIn](https://www.linkedin.com/in/maxxbuildersharris/).
+Harris Khan is the Founder of Maxx Builders, a Texas-based commercial general contractor specializing in industrial, [medical office](https://www.maxxbuilders.com/medical-office-construction-costs-texas-2026-comprehensive-guide/), and hospitality construction across the state. Maxx Builders has delivered industrial and warehouse projects ranging from 10,000 sq ft light industrial suites to 243,000 sq ft distribution facilities in Houston, DFW, and secondary Texas markets. Harris oversees pre-construction, estimating, and client relationships on all projects. [LinkedIn](https://www.linkedin.com/in/maxxbuildersharris/).
 
 Maxx Builders operates as a licensed general contractor in Texas (TDLR license) and carries the full bonding and insurance program required for Texas commercial construction projects. This article draws on first-hand project cost data from Maxx Builders' delivered projects and current subcontractor pricing in Texas industrial markets.
 
