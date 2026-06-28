@@ -6,3 +6,6 @@ node_modules/
 # Ephemeral agent worktrees and crawl caches
 .claude/worktrees/
 .firecrawl/
+
+# Personal local Claude Code settings (permissions, overrides)
+.claude/settings.local.json
