@@ -48,7 +48,9 @@ export const webflowAdapter = {
     unsupported: (row) => ({ reason: `unsupported webflow field ${row.field}` }),
     drift:       () => ({ change_type: "metadata" }),
     applied:     (row) => ({
-      change_type: row.change_type ?? "metadata",
+      // Never invent "metadata": a non-task change_type becomes an orphan that can't join a
+      // work_queue task. null is an unattributed change, filtered out of attribution cleanly.
+      change_type: row.change_type ?? null,
       reason: isCmsItem(row) ? `webflow cms-item ${row.field} (staged)` : `webflow page ${row.field} (staged)`,
     }),
     failed:      (row, err) => ({ reason: `webflow apply failed: ${err.message}` }),
