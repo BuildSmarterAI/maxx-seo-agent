@@ -73,8 +73,8 @@ and orchestrator before any action.
 **outcomes** — weekly snapshots of per-URL metrics (clicks, impressions, position,
 citations, conversions). Primary source: GSC. Secondary: CSV imports.
 
-**learned_patterns** — one row per `change_type`, storing `avg_effect` (relative click
-lift) and `n` (sample count). Feeds `prioritize.mjs`. **`change_type` uses the `task`
+**learned_patterns** — one row per `change_type`, storing `avg_effect` (blended
+click/impression/position lift, per ADR-006 #1) and `n` (sample count). Feeds `prioritize.mjs`. **`change_type` uses the `task`
 vocabulary** — the kit-skill name (`metadata-generate`, `blog-write`, `seo-audit`, …),
 the same value space as `work_queue.task`. The orchestrator enforces this by logging
 every applied decision with `--type <task>` (see `orchestrator/goal.mjs` and
