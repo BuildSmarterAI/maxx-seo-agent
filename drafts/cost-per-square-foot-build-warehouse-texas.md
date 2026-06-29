@@ -286,7 +286,7 @@ Break-even is faster in high-rent markets (DFW, Austin) and slower in low-rent s
 
 Harris Khan is the Founder of Maxx Builders, a Texas-based commercial general contractor specializing in industrial, [medical office](https://www.maxxbuilders.com/medical-office-construction-costs-texas-2026-comprehensive-guide/), and hospitality construction across the state. Maxx Builders has delivered industrial and warehouse projects ranging from 10,000 sq ft light industrial suites to 243,000 sq ft distribution facilities in Houston, DFW, and secondary Texas markets. Harris oversees pre-construction, estimating, and client relationships on all projects. [LinkedIn](https://www.linkedin.com/in/maxxbuildersharris/).
 
-Maxx Builders operates as a licensed general contractor in Texas (TDLR license) and carries the full bonding and insurance program required for Texas commercial construction projects. This article draws on first-hand project cost data from Maxx Builders' delivered projects and current subcontractor pricing in Texas industrial markets.
+Maxx Builders is a commercial general contractor delivering projects across Texas. This article draws on first-hand project cost data from Maxx Builders' delivered projects and current subcontractor pricing in Texas industrial markets.
 
 ---
 
