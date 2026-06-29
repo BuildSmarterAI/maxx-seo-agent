@@ -9,19 +9,8 @@
 //
 // env: WEBFLOW_TOKEN  (Bearer)
 import { fileURLToPath } from "node:url";
-import { approvedRows, applyRow } from "../../orchestrator/lib/cms.mjs";
-
-const TOKEN = process.env.WEBFLOW_TOKEN;
-const API = "https://api.webflow.com/v2";
-if (!TOKEN) throw new Error("Set WEBFLOW_TOKEN");
-
-async function wf(path, init = {}) {
-  const r = await fetch(`${API}${path}`, {
-    ...init, headers: { Authorization: `Bearer ${TOKEN}`, "Content-Type": "application/json", "accept-version": "2.0.0", ...(init.headers || {}) },
-  });
-  if (!r.ok) throw new Error(`Webflow ${r.status}: ${await r.text()}`);
-  return r.json();
-}
+import { applyRows } from "../../orchestrator/lib/cms.mjs";
+import { wf } from "./http.mjs";
 
 // ---- Page SEO helpers ----
 const readPageSeo  = async (pageId) => {
@@ -59,7 +48,9 @@ export const webflowAdapter = {
     unsupported: (row) => ({ reason: `unsupported webflow field ${row.field}` }),
     drift:       () => ({ change_type: "metadata" }),
     applied:     (row) => ({
-      change_type: row.change_type ?? "metadata",
+      // Never invent "metadata": a non-task change_type becomes an orphan that can't join a
+      // work_queue task. null is an unattributed change, filtered out of attribution cleanly.
+      change_type: row.change_type ?? null,
       reason: isCmsItem(row) ? `webflow cms-item ${row.field} (staged)` : `webflow page ${row.field} (staged)`,
     }),
     failed:      (row, err) => ({ reason: `webflow apply failed: ${err.message}` }),
@@ -67,15 +58,7 @@ export const webflowAdapter = {
 };
 
 async function main() {
-  const rows = await approvedRows("webflow");
-  let staged = 0, escalated = 0, failed = 0;
-
-  for (const row of rows) {
-    const outcome = await applyRow(row, webflowAdapter);
-    if (outcome === "applied") staged++;
-    else if (outcome === "escalated") escalated++;
-    else failed++;
-  }
+  const { applied: staged, escalated, failed } = await applyRows(webflowAdapter);
   console.log(`Webflow apply — staged ${staged}, escalated ${escalated}, failed ${failed}. Run publish.mjs to go live.`);
 }
 

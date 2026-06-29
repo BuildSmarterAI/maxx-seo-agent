@@ -1,0 +1,108 @@
+[
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "Fort Worth Commercial Construction Cost Per Square Foot (2026)",
+    "description": "Fort Worth commercial construction runs $140–$450/sq ft in 2026. Maxx Builders breaks down cost by building type, DFW drivers, and permitting.",
+    "url": "https://www.maxxbuilders.com/fort-worth-commercial-construction-cost-per-square-foot-2026/",
+    "datePublished": "2026-06-25",
+    "dateModified": "2026-06-25",
+    "publisher": {
+      "@type": "Organization",
+      "name": "Maxx Builders",
+      "url": "https://www.maxxbuilders.com"
+    },
+    "author": {
+      "@type": "Person",
+      "name": "Harris Khan",
+      "jobTitle": "Co-Founder",
+      "worksFor": {
+        "@type": "Organization",
+        "name": "Maxx Builders"
+      },
+      "sameAs": "https://www.linkedin.com/in/maxxbuildersharris/"
+    },
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": "https://www.maxxbuilders.com/fort-worth-commercial-construction-cost-per-square-foot-2026/"
+    }
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://www.maxxbuilders.com/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Blog",
+        "item": "https://www.maxxbuilders.com/blog/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": "Fort Worth Commercial Construction Cost Per Square Foot (2026)",
+        "item": "https://www.maxxbuilders.com/fort-worth-commercial-construction-cost-per-square-foot-2026/"
+      }
+    ]
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "How much does it cost to build a commercial building in Fort Worth in 2026?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Commercial construction in Fort Worth costs roughly $140–$450 per square foot in 2026, depending on building type and finish. Warehouse and industrial shells sit at the low end; restaurants, medical offices, and Class A office sit at the high end. These figures exclude land, FF&E, and major off-site work."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is it cheaper to build in Fort Worth than in Dallas?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Not meaningfully. Fort Worth and Dallas share one metroplex labor force, subcontractor base, and supply chain, so per-square-foot costs are at parity. The biggest cost differences come from the specific site and sub-market, such as the Alliance industrial corridor favoring repeatable tilt-up product, rather than from the city line between Fort Worth and Dallas."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How much does it cost to build a warehouse in Fort Worth?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "A warehouse in Fort Worth typically runs $75–$160 per square foot for the shell, depending on clear height, dock count, and fire suppression. Tenant office build-out, racking, and dock equipment add to that shell cost."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How much does it cost to build an office in Fort Worth?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Ground-up Class A office in Fort Worth generally runs $200–$400 per square foot, driven by structure, curtain wall, and common-area finish. Tenant-improvement-only office build-outs in existing shells cost far less per square foot than ground-up construction."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How long does commercial permitting take in Fort Worth?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "City of Fort Worth commercial plan review and permitting typically takes from several weeks to a few months, depending on project scope, submittal completeness, and department workload. A complete, coordinated submittal is the most reliable way to shorten review time."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What contingency should I budget for a Fort Worth commercial project?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Budget 10–15% contingency on a project with complete construction documents, and 20–25% on early-stage estimates with incomplete design. Value engineering during design is the most effective way to protect the budget before construction locks in costs."
+        }
+      }
+    ]
+  }
+]

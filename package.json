@@ -17,7 +17,6 @@
     "wp:import-metadata": "node --env-file=.env scripts/import-metadata-csv.mjs",
     "wp:apply": "node --env-file=.env packs/wordpress/apply.mjs",
     "wp:publish-drafts": "node --env-file=.env packs/wordpress/publish-drafts.mjs",
-    "wp:update-drafts": "node --env-file=.env packs/wordpress/update-drafts.mjs",
     "wp:rollback": "node --env-file=.env packs/wordpress/rollback.mjs",
     "webflow:apply": "node --env-file=.env packs/webflow/apply.mjs",
     "webflow:publish": "node --env-file=.env packs/webflow/publish.mjs",

@@ -8,6 +8,7 @@ Platform-neutral brain. The audit, generate, and monitor layers work on ANY webs
 - **GSC site URL:** `sc-domain:maxxbuilders.com`
 - **Platform:** WordPress
 - **Apply method:** WP-CLI/REST via `packs/wordpress/` (`npm run wp:apply`). SEO meta written via REST + Application Password; `SEO_PLUGIN` env var selects Yoast or Rank Math.
+- **WordPress environment:** No staging environment. Treat all WP-CLI/REST applies as production-only. Before any apply, confirm a restorable production backup, export affected post/page content and SEO meta, apply only a small approved batch, and verify rendered output after each batch.
 - **Inputs available:** crawl export at `./crawl/*.csv` (Screaming Frog/Sitebulb/Firecrawl), GSC (MCP or export), URL list at `config/urls.txt`
 
 ## Primary entities (E-E-A-T + schema)
@@ -18,7 +19,10 @@ Platform-neutral brain. The audit, generate, and monitor layers work on ANY webs
   - `https://www.google.com/maps/place/Maxx+Builders/@29.636208,-95.574546,17z/data=!3m1!4b1!4m6!3m5!1s0x8640e7cdfebb1fef:0x3de403dca549748f!8m2!3d29.636208!4d-95.574546!16s%2Fg%2F11zcjh2x4p`
 - **Business type:** Commercial general contractor / construction management, Texas
 - **Service area:** Texas (primary: Houston, Dallas, Austin metro). No virtual-office location pages.
-- **Key projects (operator truth for content):** Home2Suites by Hilton Richmond TX (90,500 sq ft), Comfort Suites Pasadena TX, Holiday Inn Express Pflugerville TX (114,700 sq ft).
+- **Key projects (operator truth for content):** Maxx has delivered across hospitality, industrial/warehouse, and medical sectors in Texas. Case studies in `drafts/` are operator-confirmed real projects; dollar figures and outcomes live in the drafts, not here.
+  - *Hospitality:* Home2Suites by Hilton Richmond TX (90,500 sq ft), Comfort Suites Pasadena TX, Holiday Inn Express Pflugerville TX (114,700 sq ft); 120-key select-service hotel (San Antonio market); 150-key upper-midscale hotel (DFW). Brand families: Hilton, IHG, Choice.
+  - *Industrial/warehouse:* 243,031 sq ft industrial/distribution facility; 180,000 sq ft distribution + light manufacturing; 100,000 sq ft cross-dock distribution; 25,000 sq ft flex industrial; 10,000 sq ft light industrial suite.
+  - *Medical:* 12,000 sq ft medical office + imaging center (Houston Energy Corridor); two-room diagnostic imaging addition for an orthopedic practice (Dallas suburbs); four-bay infusion center for an oncology practice (The Woodlands, 3,800 sq ft).
 - **Authors:** real, named construction experts with verifiable project history. No "Editorial Team" bylines. Credit must trace to a named Maxx Builders team member or principal.
 
 ## Keyword / intent map
@@ -63,6 +67,7 @@ Known cannibalization risk: restaurant cluster has two pages targeting overlappi
 - Operate at the template level wherever a pattern is shared.
 - Split crawl exports over context by path prefix.
 - Always confirm the platform + apply method before any write step.
+- For Maxx Builders WordPress, never assume staging exists. All applies are production-only and require backup/export plus small-batch approval.
 - Run `/cost` to monitor spend.
 
 ## Never touch

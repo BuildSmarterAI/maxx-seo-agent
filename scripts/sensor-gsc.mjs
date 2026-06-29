@@ -1,27 +1,15 @@
 #!/usr/bin/env node
 // sensor-gsc.mjs — GSC sensor config + entry point.
-// Fetch logic lives here; harness (orchestrator/lib/sensor.mjs) owns doNotTouch filtering,
-// queue mapping, enqueue, and error isolation.
+// Fetch logic lives here; the GSC wire shape (auth, query, dates) is hidden behind
+// orchestrator/lib/gsc.mjs. The harness (orchestrator/lib/sensor.mjs) owns doNotTouch
+// filtering, queue mapping, enqueue, and error isolation.
 import { fileURLToPath } from "node:url";
-import { google } from "googleapis";
+import { searchConsole, queryAnalytics } from "../orchestrator/lib/gsc.mjs";
 import { runSensor } from "../orchestrator/lib/sensor.mjs";
 
 // The decay signal maps to blog-write, which is meaningless on the site root —
 // the homepage is never a blog post. Skip it so it stops escalating as blog-write.
 export const isHomepage = (u) => { try { return new URL(u).pathname === "/"; } catch { return false; } };
-
-function range(daysAgoStart, daysAgoEnd) {
-  const d = (n) => new Date(Date.now() - n * 864e5).toISOString().slice(0, 10);
-  return { startDate: d(daysAgoStart), endDate: d(daysAgoEnd) };
-}
-
-async function pageClicks(sc, siteUrl, r) {
-  const { data } = await sc.searchanalytics.query({
-    siteUrl,
-    requestBody: { ...r, dimensions: ["page"], rowLimit: 5000 },
-  });
-  return new Map((data.rows ?? []).map((row) => [row.keys[0], row.clicks ?? 0]));
-}
 
 export const gscSensor = {
   name: "gsc",
@@ -42,17 +30,15 @@ export const gscSensor = {
     const { GSC_SITE_URL, GOOGLE_APPLICATION_CREDENTIALS } = env;
     if (!GSC_SITE_URL) throw new Error("Set GSC_SITE_URL (e.g. sc-domain:maxxbuilders.com)");
 
-    const auth = new google.auth.GoogleAuth({
-      keyFile: GOOGLE_APPLICATION_CREDENTIALS,
-      scopes: ["https://www.googleapis.com/auth/webmasters.readonly"],
-    });
-    const sc = google.searchconsole({ version: "v1", auth });
+    const sc = searchConsole(GOOGLE_APPLICATION_CREDENTIALS);
     const items = [];
 
     // 1) Decay: pages with ≥minDrop% click drop vs prior 28d
     const { minDrop, minPrevClicks } = thresholds.decay;
-    const cur  = await pageClicks(sc, GSC_SITE_URL, range(28, 1));
-    const prev = await pageClicks(sc, GSC_SITE_URL, range(56, 29));
+    const curRows  = await queryAnalytics(sc, { siteUrl: GSC_SITE_URL, startDaysAgo: 28, endDaysAgo: 1,  dimensions: ["page"] });
+    const prevRows = await queryAnalytics(sc, { siteUrl: GSC_SITE_URL, startDaysAgo: 56, endDaysAgo: 29, dimensions: ["page"] });
+    const cur  = new Map(curRows.map((r) => [r.keys[0], r.clicks ?? 0]));
+    const prev = new Map(prevRows.map((r) => [r.keys[0], r.clicks ?? 0]));
     for (const [page, clicksPrev] of prev) {
       if (clicksPrev < minPrevClicks) continue;
       const drop = (clicksPrev - (cur.get(page) ?? 0)) / clicksPrev;
@@ -61,11 +47,8 @@ export const gscSensor = {
 
     // 2) Striking distance: position in band with sufficient impressions
     const { posMin, posMax, minImpressions } = thresholds["striking-distance"];
-    const { data } = await sc.searchanalytics.query({
-      siteUrl: GSC_SITE_URL,
-      requestBody: { ...range(28, 1), dimensions: ["page", "query"], rowLimit: 5000 },
-    });
-    for (const row of data.rows ?? []) {
+    const rows = await queryAnalytics(sc, { siteUrl: GSC_SITE_URL, startDaysAgo: 28, endDaysAgo: 1, dimensions: ["page", "query"] });
+    for (const row of rows) {
       const [page] = row.keys;
       if (row.position >= posMin && row.position <= posMax && (row.impressions ?? 0) >= minImpressions) {
         items.push({ url: page, signalType: "striking-distance", value: row.impressions });

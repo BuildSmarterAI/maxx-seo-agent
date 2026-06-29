@@ -1,1 +1,0 @@
-import{writeFileSync}from"fs";import{readFileSync}from"fs";const c=JSON.parse(readFileSync("tmp_apartment_content.json","utf8")).content;writeFileSync("tmp_apartment_new.html",c,"utf8");console.log("html written, chars:"+c.length);

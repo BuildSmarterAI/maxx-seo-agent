@@ -8,6 +8,7 @@ import { readFile } from "node:fs/promises";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { db as sb } from "../lib/db.mjs";
+import { parseCsv } from "./lib/csv.mjs";
 
 const ROOT  = join(dirname(fileURLToPath(import.meta.url)), "..");
 const BASE  = process.env.WP_BASE_URL?.replace(/\/$/, "");
@@ -42,29 +43,6 @@ async function resolvePageId(url) {
     if (Array.isArray(results) && results.length > 0) return String(results[0].id);
   }
   return null;
-}
-
-// ── CSV parser (no deps) ─────────────────────────────────────────────────────
-
-function parseCsv(text) {
-  const lines = text.trim().split("\n");
-  const headers = lines[0].split(",");
-  const rows = [];
-  for (let i = 1; i < lines.length; i++) {
-    // Handle quoted fields with commas
-    const fields = [];
-    let cur = "", inQuote = false;
-    for (const ch of lines[i]) {
-      if (ch === '"') { inQuote = !inQuote; continue; }
-      if (ch === "," && !inQuote) { fields.push(cur); cur = ""; continue; }
-      cur += ch;
-    }
-    fields.push(cur);
-    const row = {};
-    headers.forEach((h, idx) => { row[h.trim()] = (fields[idx] || "").trim(); });
-    rows.push(row);
-  }
-  return rows;
 }
 
 // ── Main ─────────────────────────────────────────────────────────────────────

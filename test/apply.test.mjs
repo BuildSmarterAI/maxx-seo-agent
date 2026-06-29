@@ -16,7 +16,7 @@ process.env.WP_APP_PASSWORD ||= "p";
 process.env.SEO_PLUGIN ||= "yoast";
 process.env.WEBFLOW_TOKEN ||= "tok";
 
-const { applyRow } = await import("../orchestrator/lib/cms.mjs");
+const { applyRow, applyRows, rollbackRow } = await import("../orchestrator/lib/cms.mjs");
 const { wordpressAdapter } = await import("../packs/wordpress/apply.mjs");
 const { webflowAdapter } = await import("../packs/webflow/apply.mjs");
 
@@ -28,6 +28,9 @@ function fakeStore() {
     snapshot: async (row, current) => { calls.snapshots.push({ id: row.id, current }); },
     setStatus: async (id, status, extra = {}) => { calls.status.push({ id, status, ...extra }); },
     logDecision: async (entry) => { calls.log.push(entry); },
+    // rollbackRow reads these two; defaults are overridden per test.
+    latestSnapshot: async () => null,
+    latestAppliedRow: async () => null,
   };
 }
 
@@ -192,4 +195,117 @@ test("webflowAdapter: page vs CMS-item routing", async () => {
     assert.match(w.url, /\/collections\/c1\/items\/i1/);
     assert.match(w.body, /fieldData/);
   } finally { globalThis.fetch = realFetch; }
+});
+
+// ---- narrate.applied must not invent a non-task change_type (orphan-leak fix) ----
+test("wordpressAdapter.narrate.applied: absent change_type -> null, not the field name", () => {
+  // A content row with no change_type must NOT log change_type "post_content" (a CMS field
+  // name): that orphan can never join back to a work_queue task and silently drops out of
+  // attribution. The fix keeps it null so the not-null filter excludes it cleanly.
+  assert.equal(wordpressAdapter.narrate.applied({ field: "post_content" }).change_type, null);
+  assert.equal(wordpressAdapter.narrate.applied({ field: "title" }).change_type, null);
+});
+
+test("wordpressAdapter.narrate.applied: a real task change_type passes through", () => {
+  assert.equal(
+    wordpressAdapter.narrate.applied({ field: "title", change_type: "metadata-generate" }).change_type,
+    "metadata-generate",
+  );
+});
+
+test("webflowAdapter.narrate.applied: absent change_type -> null, not literal 'metadata'", () => {
+  assert.equal(webflowAdapter.narrate.applied({ field: "title" }).change_type, null);
+});
+
+test("webflowAdapter.narrate.applied: a real task change_type passes through", () => {
+  assert.equal(
+    webflowAdapter.narrate.applied({ collection_id: "c1", field: "name", change_type: "blog-write" }).change_type,
+    "blog-write",
+  );
+});
+
+test("insertChangeset rejects a non-task change_type before any db write", async () => {
+  // The write-boundary guard: a change_set row carrying change_type "metadata" (the 82-row
+  // leak) must be refused at creation, not faithfully logged later by the apply pack.
+  const { insertChangeset } = await import("../orchestrator/lib/supabase.mjs");
+  await assert.rejects(
+    () => insertChangeset({ platform: "wordpress", page_id: 1, field: "title", new_value: "x", change_type: "metadata" }),
+    /invalid change_type "metadata"/,
+  );
+});
+
+// ---- applyRows (the per-pack loop, hoisted into cms.mjs) ----
+test("applyRows tallies applied / escalated / failed across injected rows", async () => {
+  const store = fakeStore();
+  // read returns the live value (default = base_value, so no drift); _live forces drift;
+  // _throw makes write fail.
+  const a = fakeAdapter({
+    read: async (row) => row._live ?? row.base_value,
+    write: async (row) => { if (row._throw) throw new Error("boom"); },
+  });
+  const rows = [
+    { id: 1, url: "/a", field: "title", new_value: "a", base_value: "x" },                 // applied
+    { id: 2, url: "/b", field: "title", new_value: "b", base_value: "x", _live: "DRIFT" }, // escalated
+    { id: 3, url: "/c", field: "title", new_value: "c", base_value: "x", _throw: true },   // failed
+  ];
+  const tally = await applyRows(a, { rows, store });
+  assert.deepEqual(tally, { applied: 1, escalated: 1, failed: 1 });
+});
+
+test("applyRows returns zero counts for an empty row set", async () => {
+  const store = fakeStore();
+  const tally = await applyRows(fakeAdapter(), { rows: [], store });
+  assert.deepEqual(tally, { applied: 0, escalated: 0, failed: 0 });
+});
+
+// ---- rollbackRow (rollback routed through the adapter) ----
+test("rollbackRow restores the snapshot value via the adapter and marks the row rolledback", async () => {
+  const store = fakeStore();
+  store.latestSnapshot = async () => "OLD";
+  store.latestAppliedRow = async () => ({ id: 99 });
+  const a = fakeAdapter({ read: async () => "CURRENT-LIVE" });
+
+  await rollbackRow(a, { page_id: "p1", field: "title" }, store);
+
+  assert.deepEqual(a.writes, ["OLD"]);                                  // wrote the snapshot, not new_value
+  assert.equal(store.calls.snapshots.at(-1).current, "CURRENT-LIVE");   // snapshotted current first
+  assert.deepEqual(store.calls.status.at(-1), { id: 99, status: "rolledback" });
+  assert.equal(store.calls.log.at(-1).action, "rolledback");
+});
+
+test("rollbackRow does NOT drift-gate: restores even when live differs from the snapshot", async () => {
+  const store = fakeStore();
+  store.latestSnapshot = async () => "OLD";
+  const a = fakeAdapter({ driftCheckable: () => true, read: async () => "LIVE-CHANGED" });
+  await rollbackRow(a, { page_id: "p1", field: "title" }, store);
+  assert.deepEqual(a.writes, ["OLD"]);
+});
+
+test("rollbackRow snapshots current before writing the restored value", async () => {
+  const order = [];
+  const store = fakeStore();
+  store.latestSnapshot = async () => "OLD";
+  store.snapshot = async () => order.push("snapshot");
+  const a = fakeAdapter({ read: async () => "live", write: async () => order.push("write") });
+  await rollbackRow(a, { page_id: "p1", field: "title" }, store);
+  assert.deepEqual(order, ["snapshot", "write"]);
+});
+
+test("rollbackRow throws when no snapshot exists", async () => {
+  const store = fakeStore();
+  store.latestSnapshot = async () => null;
+  await assert.rejects(
+    () => rollbackRow(fakeAdapter(), { page_id: "p1", field: "title" }, store),
+    /no snapshot/i,
+  );
+});
+
+test("rollbackRow throws on an unsupported field", async () => {
+  const store = fakeStore();
+  store.latestSnapshot = async () => "OLD";
+  const a = fakeAdapter({ supports: () => false });
+  await assert.rejects(
+    () => rollbackRow(a, { page_id: "p1", field: "weird" }, store),
+    /support/i,
+  );
 });
