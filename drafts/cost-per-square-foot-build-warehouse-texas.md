@@ -92,7 +92,7 @@ The same building does not cost the same in every Texas market. Labor depth, lan
 Houston's industrial market benefits from Port of Houston activity and strong population growth, but floodplain and windstorm requirements add to structural and civil cost: raised slabs, robust stormwater detention, and wind-rated envelopes. These items typically add several dollars per square foot versus inland markets. For how these premiums extend beyond warehouses, see our breakdown of [commercial construction costs in Houston](https://www.maxxbuilders.com/commercial-construction-cost-houston-tx/).
 
 ### Dallas–Fort Worth
-DFW is one of the most active warehouse markets in the country. Tilt-wall construction dominates, and a deep subcontractor pool supports relatively predictable cost structures. Slab thickness and dock count drive most of the variable.
+DFW is one of the most active warehouse markets in the country. Tilt-wall construction dominates, and a deep subcontractor pool supports relatively predictable cost structures. Slab thickness and dock count drive most of the variable. For how these costs compare across other building types in the metro, see our guide to [Dallas commercial construction costs](https://www.maxxbuilders.com/dallas-commercial-construction-costs-2025-2026/).
 
 ### Austin
 Austin warehouse and industrial projects frequently serve tech, advanced manufacturing, or high-spec supply chain tenants — driving more demanding MEP requirements, upgraded office areas, and LEED-aligned envelope design. Higher rents often justify the premium.
@@ -194,7 +194,7 @@ Straightforward projects typically deliver within **6–12 months** from constru
 
 ### What is the best way to get an accurate cost estimate for my project?
 
-Engage a Texas-based [design-build contractor](https://www.maxxbuilders.com/design-build-construction-houston/) early in preconstruction. By combining conceptual design, site data, and current trade pricing, they can deliver a realistic range and a clear path to refine it as design advances.
+Engage a Texas-based [design-build contractor](https://www.maxxbuilders.com/design-build-construction-houston-2/) early in preconstruction. By combining conceptual design, site data, and current trade pricing, they can deliver a realistic range and a clear path to refine it as design advances.
 
 ---
 
