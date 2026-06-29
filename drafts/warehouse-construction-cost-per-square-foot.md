@@ -6,6 +6,7 @@ canonical: "https://www.maxxbuilders.com/warehouse-construction-cost-per-square-
 last_updated: "2026-06-25"
 author: "Harris Khan, Founder — Maxx Builders"
 schema: "schema/warehouse-construction-cost-per-square-foot.jsonld"
+focus_keyphrase: "warehouse construction cost per square foot"
 ---
 
 # Warehouse Construction Cost Per Square Foot

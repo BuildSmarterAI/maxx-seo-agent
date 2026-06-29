@@ -5,12 +5,17 @@
     "headline": "Texas Warehouse Cost Per Sq Ft (2026 Guide)",
     "description": "Texas warehouse construction costs $45–$150+ per sq ft in 2026. Full breakdowns by size, city, type, and budget structure — plus a real Houston example.",
     "url": "https://www.maxxbuilders.com/cost-per-square-foot-build-warehouse-texas/",
-    "datePublished": "2024-10-09",
-    "dateModified": "2026-01-30",
+    "datePublished": "2026-06-24",
+    "dateModified": "2026-06-24",
     "author": {
       "@type": "Person",
-      "name": "Maxx Builders Construction Management Team",
-      "sameAs": "https://www.linkedin.com/company/maxx-builders"
+      "name": "Harris Khan",
+      "jobTitle": "Founder",
+      "worksFor": {
+        "@type": "Organization",
+        "name": "Maxx Builders"
+      },
+      "sameAs": "https://www.linkedin.com/in/maxxbuildersharris/"
     },
     "publisher": {
       "@type": "Organization",

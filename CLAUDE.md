@@ -58,7 +58,7 @@ Known cannibalization risk: restaurant cluster has two pages targeting overlappi
 
 **Doorway guardrail:** warn at 30 generated location pages, hard-stop at 50 pending human review.
 
-**AI-search:** answer-first blocks, TL;DR, comparison tables; cover full query intent. Do NOT use llms.txt citation hacks, content chunking, or keyword-variation rewriting (debunked).
+**AI-search:** answer-first blocks, TL;DR, comparison tables; cover full query intent. Do NOT generate llms.txt for AI citations (engines crawl it but do not cite from it — Google "mythbusted" it May 2026), content chunking, or keyword-variation rewriting. Answer-first structure + valid schema are what earn citations.
 
 ## Workflow rules
 
