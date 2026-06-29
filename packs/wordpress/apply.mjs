@@ -71,7 +71,10 @@ export const wordpressAdapter = {
   narrate: {
     unsupported: (row) => ({ reason: `unsupported field ${row.field}` }),
     drift:       (row) => ({ change_type: row.change_type ?? "content" }),
-    applied:     (row) => ({ change_type: row.change_type ?? row.field, reason: `wp ${row.field}` }),
+    // Never fall back to the field name: a non-task change_type ("post_content") becomes an
+    // orphan that can't join a work_queue task. null is an unattributed change, filtered out
+    // of attribution cleanly. insertChangeset guarantees row.change_type is a task or null.
+    applied:     (row) => ({ change_type: row.change_type ?? null, reason: `wp ${row.field}` }),
     failed:      (row, err) => ({ reason: `wp apply failed: ${err.message}` }),
   },
 };

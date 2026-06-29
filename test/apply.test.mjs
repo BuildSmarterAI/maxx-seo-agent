@@ -197,6 +197,43 @@ test("webflowAdapter: page vs CMS-item routing", async () => {
   } finally { globalThis.fetch = realFetch; }
 });
 
+// ---- narrate.applied must not invent a non-task change_type (orphan-leak fix) ----
+test("wordpressAdapter.narrate.applied: absent change_type -> null, not the field name", () => {
+  // A content row with no change_type must NOT log change_type "post_content" (a CMS field
+  // name): that orphan can never join back to a work_queue task and silently drops out of
+  // attribution. The fix keeps it null so the not-null filter excludes it cleanly.
+  assert.equal(wordpressAdapter.narrate.applied({ field: "post_content" }).change_type, null);
+  assert.equal(wordpressAdapter.narrate.applied({ field: "title" }).change_type, null);
+});
+
+test("wordpressAdapter.narrate.applied: a real task change_type passes through", () => {
+  assert.equal(
+    wordpressAdapter.narrate.applied({ field: "title", change_type: "metadata-generate" }).change_type,
+    "metadata-generate",
+  );
+});
+
+test("webflowAdapter.narrate.applied: absent change_type -> null, not literal 'metadata'", () => {
+  assert.equal(webflowAdapter.narrate.applied({ field: "title" }).change_type, null);
+});
+
+test("webflowAdapter.narrate.applied: a real task change_type passes through", () => {
+  assert.equal(
+    webflowAdapter.narrate.applied({ collection_id: "c1", field: "name", change_type: "blog-write" }).change_type,
+    "blog-write",
+  );
+});
+
+test("insertChangeset rejects a non-task change_type before any db write", async () => {
+  // The write-boundary guard: a change_set row carrying change_type "metadata" (the 82-row
+  // leak) must be refused at creation, not faithfully logged later by the apply pack.
+  const { insertChangeset } = await import("../orchestrator/lib/supabase.mjs");
+  await assert.rejects(
+    () => insertChangeset({ platform: "wordpress", page_id: 1, field: "title", new_value: "x", change_type: "metadata" }),
+    /invalid change_type "metadata"/,
+  );
+});
+
 // ---- applyRows (the per-pack loop, hoisted into cms.mjs) ----
 test("applyRows tallies applied / escalated / failed across injected rows", async () => {
   const store = fakeStore();

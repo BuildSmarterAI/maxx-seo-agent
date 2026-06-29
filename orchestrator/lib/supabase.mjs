@@ -1,6 +1,7 @@
 // Memory-layer helpers — the persistence seam. Callers (scripts, orchestrator) reach
 // every table through these named helpers; the raw client stays private in client.mjs.
 import { db } from "./client.mjs";
+import { assertTaskType } from "./tasks.mjs";
 
 export async function isPaused() {
   const { data } = await db.from("control").select("paused").eq("id", 1).single();
@@ -150,6 +151,10 @@ export async function learnedPatterns() {
 }
 
 export async function insertChangeset(row) {
+  // Write-boundary guard: keep a non-task change_type (a CMS field name, or a generic label
+  // like "metadata") out of change_set so it never reaches decision_log as an orphan the
+  // learning loop can't join. Throws before any db write.
+  assertTaskType(row.change_type);
   const { error } = await db.from("change_set").insert(row);
   if (error) throw new Error(`insertChangeset failed: ${error.message}`);
 }

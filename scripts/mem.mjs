@@ -6,6 +6,7 @@
 //   node scripts/mem.mjs log    --url U --action applied --risk safe --reason "..." --pr URL
 //   node scripts/mem.mjs status --url U --task T --to done|escalated|in_progress
 import { pendingQueue, logDecision, insertChangeset, setQueueStatus } from "../orchestrator/lib/supabase.mjs";
+import { assertTaskType } from "../orchestrator/lib/tasks.mjs";
 
 function args(argv) {
   const o = {};
@@ -19,6 +20,8 @@ const a = args(rest);
 if (cmd === "queue") {
   console.log(JSON.stringify(await pendingQueue(Number(a.limit) || 25)));
 } else if (cmd === "log") {
+  // Reject a non-task --type at the CLI boundary so a stray label can't enter decision_log.
+  assertTaskType(a.type);
   await logDecision({
     url: a.url, action: a.action, risk_class: a.risk || "safe",
     change_type: a.type, reason: a.reason, agent: a.agent || "orchestrator", pr_url: a.pr,
