@@ -81,6 +81,12 @@ returns void language sql as $$
    where id = 1;
 $$;
 
+-- Lock down the new function: anon must never reach it via PostgREST /rpc (it could zero or
+-- inflate the monthly budget counter and defeat the spend gate / kill switch). Service-role
+-- and authenticated only. Required for every public-schema function per the BSH security rule.
+revoke execute on function increment_spend(numeric, text) from anon, public;
+grant  execute on function increment_spend(numeric, text) to authenticated, service_role;
+
 -- ---- Live-CMS apply layer (WordPress / Webflow) ----
 
 -- portable change-set: one row per field edit the agent wants to make

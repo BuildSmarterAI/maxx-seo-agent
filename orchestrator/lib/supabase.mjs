@@ -42,7 +42,10 @@ export async function addSpend(usd, client = db) {
   // stored month reads as a zero base, so the new month's counter starts from this cost.
   const { data } = await client.from("control").select("month, spend_usd").eq("id", 1).single();
   const current = data?.month === month ? Number(data?.spend_usd ?? 0) : 0;
-  await client.from("control").update({ month, spend_usd: current + amount }).eq("id", 1);
+  const { error: writeError } = await client.from("control").update({ month, spend_usd: current + amount }).eq("id", 1);
+  // Best-effort path — don't throw and abort an otherwise-fine run, but never swallow: an
+  // unrecorded spend flies the budget gate blind, so surface it in the CI log.
+  if (writeError) console.warn(`addSpend: fallback failed to record $${amount} — ${writeError.message}`);
 }
 
 export async function doNotTouch() {
