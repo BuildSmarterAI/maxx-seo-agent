@@ -59,15 +59,19 @@ async function run() {
   // A chunk failure (429/5xx/network) must not abort the run — log and keep the earlier chunks,
   // else cost-bounding would re-discover the skipped domains forever without ever writing them.
   const classified = [];
+  let tokIn = 0, tokOut = 0, calls = 0;
   for (let i = 0; i < newItems.length; i += CHUNK) {
     const chunk = newItems.slice(i, i + CHUNK);
-    let rows;
+    let rows, usage;
     try {
-      rows = await classifyDomains(chunk, { ownDomain: own });
+      ({ rows, usage } = await classifyDomains(chunk, { ownDomain: own }));
     } catch (e) {
       console.error(`[classify] chunk ${i}-${i + chunk.length - 1} failed: ${e.message}`);
       continue;
     }
+    tokIn += usage.input_tokens;
+    tokOut += usage.output_tokens;
+    calls++;
     const countByDomain = new Map(chunk.map((c) => [c.domain, c.count]));
     for (const r of rows) {
       classified.push({
@@ -98,6 +102,7 @@ async function run() {
     `[classify] discovered=${discovered.size} new=${newItems.length} classified=${savedCount} ` +
       `(competitor=${byClass.competitor || 0} reference=${byClass.reference || 0} noise=${byClass.noise || 0}) own=${own}`
   );
+  console.log(`[classify] usage: ${calls} call(s) input_tokens=${tokIn} output_tokens=${tokOut} total=${tokIn + tokOut}`);
 }
 
 run().catch((e) => {
