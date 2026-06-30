@@ -7,6 +7,7 @@
 // Run: node --env-file=.env scripts/sensor-paa.mjs
 import { db } from "../lib/db.mjs";
 import { askClaude, askPerplexity } from "../lib/engines.mjs";
+import { enqueue, doNotTouch } from "../orchestrator/lib/supabase.mjs";
 
 const SERPAPI_KEY = process.env.SERPAPI_KEY;
 
@@ -76,7 +77,12 @@ async function run() {
   if (paaRows.length) {
     await db.from("paa_questions").upsert(paaRows, { onConflict: "question", ignoreDuplicates: true });
   }
-  if (queueRows.length) await db.from("work_queue").insert(queueRows);
+  if (queueRows.length) {
+    // Route through the queue seam: do_not_touch filter + validation + dedup-upsert, instead of
+    // a raw insert that could enqueue a protected URL and duplicate rows on re-run.
+    const skip = await doNotTouch();
+    await enqueue(queueRows.filter((r) => !skip.has(r.url)));
+  }
 
   console.log(`[paa] questions_captured=${paaRows.length} faq_tasks_queued=${queueRows.length} source=${source}`);
 }

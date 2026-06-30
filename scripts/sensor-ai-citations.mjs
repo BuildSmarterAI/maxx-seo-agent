@@ -9,6 +9,7 @@ import { resolve } from "node:path";
 import { db, targetDomain } from "../lib/db.mjs";
 import { ALL_ENGINES, scoreResult } from "../lib/engines.mjs";
 import { selectCompetitorDomains } from "../lib/classify.mjs";
+import { enqueue, doNotTouch } from "../orchestrator/lib/supabase.mjs";
 
 const domain = targetDomain();
 if (!domain) {
@@ -124,9 +125,11 @@ async function run() {
 
   let enqueued = 0;
   if (queueRows.length) {
-    const { error } = await db.from("work_queue").insert(queueRows);
-    if (error) console.error(`[citations] work_queue insert FAILED — 0 of ${queueRows.length} fixes enqueued: ${error.message}`);
-    else enqueued = queueRows.length;
+    // Route through the queue seam: do_not_touch filter + validation + dedup-upsert.
+    const skip = await doNotTouch();
+    const fresh = queueRows.filter((r) => !skip.has(r.url));
+    await enqueue(fresh);
+    enqueued = fresh.length;
   }
 
   console.table(summary);
