@@ -38,6 +38,7 @@ jobs:
           TARGET_DOMAIN: ${{ vars.TARGET_DOMAIN }}
           WP_BASE_URL: ${{ vars.WP_BASE_URL }}
           COMPETITOR_DOMAINS: ${{ vars.COMPETITOR_DOMAINS }}
+          COMPETITOR_MIN_CONFIDENCE: ${{ vars.COMPETITOR_MIN_CONFIDENCE }}
 
       - name: PAA / related-questions sensor
         run: node scripts/sensor-paa.mjs
