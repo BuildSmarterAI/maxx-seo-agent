@@ -9,6 +9,56 @@ Ran a 12-phase engineering audit of the repo, then shipped the top findings as *
 (all CI-green as of this writing, none auto-merged — each is labelled for human review, NOT
 `seo-auto`). Nothing is merged yet. The biggest is the **P0 command-injection fix (#38)**.
 
+---
+
+## ⚑ Session 2 addendum (interactive Claude Code) — 2026-06-30 PM
+
+A separate interactive session ran in parallel and **merged two PRs to `main`** (the 6 audit
+PRs above are still OPEN). Reconciled state:
+
+**SHIPPED + MERGED to `main` (already in `origin/main`):**
+- **#37** (`9405fcc`) — auto competitor-classifier: discovers every domain answer engines cite
+  (`ai_citations.sources`), classifies each new one competitor/reference/noise via Haiku, and
+  scores citation gaps against high-confidence rivals — no hand-curated list. New
+  `competitor_domains` table, `lib/classify.mjs`, `scripts/classify-competitors.mjs`, a classify
+  step in `ai-search-sensors.yml`, 17 tests. DB + code reviewed.
+- **#39** (`7dce4bb`) — wired the `COMPETITOR_MIN_CONFIDENCE` repo var (set to **0.85**) into the
+  citation sensor (it was inert otherwise; code default stays 0.7).
+- **Backfill done:** `competitor_domains` seeded with 83 domains (**36 competitor / 38 reference /
+  9 noise**), spot-checked accurate. ~$0.02 (classifier logs real token usage per run).
+
+**Config applied (so the AI-search loop actually runs):**
+- `.env` (local, gitignored — NOT pushed): added + validated `PERPLEXITY_API_KEY`,
+  `OPENAI_API_KEY`, `SERPAPI_KEY`; swapped `SUPABASE_ACCESS_TOKEN` to a working Management PAT
+  (`sbp_…`) — the old `sb_p…` value 401'd the Management API.
+- GitHub secrets set: `PERPLEXITY_API_KEY`, `OPENAI_API_KEY`, `SERPAPI_KEY`. GitHub var:
+  `COMPETITOR_MIN_CONFIDENCE=0.85`.
+- Supabase: `sql/ai-search-schema.sql` applied via the **Management API** (now includes
+  `competitor_domains` + CHECK constraints). Schema changes are applied this way going forward.
+
+**⚠️ #1 thing to verify from the office — the ANTHROPIC key:**
+- Funded key (`sk-ant-…api03-S…`) is in `.env`. A STALE `$env:ANTHROPIC_API_KEY` (`…api03-I…`,
+  dead/401) **shadows it** in local `node --env-file` runs (Node prefers a real env var over the
+  file) → remove it from the PowerShell profile / Windows env.
+- The **GitHub Actions `ANTHROPIC_API_KEY` secret** value is unconfirmed. eval-gate passed on
+  #37/#39 (a good sign it's funded), but verify before relying on the Monday cron / eval-judge /
+  orchestrator — all die on a dead key.
+
+**Merge-overlap caveat (affects the audit PRs):**
+- **#40 (REC-4) now overlaps the MERGED #37:** both touch `sql/ai-search-schema.sql` and
+  `attribute-citations.mjs`. #37 added the `competitor_domains` table; #40 adds
+  `learned_patterns_geo`. Expect a small conflict in those two files when #40 merges — keep BOTH
+  additions, then re-run `sql/ai-search-schema.sql` in Supabase (idempotent) to get both tables.
+
+**Not handled (left for you):** 7 stale `worktree-agent-*` worktrees each hold ONE uncommitted
+modified draft (hotel / medical-office / warehouse / design-build / mock-up) on an old commit
+(`28a4b3b`) — abandoned agent WIP, not pushed. Discard or preserve as you see fit.
+
+> A redundant `docs/session-handoff-2026-06-30` branch was pushed earlier this session before
+> this addendum existed — it's superseded by this file; safe to delete.
+
+---
+
 ## Read order to get oriented
 1. This file.
 2. `docs/REPOSITORY-AUDIT-2026-06-30.md` (on this branch) — the full 12-phase audit, ranked risks, REC-1…REC-17.
