@@ -1,10 +1,12 @@
 // scripts/attribute-citations.mjs
 // Closes the GEO learning loop. Looks at citation outcomes before vs after each change_type
-// the agent applied (from decision_log) and updates learned_patterns with the average effect.
-// The prioritizer then favors change types that actually earn AI citations.
+// the agent applied (from decision_log) and writes the average effect to learned_patterns_geo
+// (NOT the shared learned_patterns, which the GSC loop owns — writing both there clobbered
+// each other weekly on incompatible scales). A future ADR can blend the two in prioritize.mjs.
 //
 // Run: node --env-file=.env scripts/attribute-citations.mjs
 import { db } from "../lib/db.mjs";
+import { KIT_TASKS } from "../orchestrator/lib/tasks.mjs";
 
 const WINDOW_DAYS = Number(process.env.ATTRIBUTION_WINDOW_DAYS || 21);
 
@@ -40,6 +42,9 @@ async function run() {
   // effect per change_type = mean(after) - mean(before) around the decision timestamp
   const effects = new Map(); // change_type -> {sum, n}
   for (const d of decisions || []) {
+    // Only attribute joinable tasks. A change_type outside the kit vocabulary (a legacy orphan
+    // like "metadata") can never join a queue task, so writing a pattern for it is dead weight.
+    if (!d.change_type || !KIT_TASKS.has(d.change_type)) continue;
     const series = byUrl.get(d.url);
     if (!series || series.length < 2) continue;
     const t = new Date(d.created_at).getTime();
@@ -61,7 +66,7 @@ async function run() {
   const rows = [];
   for (const [change_type, { sum, n }] of effects) {
     const avg = sum / n;
-    await db.from("learned_patterns").upsert(
+    await db.from("learned_patterns_geo").upsert(
       { change_type, avg_effect: avg, n, updated_at: new Date().toISOString() },
       { onConflict: "change_type" }
     );

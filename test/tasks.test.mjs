@@ -16,6 +16,15 @@ test("KIT_TASKS contains every live work_queue.task (no under-population regress
   }
 });
 
+test("KIT_TASKS includes every .claude/skills dir (incl. the 3 that were missing)", () => {
+  // internal-link-graph is enqueued by scripts/link-graph.mjs; faq-schema / entity-authority
+  // are change_types citation attribution writes. All three have a skill dir but were absent
+  // from KIT_TASKS, so the orphan-fix log/changeset threw and citation patterns couldn't join.
+  for (const t of ["internal-link-graph", "entity-authority", "faq-schema"]) {
+    assert.equal(KIT_TASKS.has(t), true, `${t} (has a .claude/skills dir) must be a known kit task`);
+  }
+});
+
 test("assertTaskType returns a valid kit-task change_type unchanged", () => {
   assert.equal(assertTaskType("metadata-generate"), "metadata-generate");
   assert.equal(assertTaskType("blog-write"), "blog-write");

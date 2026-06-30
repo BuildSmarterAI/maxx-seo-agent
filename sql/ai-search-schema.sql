@@ -90,8 +90,21 @@ create table if not exists competitor_domains (
 );
 -- No secondary index: the sensor loads the whole (small) table and filters in JS.
 
--- learned_patterns already exists; citation attribution writes change_type rows like
--- 'restructure-for-citation', 'ai-info-page', 'faq-schema' into it via attribute-citations.mjs.
+-- ---- GEO/citation learned effects (separate from the GSC-driven learned_patterns) ----
+-- attribute-citations.mjs writes a citation-count delta per change_type here. It used to
+-- upsert into learned_patterns (keyed on change_type), which clobbered the GSC click/impression
+-- /position lift attribute.mjs writes for the SAME change_type every week — the two avg_effect
+-- values are on incompatible scales (a normalized lift fraction vs a raw citation delta). Keeping
+-- the citation signal in its own table lets both persist; a future ADR can blend them deliberately
+-- in prioritize.mjs. Mirrors learned_patterns' shape.
+create table if not exists learned_patterns_geo (
+  id          bigint generated always as identity primary key,
+  change_type text,
+  avg_effect  numeric,
+  n           int,
+  updated_at  timestamptz default now()
+);
+create unique index if not exists learned_patterns_geo_change_type_key on learned_patterns_geo(change_type);
 
 -- seed example (edit, do not rely on these verbatim):
 -- insert into ai_queries (query, intent, target_url, priority) values
