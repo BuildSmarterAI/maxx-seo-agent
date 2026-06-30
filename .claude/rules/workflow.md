@@ -29,7 +29,7 @@ Approach every task as: **understand → plan → act → validate → report**.
 
 | Changed file | Validator to run |
 |---|---|
-| `schema/*.jsonld` | `node -e "JSON.parse(require('fs').readFileSync('FILENAME','utf8'))"` |
+| `schema/*.jsonld` | `node scripts/validate-json.mjs FILENAME` |
 | `metadata-changes.csv` | `npm run validate:metadata` |
 | PR diff | `npm run diff-size` (checks against `MAX_DIFF_LINES`) |
 | Any content change | `npm run judge` (LLM-as-judge, optional but informative) |

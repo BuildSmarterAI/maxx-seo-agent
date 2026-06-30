@@ -71,7 +71,8 @@ See `.claude/rules/workflow.md` and `.claude/rules/technical-defaults.md`.
   eval-gate judge criteria — the judge scores the diff; a prompt change can change what
   the agent produces and fail the gate.
 - Always validate JSON-LD after any edit to `schema/*.jsonld`:
-  `node -e "JSON.parse(require('fs').readFileSync('schema/file.jsonld','utf8'))"`.
+  `node scripts/validate-json.mjs schema/file.jsonld` (the path is passed as an argument,
+  not interpolated into evaluated code — see the REC-1 command-injection fix).
 - Always run `npm run validate:metadata` after editing `metadata-changes.csv`.
 - Budget awareness: check `select month, spend_usd from control where id = 1;` in
   Supabase before starting any loop that will make multiple API calls.
