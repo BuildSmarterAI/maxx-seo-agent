@@ -5,6 +5,7 @@
 //
 // Run: node --env-file=.env scripts/link-graph.mjs
 import { db, targetDomain, sameDomain } from "../lib/db.mjs";
+import { enqueue, doNotTouch } from "../orchestrator/lib/supabase.mjs";
 
 const SITEMAP = process.env.SITEMAP_URL;
 const domain = targetDomain();
@@ -85,7 +86,13 @@ async function run() {
   }
 
   if (graphRows.length) await db.from("link_graph").upsert(graphRows, { onConflict: "url" });
-  if (orphanQueue.length) await db.from("work_queue").insert(orphanQueue);
+  if (orphanQueue.length) {
+    // Route orphan fixes through the queue seam — do_not_touch filter + validation + dedup
+    // upsert (the same guards every other sensor uses) — instead of a raw insert that bypassed
+    // them (a protected URL could be enqueued, and a re-run hit the unique constraint).
+    const skip = await doNotTouch();
+    await enqueue(orphanQueue.filter((it) => !skip.has(it.url)));
+  }
 
   console.log(`[link-graph] pages=${urls.length} orphans=${orphans} pillars=${pillars}`);
 }
