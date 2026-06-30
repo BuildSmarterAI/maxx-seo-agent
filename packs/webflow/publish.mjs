@@ -11,7 +11,7 @@
 //
 // env: WEBFLOW_TOKEN, WEBFLOW_SITE_ID, WEBFLOW_ALLOW_SITE_PUBLISH=true (for global publish),
 //      WEBFLOW_PUBLISH_TO_SUBDOMAIN=true|false, PAGESPEED_API_KEY (optional)
-import { execSync } from "node:child_process";
+import { execFileSync } from "node:child_process";
 import { stagedRows, setStatus } from "../../orchestrator/lib/cms.mjs";
 import { wf } from "./http.mjs";
 
@@ -60,14 +60,21 @@ async function main() {
 
   for (const row of staged) await setStatus(row.id, "published");
 
-  // PSI canary on the first published URL.
+  // PSI canary on the first published URL. The URL is passed as an argv element (no shell
+  // interpolation of DB-derived data). check-vitals.sh exits 2 on a real CWV regression and
+  // 3 (or other) when it could not run (missing tool, network, parse) — so a transient
+  // tooling failure is surfaced as a warning, not mistaken for a regression that would
+  // wrongly trigger a rollback.
   const sample = staged.find((r) => r.url)?.url;
   if (sample) {
     try {
-      execSync(`./scripts/check-vitals.sh "${sample}"`, { stdio: "inherit" });
-    } catch {
-      console.error(`CANARY FAIL: ${sample} regressed CWV after publish. Consider rollback.mjs + re-publish.`);
-      process.exit(1);
+      execFileSync("bash", ["scripts/check-vitals.sh", sample], { stdio: "inherit" });
+    } catch (err) {
+      if (err?.status === 2) {
+        console.error(`CANARY FAIL: ${sample} regressed CWV after publish. Consider rollback.mjs + re-publish.`);
+        process.exit(1);
+      }
+      console.warn(`CANARY SKIPPED: could not run CWV check for ${sample} (exit ${err?.status ?? "?"}). Publish stands — verify CWV manually.`);
     }
   }
 }
