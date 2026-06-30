@@ -10,15 +10,10 @@
 import { fileURLToPath } from "node:url";
 import { applyRows, logDecision } from "../../orchestrator/lib/cms.mjs";
 import { wp, BASE, AUTH } from "./http.mjs";
+import { keysFor } from "./seo-keys.mjs";
 
-const PLUGIN = (process.env.SEO_PLUGIN || "yoast").toLowerCase();
-
-const KEYS = {
-  yoast:    { title: "_yoast_wpseo_title", description: "_yoast_wpseo_metadesc",
-              canonical: "_yoast_wpseo_canonical", focus: "_yoast_wpseo_focuskw" },
-  rankmath: { title: "rank_math_title", description: "rank_math_description",
-              canonical: "rank_math_canonical_url", focus: "rank_math_focus_keyword" },
-}[PLUGIN];
+// Shared with scripts/cms-read.mjs via seo-keys.mjs so read/write can't drift.
+const KEYS = keysFor();
 
 // WP posts and pages live at different REST roots (/posts/{id} vs /pages/{id}).
 // Resolve which once per id (memoized) so the pack can write meta/content to both.

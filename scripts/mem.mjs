@@ -3,10 +3,20 @@
 // deterministic in headless/CI (no MCP tool-approval friction).
 //
 //   node scripts/mem.mjs queue                         # print pending items as JSON
-//   node scripts/mem.mjs log    --url U --action applied --risk safe --reason "..." --pr URL
-//   node scripts/mem.mjs status --url U --task T --to done|escalated|in_progress
-import { pendingQueue, logDecision, insertChangeset, setQueueStatus } from "../orchestrator/lib/supabase.mjs";
+//   node scripts/mem.mjs apply  --file PAYLOAD.json     # changeset + log + status from one JSON
+//   node scripts/mem.mjs changeset --file PAYLOAD.json  # insert a change_set row from JSON
+//   node scripts/mem.mjs log    --file PAYLOAD.json     # insert a decision_log row from JSON
+//   node scripts/mem.mjs status --id 42 --to done|escalated|in_progress
+//
+// SECURITY: content-bearing writes (changeset, log, apply) take a FILE path only — the
+// agent writes the JSON payload with the Write tool, and the value travels through the
+// file, never interpolated into a shell command. status keys on the queue row id (an
+// integer), not the URL. The legacy --flag paths remain for back-compat but the agent
+// prompts no longer use them for any untrusted value. See orchestrator/lib/payload.mjs.
+import { readFileSync } from "node:fs";
+import { pendingQueue, logDecision, insertChangeset, setQueueStatus, setQueueStatusById } from "../orchestrator/lib/supabase.mjs";
 import { assertTaskType } from "../orchestrator/lib/tasks.mjs";
+import { parseChangesetPayload, parseLogPayload } from "../orchestrator/lib/payload.mjs";
 
 function args(argv) {
   const o = {};
@@ -14,35 +24,54 @@ function args(argv) {
   return o;
 }
 
+// Path only — the value is read from the file, never from the command line.
+const readPayload = (p) => JSON.parse(readFileSync(p, "utf8"));
+
 const [cmd, ...rest] = process.argv.slice(2);
 const a = args(rest);
 
 if (cmd === "queue") {
   console.log(JSON.stringify(await pendingQueue(Number(a.limit) || 25)));
+} else if (cmd === "apply") {
+  // One safe call: changeset + log (+ status by id) from a single JSON payload the agent wrote.
+  const payload = readPayload(a.file);
+  await insertChangeset(parseChangesetPayload(payload));
+  await logDecision(parseLogPayload(payload));
+  if (payload.id != null && payload.status_to) await setQueueStatusById(payload.id, payload.status_to);
+  console.log(`applied ${payload.field} for ${payload.url}`);
+} else if (cmd === "changeset") {
+  if (a.file) {
+    await insertChangeset(parseChangesetPayload(readPayload(a.file)));
+  } else {
+    // Legacy flag path (kept for back-compat; prompts no longer use it for untrusted values).
+    await insertChangeset({
+      platform:   a.platform || process.env.SITE_PLATFORM || "wordpress",
+      page_id:    a["page-id"] ?? null,
+      url:        a.url,
+      field:      a.field,
+      base_value: a.base ?? null,
+      new_value:  a.new,
+      change_type: a.type ?? null,
+      status:     "pending",
+    });
+  }
+  console.log("changeset row inserted");
 } else if (cmd === "log") {
-  // Reject a non-task --type at the CLI boundary so a stray label can't enter decision_log.
-  assertTaskType(a.type);
-  await logDecision({
-    url: a.url, action: a.action, risk_class: a.risk || "safe",
-    change_type: a.type, reason: a.reason, agent: a.agent || "orchestrator", pr_url: a.pr,
-  });
+  if (a.file) {
+    await logDecision(parseLogPayload(readPayload(a.file)));
+  } else {
+    // Reject a non-task --type at the CLI boundary so a stray label can't enter decision_log.
+    assertTaskType(a.type);
+    await logDecision({
+      url: a.url, action: a.action, risk_class: a.risk || "safe",
+      change_type: a.type, reason: a.reason, agent: a.agent || "orchestrator", pr_url: a.pr,
+    });
+  }
   console.log("logged");
 } else if (cmd === "status") {
-  await setQueueStatus(a.url, a.task, a.to);
+  if (a.id != null) await setQueueStatusById(a.id, a.to);
+  else await setQueueStatus(a.url, a.task, a.to);
   console.log("updated");
-} else if (cmd === "changeset") {
-  // node scripts/mem.mjs changeset --url U --page-id 123 --field title --base "old" --new "new" --type metadata-generate --platform wordpress
-  await insertChangeset({
-    platform:   a.platform || process.env.SITE_PLATFORM || "wordpress",
-    page_id:    a["page-id"] ?? null,
-    url:        a.url,
-    field:      a.field,
-    base_value: a.base ?? null,
-    new_value:  a.new,
-    change_type: a.type ?? null,
-    status:     "pending",
-  });
-  console.log("changeset row inserted");
 } else {
   console.error("unknown command:", cmd);
   process.exit(1);

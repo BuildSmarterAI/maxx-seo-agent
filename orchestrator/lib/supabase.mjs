@@ -68,6 +68,13 @@ export async function setQueueStatus(url, task, to) {
   await db.from("work_queue").update({ status: to }).eq("url", url).eq("task", task);
 }
 
+// Status update keyed on the queue row id (an integer the agent reads from `mem.mjs queue`).
+// Preferred over setQueueStatus on the autonomous path so the attacker-influenced URL is
+// never placed on a shell command line.
+export async function setQueueStatusById(id, to) {
+  await db.from("work_queue").update({ status: to }).eq("id", Number(id));
+}
+
 // Escalated items not yet mirrored to Linear. The linear_issue_id pointer stays
 // null until push-escalations records the created issue, which makes the mirror
 // idempotent across runs.

@@ -33,7 +33,7 @@ explore, or make decisions beyond the single assigned task.
 3. **Run the skill** against the URL. Produce the artifact(s) the skill specifies
    (e.g., `metadata-changes.csv` row, `schema/{slug}.jsonld`, `drafts/{slug}.md`).
 4. **Validate.** Run every applicable validator:
-   - JSON-LD files: `node -e "JSON.parse(require('fs').readFileSync('FILE','utf8'))"`
+   - JSON-LD files: `node scripts/validate-json.mjs FILE`
    - metadata CSV: `npm run validate:metadata`
    - diff size: `npm run diff-size`
 5. **Report.** Return a structured result:
