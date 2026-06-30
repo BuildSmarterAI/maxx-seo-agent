@@ -52,7 +52,11 @@ async function runRepo(queue) {
 
   // Delivery failure (commit/push/PR) is handled separately from agent failure.
   try {
-    const { empty, prUrl } = openPR(branch, "seo: automated safe-class fixes [skip ci]", "seo-auto");
+    // No [skip ci]: repo-mode PRs carry content (drafts/schema/links), and per
+    // .claude/rules/workflow.md content changes MUST trigger the eval-gate. A [skip ci]
+    // token here suppresses the eval-gate AND the auto-merge workflow (both on:
+    // pull_request), dead-locking delivery on the required check that never reports.
+    const { empty, prUrl } = openPR(branch, "seo: automated safe-class fixes", "seo-auto");
     if (empty) { console.log("no changes produced → cleaning up."); return; }
     console.log(`PR opened: ${prUrl}  (cost ≈ $${costUsd.toFixed(2)})`);
   } catch (err) {
