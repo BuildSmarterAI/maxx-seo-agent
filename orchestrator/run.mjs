@@ -102,20 +102,21 @@ Never write to the CMS directly. Never create git branches.`,
       if (typeof msg?.total_cost_usd === "number") costUsd = msg.total_cost_usd;
       if ("result" in msg) console.log(msg.result);
     }
-
-    if (costUsd) await addSpend(costUsd);
-    console.log(`CMS run complete — check change_set table for pending rows. (cost ≈ $${costUsd.toFixed(2)})`);
   } catch (err) {
     // The Agent SDK emits "Claude Code process exited with code 1" as a normal
-    // shutdown signal after the query loop completes — not a real failure.
-    if (/process exited with code 1/i.test(err?.message || "")) {
-      console.log(`CMS run complete — check change_set table for pending rows. (cost ≈ $${costUsd.toFixed(2)})`);
-      if (costUsd) await addSpend(costUsd);
-      return;
+    // shutdown signal after the query loop completes — not a real failure. Any
+    // OTHER error is a real failure: bail without recording spend.
+    if (!/process exited with code 1/i.test(err?.message || "")) {
+      console.error("orchestrator (CMS) failed:", err?.message || err);
+      process.exit(1);
     }
-    console.error("orchestrator (CMS) failed:", err?.message || err);
-    process.exit(1);
   }
+
+  // Single accounting point: reached on normal completion AND on the SDK's exit-code-1
+  // shutdown, but NOT on a real failure (that exits above). One call site removes the
+  // double-count that occurred when both the try-tail and the catch billed the same cost.
+  if (costUsd) await addSpend(costUsd);
+  console.log(`CMS run complete — check change_set table for pending rows. (cost ≈ $${costUsd.toFixed(2)})`);
 }
 
 async function main() {

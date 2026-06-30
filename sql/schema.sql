@@ -68,6 +68,19 @@ create table if not exists control (
 );
 insert into control (id) values (1) on conflict (id) do nothing;
 
+-- Atomic monthly spend increment. Replaces the read-modify-write in supabase.mjs addSpend
+-- so a local `npm run orchestrate` overlapping the nightly CI run cannot lose an update
+-- (and overrun MONTHLY_BUDGET_USD). Month-aware: a new month zeroes the counter in the
+-- same statement. Safe to re-run (create or replace). addSpend falls back to the prior
+-- read-modify-write if this function is not yet deployed.
+create or replace function increment_spend(p_amount numeric, p_month text)
+returns void language sql as $$
+  update control
+     set spend_usd = (case when month = p_month then spend_usd else 0 end) + p_amount,
+         month = p_month
+   where id = 1;
+$$;
+
 -- ---- Live-CMS apply layer (WordPress / Webflow) ----
 
 -- portable change-set: one row per field edit the agent wants to make
