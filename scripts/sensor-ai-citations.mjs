@@ -8,6 +8,7 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { db, targetDomain } from "../lib/db.mjs";
 import { ALL_ENGINES, scoreResult } from "../lib/engines.mjs";
+import { selectCompetitorDomains } from "../lib/classify.mjs";
 
 const domain = targetDomain();
 if (!domain) {
@@ -15,8 +16,10 @@ if (!domain) {
   process.exit(1);
 }
 
-const COMPETITORS = (process.env.COMPETITOR_DOMAINS || "")
+// Manual override/seed; the auto-classified competitor_domains table is the main source.
+const ENV_COMPETITORS = (process.env.COMPETITOR_DOMAINS || "")
   .split(",").map((s) => s.trim()).filter(Boolean);
+const MIN_CONF = Number(process.env.COMPETITOR_MIN_CONFIDENCE || 0.7);
 
 // Load the monitored question set. Prefer the DB (ai_queries); fall back to a JSON file.
 async function loadQueries() {
@@ -41,6 +44,14 @@ async function loadQueries() {
 async function run() {
   const queries = await loadQueries();
   if (!queries.length) process.exit(0);
+
+  // competitor set = auto-classified high-confidence rivals ∪ manual env override.
+  // Degrades to the env list alone if the table is missing (schema not yet applied).
+  const { data: compRows, error: compErr } = await db
+    .from("competitor_domains")
+    .select("domain,classification,confidence,source");
+  if (compErr) console.error(`[citations] competitor_domains unavailable (${compErr.message}); env list only`);
+  const COMPETITORS = selectCompetitorDomains(compErr ? [] : compRows || [], ENV_COMPETITORS, MIN_CONF);
 
   let cto = 0, miss = 0;
   const summary = [];
@@ -119,7 +130,7 @@ async function run() {
   }
 
   console.table(summary);
-  console.log(`[citations] cited=${cto} miss=${miss} fixes_enqueued=${enqueued} outcomes_logged=${outcomesLogged} domain=${domain}`);
+  console.log(`[citations] cited=${cto} miss=${miss} fixes_enqueued=${enqueued} outcomes_logged=${outcomesLogged} competitors=${COMPETITORS.length} domain=${domain}`);
 }
 
 run().catch((e) => { console.error(e); process.exit(1); });

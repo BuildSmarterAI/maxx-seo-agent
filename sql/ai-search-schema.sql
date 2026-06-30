@@ -73,6 +73,23 @@ create table if not exists link_graph (
   updated_at timestamptz default now()
 );
 
+-- ---- auto-classified competitor / source domains (maintained by classify-competitors.mjs) ----
+-- The AI-search loop discovers every domain cited by answer engines (ai_citations.sources),
+-- then classifies each ONCE so it is never re-asked. Only high-confidence 'competitor' rows
+-- feed the citation-gap scoring in sensor-ai-citations.mjs. source='manual' rows are human
+-- pins/overrides the classifier must never overwrite.
+create table if not exists competitor_domains (
+  domain         text primary key,
+  classification text not null check (classification in ('competitor','reference','noise')),
+  confidence     numeric default 0 check (confidence >= 0 and confidence <= 1),
+  rationale      text,                           -- one line: why this label (audit trail)
+  times_cited    int default 0,                  -- citations seen when first classified (live count: ai_citations)
+  source         text default 'auto' check (source in ('auto','manual')),  -- classifier vs human pin
+  first_seen     timestamptz default now(),
+  updated_at     timestamptz default now()
+);
+-- No secondary index: the sensor loads the whole (small) table and filters in JS.
+
 -- learned_patterns already exists; citation attribution writes change_type rows like
 -- 'restructure-for-citation', 'ai-info-page', 'faq-schema' into it via attribute-citations.mjs.
 
