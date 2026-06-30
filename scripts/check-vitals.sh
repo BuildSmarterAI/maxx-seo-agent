@@ -26,12 +26,17 @@ LCP_MAX_MS="${LCP_MAX_MS:-2500}"
 TBT_MAX_MS="${TBT_MAX_MS:-200}"
 CLS_MAX="${CLS_MAX:-0.1}"
 
+# Splice the optional API key as array elements so the value is never word-split (a key with
+# whitespace would otherwise break the request); empty array adds nothing when the key is unset.
+key_args=()
+[ -n "${PAGESPEED_API_KEY:-}" ] && key_args=(--data-urlencode "key=${PAGESPEED_API_KEY}")
+
 resp="$(curl -fsS --max-time 120 -G \
   "https://www.googleapis.com/pagespeedonline/v5/runPagespeed" \
   --data-urlencode "url=${URL}" \
   --data "strategy=mobile" \
   --data "category=performance" \
-  ${PAGESPEED_API_KEY:+--data-urlencode "key=${PAGESPEED_API_KEY}"})" \
+  "${key_args[@]}")" \
   || { echo "check-vitals: PSI request failed for ${URL}" >&2; exit 3; }
 
 # Pull the three lab metrics; null/missing audits become empty strings.
