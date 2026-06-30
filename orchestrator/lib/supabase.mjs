@@ -27,11 +27,25 @@ export async function resetMonthIfNew() {
   return true;
 }
 
-export async function addSpend(usd) {
-  // getMonthSpend returns 0 on a stale month and the explicit month write below
-  // rolls the counter over, so no separate reset is needed on the write path.
-  const current = await getMonthSpend();
-  await db.from("control").update({ month: currentMonth(), spend_usd: current + Number(usd || 0) }).eq("id", 1);
+// Atomic monthly spend increment via the increment_spend() Postgres function (defined in
+// sql/schema.sql): it does the month-aware add in a single UPDATE, removing the
+// read-modify-write lost-update race when a local `npm run orchestrate` overlaps the
+// nightly CI run (which would silently undercount spend and overrun MONTHLY_BUDGET_USD).
+// `client` is injectable for tests and defaults to the shared service-role client.
+export async function addSpend(usd, client = db) {
+  const amount = Number(usd || 0);
+  const month = currentMonth();
+  const { error } = await client.rpc("increment_spend", { p_amount: amount, p_month: month });
+  if (!error) return;
+  // Fallback for a database where increment_spend() isn't deployed yet (pre-migration):
+  // the prior non-atomic read-modify-write, preserving exact legacy behavior. A stale
+  // stored month reads as a zero base, so the new month's counter starts from this cost.
+  const { data } = await client.from("control").select("month, spend_usd").eq("id", 1).single();
+  const current = data?.month === month ? Number(data?.spend_usd ?? 0) : 0;
+  const { error: writeError } = await client.from("control").update({ month, spend_usd: current + amount }).eq("id", 1);
+  // Best-effort path — don't throw and abort an otherwise-fine run, but never swallow: an
+  // unrecorded spend flies the budget gate blind, so surface it in the CI log.
+  if (writeError) console.warn(`addSpend: fallback failed to record $${amount} — ${writeError.message}`);
 }
 
 export async function doNotTouch() {
