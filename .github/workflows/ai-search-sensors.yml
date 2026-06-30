@@ -18,6 +18,15 @@ jobs:
         env:
           GCP_SA_JSON: ${{ secrets.GCP_SA_JSON }}
 
+      - name: Classify cited competitor domains
+        run: node scripts/classify-competitors.mjs
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          TARGET_DOMAIN: ${{ vars.TARGET_DOMAIN }}
+          WP_BASE_URL: ${{ vars.WP_BASE_URL }}
+
       - name: AI citation sensor
         run: node scripts/sensor-ai-citations.mjs
         env:
