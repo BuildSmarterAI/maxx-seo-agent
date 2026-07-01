@@ -35,10 +35,18 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           PERPLEXITY_API_KEY: ${{ secrets.PERPLEXITY_API_KEY }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          SERPAPI_KEY: ${{ secrets.SERPAPI_KEY }}
           TARGET_DOMAIN: ${{ vars.TARGET_DOMAIN }}
           WP_BASE_URL: ${{ vars.WP_BASE_URL }}
           COMPETITOR_DOMAINS: ${{ vars.COMPETITOR_DOMAINS }}
           COMPETITOR_MIN_CONFIDENCE: ${{ vars.COMPETITOR_MIN_CONFIDENCE }}
+          AIO_SAMPLES: ${{ vars.AIO_SAMPLES }}
+
+      - name: Diff AI Overview citation events
+        run: node scripts/diff-citation-events.mjs
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
 
       - name: PAA / related-questions sensor
         run: node scripts/sensor-paa.mjs

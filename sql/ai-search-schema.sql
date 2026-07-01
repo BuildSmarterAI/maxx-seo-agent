@@ -106,6 +106,38 @@ create table if not exists learned_patterns_geo (
 );
 create unique index if not exists learned_patterns_geo_change_type_key on learned_patterns_geo(change_type);
 
+-- ---- AI Overview presence flag on the raw citation log (ADR-007) ----
+-- google_aio rows carry whether an AI Overview block actually rendered, so the diff can tell
+-- "AIO vanished" (lost) from "AIO present but we're uncited". Null for non-AIO engines.
+alter table ai_citations add column if not exists aio_present boolean;
+
+-- ---- AI Overview citation transition events (ADR-007) ----
+-- One row per detected transition in a monitored query's google_aio citation state.
+-- scripts/diff-citation-events.mjs writes gained|lost|displaced by diffing the two latest
+-- google_aio snapshots in ai_citations. The PR#2 analyst fills the verdict columns
+-- (attributed_cause/confidence/rationale/analyzed_at) — left null until then.
+-- captured_at is the ai_citations snapshot that triggered the event (NOT now()), so the
+-- unique(query,engine,captured_at) key makes a same-snapshot re-run a no-op.
+create table if not exists citation_events (
+  id                bigint generated always as identity primary key,
+  query             text not null,
+  target_url        text,                            -- the page that should own the citation
+  engine            text not null default 'google_aio',
+  event             text not null check (event in ('gained','lost','displaced')),
+  competitor_won    jsonb,                            -- domains AIO cited instead of us (displaced)
+  prev_captured_at  timestamptz,                      -- the "before" snapshot this diff compared against
+  captured_at       timestamptz not null,             -- the "after" snapshot that triggered the event
+  -- verdict columns (PR#2 analyst; null until analyzed) --
+  attributed_cause  text check (attributed_cause in ('self_inflicted','competitor_displacement','algo_update','seasonal','unexplained')),
+  confidence        text check (confidence in ('low','med','high')),
+  rationale         text,
+  analyzed_at       timestamptz,
+  unique (query, engine, captured_at)
+);
+create index if not exists citation_events_query_idx on citation_events(query, captured_at desc);
+-- partial index the PR#2 analyst uses to find events awaiting a verdict
+create index if not exists citation_events_unanalyzed_idx on citation_events(captured_at) where analyzed_at is null;
+
 -- seed example (edit, do not rely on these verbatim):
 -- insert into ai_queries (query, intent, target_url, priority) values
 --   ('How much does commercial construction cost per square foot in Houston?', 'informational',
