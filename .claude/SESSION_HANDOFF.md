@@ -1,147 +1,86 @@
-# Session Handoff — 2026-06-30 (audit sprint SHIPPED; home continuation)
+# Session Handoff — 2026-06-30 EOD (audit sprint closed; REC-5 shipped; #14 rebased)
 
-> You're reading this on branch **`chore/repo-audit-2026-06-30`**, which also holds the full
-> audit at `docs/REPOSITORY-AUDIT-2026-06-30.md`. Point-in-time handoff for cross-machine
-> continuation. **`git fetch --all` first** — `origin/main` advanced to `0f99e32` during the
-> office sessions. This file was rewritten at the home machine after all 7 audit PRs merged; it
-> **supersedes** the earlier "6 PRs still open" version (that state is now stale).
+> Cross-machine continuation doc. **`git fetch --all --prune` first.** `origin/main` HEAD is
+> **`6dd542a`** as of this writing. This supersedes all earlier 2026-06-30 handoff versions.
 
 ## TL;DR
-The 12-phase audit is done and **all 7 audit-sprint PRs are MERGED to `origin/main` (HEAD
-`0f99e32`).** Local `main` (`962ed20`) is a clean fast-forward, 9 behind. Four PRs remain open
-(#14 feature + #17/#18/#19 preservation). One correction: **REC-5/AH1 is only ~¼ done** — PR #41
-closed just one of its four sub-items (see §4). The one branch that held unpushed unique work
-(`worktree-grill-docs-reconcile`) has been pushed to origin as a backup.
+The audit sprint is fully closed and merged. This session (home continuation) additionally:
+shipped **REC-5/AH1** (the last open audit safety gap) as **#43**, merged the audit docs as
+**#42**, **rebased #14 (AutoResearch) to green/mergeable**, and pruned 5 worktrees + 17 stale
+branches. What's left is human-only: review+merge #14, triage #17/#18/#19, a 4-worktree prune the
+guard reserves for you, and a short VERIFY list. Nothing is blocked on the agent.
 
----
+## Merged to `origin/main` (HEAD `6dd542a`)
+- Audit sprint (earlier 2026-06-30): **#33 #34 #35 #36 #38 #40 #41** (+ #37/#39 competitor classifier).
+- This session: **#43** (`4c52a49`, REC-5/AH1 completion) and **#42** (`6dd542a`, 12-phase audit doc +
+  this handoff). Both human-merged — the guard correctly blocks the agent from self-merging its own PRs.
 
-## 1. Shipped — merged to `origin/main` (verified via `gh pr list` + `git log origin/main`)
+## REC-5/AH1 — now fully closed (was ¼ done)
+`#41` had only routed the sensors through `enqueue()`. `#43` finished the other three sub-items:
+- `scripts/mem.mjs dnt [url]` — reads the **`do_not_touch`** table (not `work_queue`), exits `2` when protected.
+- `orchestrator/lib/cms.mjs` — fail-closed `do_not_touch` gate in `applyRow()` (also escalates url-less rows).
+- `.claude/agents/seo-fixer.md:32` — now calls `dnt`, not the wrong `queue`.
+⚠️ **The `do_not_touch` table is EMPTY** — the enforcement has nothing to act on until you seed it
+(`node scripts/mem.mjs dnt` lists it; add URLs that must never be auto-edited).
 
-| PR | Commit | Finding | Post-merge apply step |
+## Open PRs
+
+| PR | Branch | State | Action |
 |---|---|---|---|
-| **#38** | `62fae8f` | **P0** — eliminate command injection on the CMS path (REC-1/REC-2); fail-closed env-gated allowlist; Write-scoping; `node -e`→`validate-json.mjs` | See §"env-gated hooks" below |
-| **#40** | `3af9a63` | REC-4 — task-vocabulary fix (`KIT_TASKS`); route `link-graph.mjs` through `enqueue()`+`do_not_touch`; `learned_patterns_geo` table (stops weekly clobber) | Apply `sql/ai-search-schema.sql` in Supabase (idempotent) — **verify done (§3)** |
-| **#33** | `15a828c` | REC-9 — atomic `increment_spend` RPC + single CMS cost accounting | Apply `sql/schema.sql` in Supabase (idempotent) — **verify done (§3)** |
-| **#36** | `4a796cb` | REC-3 — stop hardcoding `[skip ci]` on repo-mode content PRs | Confirm branch protection **requires** the `eval-gate` check |
-| **#34** | `02837e6` | REC-6 — commit missing `check-vitals.sh` PSI canary; stop false-failing | Optional `PAGESPEED_API_KEY` for higher PSI quota |
-| **#35** | `1054a68` | REC-12 (partial) — pin Supabase MCP server version (drop `@latest`) | — |
-| **#41** | `0f99e32` | REC-5/AH1 (**PARTIAL** — see §4) — route PAA + AI-citation sensors through `enqueue()` (`do_not_touch` + dedup) | — |
+| **#14** | `claude/autoresearch-agent-design-yx4dl4` | **CLEAN / MERGEABLE, CI green (144/144)** | Rebased this session. **Needs a real human review, then `gh pr merge 14 --squash --delete-branch`.** |
+| **#17** | `docs/agent-roster-prd` | DIRTY, no CI, docs-only | **Decide:** agent-roster PRD/ADRs/domain model — still-current design → rebase+merge; superseded → close. |
+| **#18** | `seo/auto-2026-06-24-test-push` | DIRTY, preservation | **Recommend close** — drafts verified already byte-identical on main. `gh pr close 18` |
+| **#19** | `seo/auto-2026-06-24-75455` | DIRTY, preservation | **Recommend close** — draft on main; node-22 already on main via #15. `gh pr close 19` |
 
-Also already on `main` from earlier in the session: **#37** (`9405fcc`, auto competitor-classifier)
-and **#39** (`7dce4bb`, `COMPETITOR_MIN_CONFIDENCE=0.85` wired into the citation sensor).
-`competitor_domains` was backfilled with 83 domains (36 competitor / 38 reference / 9 noise).
+### #14 rebase details (for the reviewer)
+Resolved via **merge-`origin/main`-into-branch** (not `rebase` — the branch history has a merge commit
+`8dc7d6b` that rebase would mangle). Merge commit `c52a7f0`. 3 conflicts resolved keeping BOTH sides:
+`cms.mjs` import (do_not_touch gate + `scanPlaceholders` guard coexist), `mem.mjs` (main's file-path
+security model + branch's provenance + `experiment`/`evalset`; dropped branch's dup `changeset`),
+`package.json` (both script sets). ⚠️ **Provenance gap:** `model`/`prompt_variant_id`/`cost_usd` flow
+through `mem.mjs log --flags` but NOT the file-path `apply`/`log --file` (`parseLogPayload` doesn't stamp
+them) — autonomous-path decisions won't be provenance-tagged until `payload.mjs` is extended.
 
-## 2. First moves from home
-1. `git fetch --all --prune` (done) → fast-forward local `main`: `git checkout main && git merge --ff-only origin/main`.
-2. Decide next work — the top open item is now **REC-5/AH1 completion (§4)**, the highest-value
-   remaining safety fix. Cut a fresh worktree off `origin/main`, don't reuse a stale one.
-3. Housekeeping when convenient: worktree/branch prune (§7) and open a PR for this audit branch.
+## Manual cleanup left (guard reserves these for you)
+- **4 `PRESERVE_UNIQUE` orphan worktrees** — the agent's verification flagged unique `## Internal Links`
+  blocks in these, so the guard blocks the agent from force-deleting them. Their unique content is recorded
+  in this session's verification (low-value, possibly-broken links). Discard:
+  ```bash
+  cd /c/dev/maxx-seo-agent
+  git worktree remove --force .claude/worktrees/agent-a1cbc8f54bc5a83ea   # medical-office
+  git worktree remove --force .claude/worktrees/agent-a20f27d9fcf2bcebb   # warehouse-cost-per-sqft
+  git worktree remove --force .claude/worktrees/agent-a3735d9b6fd63abd9   # the-ultimate-hotel
+  git worktree remove --force .claude/worktrees/agent-aa9a7a1d7a2c2dd8a   # mock-up-rooms
+  git worktree prune
+  git branch -D worktree-agent-a1cbc8f54bc5a83ea worktree-agent-a20f27d9fcf2bcebb worktree-agent-a3735d9b6fd63abd9 worktree-agent-aa9a7a1d7a2c2dd8a
+  ```
+- **rec5 worktree** — `#43` is merged, so: `git worktree remove C:/dev/maxx-seo-agent-rec5`.
+- Already pruned this session: `gsc-pagination-retry`, `pr10-fix` worktrees + 17 merged/stale branch refs.
 
-## 3. ⚠️ VERIFY (merged, but confirm before relying on the loop)
-- **Supabase schema for #40 + #33.** Both PRs need their SQL applied (idempotent, apply via the
-  Management API per standing practice — do NOT ask for the SQL editor). Re-run
-  `sql/ai-search-schema.sql` (→ `learned_patterns_geo`) and `sql/schema.sql` (→ `increment_spend`
-  RPC) to be safe. Code falls back gracefully if absent, but the loop isn't fully wired until both exist.
-- **GitHub Actions `ANTHROPIC_API_KEY` secret** — value still unconfirmed. eval-gate passed on the
-  merged PRs (good sign it's funded), but verify before relying on the Monday cron / orchestrator —
-  all die on a dead key. Local note: a **stale `$env:ANTHROPIC_API_KEY`** (`…api03-I…`, dead/401) can
-  shadow the funded key in `node --env-file` runs — remove it from the PowerShell profile / Windows env.
+## ⚠️ VERIFY (unchanged from earlier — still open)
+- **Supabase SQL** — re-apply `sql/ai-search-schema.sql` (`learned_patterns_geo`, #40) + `sql/schema.sql`
+  (`increment_spend` RPC, #33) via the Management API (idempotent). Loop isn't fully wired until both exist.
+- **GitHub Actions `ANTHROPIC_API_KEY`** secret — confirm it's the funded `…api03-S…` key (a stale
+  `$env:ANTHROPIC_API_KEY` also shadows the funded `.env` key in local `node --env-file` runs — remove it).
+- **Branch protection** — confirm it **requires** the `eval-gate` check (that was #36's whole point).
 
-## 4. ⚠️ CORRECTION — REC-5/AH1 is NOT fully closed (only sub-item (a) done)
-The earlier handoff and PR #41's framing imply the `do_not_touch` gap is closed. It is not — verified
-against current `origin/main`. REC-5/AH1 had **four** sub-items; #41 did one:
-- **(a) DONE** — `sensor-paa.mjs` + `sensor-ai-citations.mjs` now route through `enqueue()` with
-  `doNotTouch()` filtering + dedup (matches what #40 did for `link-graph.mjs`).
-- **(b) OPEN** — no `dnt` CLI: `scripts/mem.mjs` dispatch handles only `queue/apply/changeset/log/status`.
-  The `doNotTouch()` helper exists in `supabase.mjs` but is never exposed as `node scripts/mem.mjs dnt <url>`.
-- **(c) OPEN** — no apply-boundary check: `orchestrator/lib/cms.mjs` `applyRow()` gates on
-  `supports → snapshot → drift → write → verify` and **never consults `do_not_touch`** before `adapter.write(row)`.
-  `cms.mjs` doesn't even import `doNotTouch`.
-- **(d) OPEN (live bug)** — `.claude/agents/seo-fixer.md:32` still tells the agent to check `do_not_touch`
-  via `node scripts/mem.mjs queue`, but that runs `pendingQueue()` which reads the **`work_queue`** table,
-  not `do_not_touch` (`supabase.mjs` ~L74) — it reads the wrong table and would never abort on a protected URL.
-
-→ **DONE 2026-06-30 PM — PR #43** (`fix/do-not-touch-enforcement`, CI green, awaiting merge): (b) `mem.mjs dnt`
-CLI, (c) fail-closed `do_not_touch` gate in `cms.mjs` `applyRow()` (also escalates url-less rows), (d) fixed
-`seo-fixer.md:32`. +6 tests, full suite 124/124. Code-reviewed (1 HIGH found + fixed).
-
-## 5. Open PRs (4) — all `mergeStateStatus: DIRTY` (need rebase onto new `origin/main`)
-
-| PR | Branch | What | Status / next |
-|---|---|---|---|
-| **#14** | `claude/autoresearch-agent-design-yx4dl4` | AutoResearch Phase A substrate + eval-set/judge calibration (RO-6/RO-1) | **CI green** (test+eval-gate pass). Most shovel-ready real feature — just needs a rebase. ⚠️ local branch is named `autoresearch-update` but tracks this remote — push with the tracked ref, not a new branch. Touches `sql/schema.sql` (see §8). |
-| **#18** | `seo/auto-2026-06-24-test-push` | Preserve warehouse operator cost data (named author, Maxx Houston pricing) | Preservation-only, no CI run. Human triage — extract drafts before any close. |
-| **#19** | `seo/auto-2026-06-24-75455` | Preserve medical-office cost draft + node 22 bump | Preservation-only. The **node 22 bump may be worth cherry-picking** independently. |
-| **#17** | `docs/agent-roster-prd` | Preserve agent-roster PRD + ADRs + domain model | Docs preservation-only, no worktree checked out. |
-
-## 6. Unpushed / at-risk work — now resolved
-- **`worktree-grill-docs-reconcile`** (`71b677f`, 4 ahead / 35 behind) held ADR-007/008/009, a
-  Yoast→Semrush proxy-auth spike, and code edits to `goal.mjs`/`sensor.mjs`/`sensor-gsc.mjs`/`schema.sql`.
-  It existed on **no remote**. **Pushed to `origin/worktree-grill-docs-reconcile` this session** as a backup
-  (preservation only — not merge-ready; see conflict risks §8). Needs a PR + rebase if the ADRs are wanted.
-- Verified there is **no other** unpushed-unique branch. (`worktree-fix+change-type-task-guardrail` looked
-  unpushed but is PR #29 squash-merged as `09aa6e1` in main — content fully absorbed, safe to prune.)
-
-## 7. Worktree & branch hygiene (all verified vs `origin/main`)
-
-**Safe to prune — content fully in `origin/main`** (`git worktree remove` + `git branch -D`):
-- `fix/pr10-lock-sync` (0 ahead; upstream gone) · `worktree-repo-activity-review` (0 ahead, PR #12)
-  · `fix/lockfile-marked-sync` (0 ahead, PR #16, upstream gone)
-- `worktree-gsc-pagination-retry` (PR #24 — `gsc.mjs`/`gsc.test.mjs` byte-identical to main)
-- `worktree-fix+change-type-task-guardrail` (PR #29, verified absorbed)
-- Merged-PR local refs, 1-ahead only from squash patch-id (delete the ref): `chore/pin-volatile-deps`(#35),
-  `feat/deepen-learning-loop`(#20), `fix/ai-search-contracts`(#40), `fix/atomic-spend-counter`(#33),
-  `fix/check-vitals-script`(#34), `fix/cms-command-injection`(#38), `fix/content-pr-eval-gate`(#36),
-  `fix/skip-ci-content-prs`(#32, identical SHA to #36's branch), `feat/finish-cms-apply-seam`(#13).
-
-**Follow-up pushed, but no open PR** (safe on origin; open a PR if the work is wanted):
-- `chore/geo-ai-seo-audit` (5 ahead) — post-#11 commits: fresh `seo-audit.md` + AI-SEO WP change-set
-  manifest + metadata CSV. **This is a pending CMS change-set — human manifest review before any apply.**
-- `seo/blog-city-cost-guides` (3 ahead) — post-#8 commits: Fort Worth + San Antonio cost guides + review companions.
-
-**7 orphan scratch worktrees** (`worktree-agent-*`, all at `28a4b3b`, 39 behind, one uncommitted draft each).
-Verified by per-draft diff vs main/#18/#19 — **no operator cost data, bylines, or project specs at risk**
-(all byte-identical to `origin/main`). The only unique content is small `## Internal Links` blocks:
-- **Discard directly** (superset already in main/#18): `hotel-construction-guide.md` (a19e16…),
-  `design-build-construction-houston.md` (a5818e…), `cost-per-square-foot-build-warehouse-texas.md` (af9481…,
-  a pre-correction draft — its "Ace Steel" ref was *deliberately removed* as inaccurate).
-- **Port the 3-link `## Internal Links` block onto the canonical `origin/main` draft, then discard**:
-  `medical-office-…-guide.md` (a1cbc8…), `warehouse-construction-cost-per-square-foot.md` (a20f27…),
-  `the-ultimate-2026-hotel-…-edition.md` (a3735d…), `importance-of-mock-up-rooms-…-industry.md` (aa9a7a…).
-  Low-value, reconstructable links, but they exist nowhere else and satisfy the ≥3-internal-links gate.
-
-## 8. Conflict risks to expect on rebase
-- **`sql/schema.sql`** is touched by BOTH open PR #14 AND `worktree-grill-docs-reconcile`, and they make the
-  **same deletion** (both remove the `increment_spend()` function + its revoke/grant block, still present in
-  main from #33). Direct overlapping-hunk conflict on whichever rebases second — keep main's #33 version.
-- **`scripts/sensor-gsc.mjs`** in `grill-docs-reconcile` re-inlines `googleapis` and drops the
-  `import … from '../orchestrator/lib/gsc.mjs'` seam — conflicts with the merged GSC pagination/retry
-  refactor (#24), where `origin/main`'s `sensor-gsc.mjs` imports from the `gsc.mjs` seam.
+## Open follow-ups (audit findings still not done)
+- **REC-7** — test `git-delivery.mjs` (`git reset --hard` on failure) + `preflight.mjs` (budget/kill-switch).
+- **GEO blend** — `learned_patterns_geo` persists (#40) but `prioritize.mjs` doesn't read it; decide how to
+  blend citation delta with GSC lift (incompatible scales) and wire it.
+- **REC-12 remainder** — exact-pin the agent SDK + declare `zod` (needs a `package-lock.json` change).
+- **REC-8/10/11** — consolidate the two Supabase clients + two schema files; README/doc index + repoint
+  phantom ADR links in `CONTEXT.md`; de-dupe markdown→HTML + the re-introduced CSV bug.
+- **Untracked `.codex/` + `.agents/`** — still carry the old `node -e` pattern + broken `do_not_touch` check;
+  reconcile from `.claude` sources or remove (neither is git-tracked).
 
 ## Operational note — env-gated hooks (from #38)
 `.claude/hooks/guard-publish.sh` + `guard-write.sh` enforce the strict allowlist / write-scoping **only when
-`SEO_AGENT_GUARDED=1`** (set by `orchestrator/run.mjs` for the autonomous agent). Interactive Claude Code
-leaves it unset → lenient (original denylist; normal dev allowed). If you ever see "DENIED by
-guard-publish/guard-write" interactively, `SEO_AGENT_GUARDED` is set in your env — unset it.
-
-## Open follow-ups (audit findings still not done — pick up here)
-- ~~**REC-5/AH1 (b)+(c)+(d)**~~ — **DONE, PR #43** (`fix/do-not-touch-enforcement`, CI green, awaiting merge). See §4.
-- **REC-7** — test `git-delivery.mjs` (`git reset --hard` on failure) + `preflight.mjs` (budget/kill-switch) —
-  untested destructive/money paths.
-- **GEO blend (ADR)** — `learned_patterns_geo` now persists (#40) but `prioritize.mjs` doesn't read it yet;
-  decide how to blend citation delta with GSC lift (incompatible scales) and wire it.
-- **REC-12 remainder** — exact-pin the agent SDK + declare `zod`; both need a `package-lock.json` change
-  (lockfiles are "Never touch" — needs explicit OK or a clean `npm install`).
-- **REC-8/10/11** — consolidate the two Supabase clients + two schema files; README/doc index + repoint the
-  phantom ADR links in `CONTEXT.md`; de-dupe markdown→HTML + the re-introduced CSV bug.
-- **Untracked `.codex/` + `.agents/` harnesses** — still carry the old `node -e` pattern and broken
-  `do_not_touch` check; reconcile from `.claude` sources or remove. (Neither is git-tracked.)
-
-## Local artifacts NOT in the repo
-- P0 plan: `~/.claude/plans/p0-command-injection-cozy-parasol.md` (home dir, not pushed) — reference only; #38 shipped.
-- Untracked in the working tree: `.agents/`, `.codex/`, `blog-ideas.md`, `output/wp-7340-backup-2026-05-18-17-57-58.json`.
+`SEO_AGENT_GUARDED=1`** (set by `orchestrator/run.mjs` for the autonomous agent). Interactive sessions leave
+it unset → lenient. If you ever see "DENIED by guard-publish/guard-write" interactively, that var is set —
+unset it.
 
 ## Read order to get oriented
 1. This file.
-2. `docs/REPOSITORY-AUDIT-2026-06-30.md` (this branch) — the full 12-phase audit, REC-1…REC-17.
-3. The 4 open PRs (each body is self-contained).
+2. `docs/REPOSITORY-AUDIT-2026-06-30.md` (on main) — the full 12-phase audit, REC-1…REC-17.
+3. PR #14 (the one substantive open PR).
