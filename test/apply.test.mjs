@@ -28,6 +28,9 @@ function fakeStore() {
     snapshot: async (row, current) => { calls.snapshots.push({ id: row.id, current }); },
     setStatus: async (id, status, extra = {}) => { calls.status.push({ id, status, ...extra }); },
     logDecision: async (entry) => { calls.log.push(entry); },
+    // applyRow's do_not_touch gate reads this; default is "nothing protected" so the
+    // pre-existing tests are unaffected. Boundary tests override it with a populated set.
+    doNotTouch: async () => new Set(),
     // rollbackRow reads these two; defaults are overridden per test.
     latestSnapshot: async () => null,
     latestAppliedRow: async () => null,
@@ -72,14 +75,14 @@ test("snapshot happens before write", async () => {
   const store = fakeStore();
   store.snapshot = async () => order.push("snapshot");
   const a = fakeAdapter({ read: async () => "old", write: async () => order.push("write") });
-  await applyRow({ id: 1, field: "title", new_value: "n", base_value: "old" }, a, store);
+  await applyRow({ id: 1, url: "/a", field: "title", new_value: "n", base_value: "old" }, a, store);
   assert.deepEqual(order, ["snapshot", "write"]);
 });
 
 test("drift escalates and does NOT write", async () => {
   const store = fakeStore();
   const a = fakeAdapter({ read: async () => "LIVE-CHANGED" });
-  const outcome = await applyRow({ id: 2, field: "title", new_value: "n", base_value: "ORIGINAL" }, a, store);
+  const outcome = await applyRow({ id: 2, url: "/b", field: "title", new_value: "n", base_value: "ORIGINAL" }, a, store);
   assert.equal(outcome, "escalated");
   assert.deepEqual(a.writes, []);
   assert.equal(store.calls.status.at(-1).status, "escalated");
@@ -89,7 +92,7 @@ test("drift escalates and does NOT write", async () => {
 test("driftCheckable=false skips the drift gate and writes", async () => {
   const store = fakeStore();
   const a = fakeAdapter({ driftCheckable: () => false, read: async () => "LIVE-CHANGED" });
-  const outcome = await applyRow({ id: 3, field: "post_content", new_value: "n", base_value: "ORIGINAL" }, a, store);
+  const outcome = await applyRow({ id: 3, url: "/c", field: "post_content", new_value: "n", base_value: "ORIGINAL" }, a, store);
   assert.equal(outcome, "applied");
   assert.deepEqual(a.writes, ["n"]);
 });
@@ -98,7 +101,7 @@ test("unsupported escalates before read/snapshot", async () => {
   const store = fakeStore();
   let readCalled = false;
   const a = fakeAdapter({ supports: () => false, read: async () => { readCalled = true; return "x"; } });
-  const outcome = await applyRow({ id: 4, field: "weird" }, a, store);
+  const outcome = await applyRow({ id: 4, url: "/weird", field: "weird" }, a, store);
   assert.equal(outcome, "escalated");
   assert.equal(readCalled, false);
   assert.equal(store.calls.snapshots.length, 0);
@@ -113,18 +116,78 @@ test("verify is invoked when present, after write", async () => {
     write: async () => order.push("write"),
     verify: async () => order.push("verify"),
   });
-  await applyRow({ id: 5, field: "title", new_value: "n", base_value: "old" }, a, store);
+  await applyRow({ id: 5, url: "/e", field: "title", new_value: "n", base_value: "old" }, a, store);
   assert.deepEqual(order, ["write", "verify"]);
 });
 
 test("thrown write -> failed status + skip log", async () => {
   const store = fakeStore();
   const a = fakeAdapter({ read: async () => "old", write: async () => { throw new Error("boom"); } });
-  const outcome = await applyRow({ id: 6, field: "title", new_value: "n", base_value: "old" }, a, store);
+  const outcome = await applyRow({ id: 6, url: "/f", field: "title", new_value: "n", base_value: "old" }, a, store);
   assert.equal(outcome, "failed");
   assert.equal(store.calls.status.at(-1).status, "failed");
   assert.equal(store.calls.log.at(-1).action, "skip");
   assert.match(store.calls.log.at(-1).reason, /fail: boom/);
+});
+
+// ---- do_not_touch apply-boundary gate (REC-5/AH1 sub-item c) ----
+test("protected url escalates at the boundary before read/snapshot/write", async () => {
+  const store = fakeStore();
+  store.doNotTouch = async () => new Set(["/protected"]);
+  let readCalled = false;
+  const a = fakeAdapter({ read: async () => { readCalled = true; return "x"; } });
+  const outcome = await applyRow({ id: 7, url: "/protected", field: "title", new_value: "n", base_value: "old" }, a, store);
+  assert.equal(outcome, "escalated");
+  assert.equal(readCalled, false);
+  assert.equal(a.writes.length, 0);
+  assert.equal(store.calls.snapshots.length, 0);
+  assert.equal(store.calls.status.at(-1).status, "escalated");
+  assert.equal(store.calls.log.at(-1).action, "escalate");
+  assert.equal(store.calls.log.at(-1).risk_class, "gated");
+  assert.match(store.calls.log.at(-1).reason, /do_not_touch/);
+});
+
+test("a url-less row is fail-closed: escalated, never written (can't verify do_not_touch)", async () => {
+  const store = fakeStore();
+  let readCalled = false;
+  const a = fakeAdapter({ read: async () => { readCalled = true; return "x"; } });
+  const outcome = await applyRow({ id: 11, field: "title", new_value: "n", base_value: "old" }, a, store);
+  assert.equal(outcome, "escalated");
+  assert.equal(readCalled, false);
+  assert.equal(a.writes.length, 0);
+  assert.equal(store.calls.snapshots.length, 0);
+  assert.equal(store.calls.status.at(-1).status, "escalated");
+  assert.match(store.calls.log.at(-1).reason, /no url — cannot verify/);
+});
+
+test("protected gate is fail-closed: it precedes the supports() check", async () => {
+  const store = fakeStore();
+  store.doNotTouch = async () => new Set(["/protected"]);
+  const a = fakeAdapter({ supports: () => false });
+  const outcome = await applyRow({ id: 8, url: "/protected", field: "weird" }, a, store);
+  assert.equal(outcome, "escalated");
+  assert.match(store.calls.log.at(-1).reason, /do_not_touch/);   // do_not_touch reason, not "unsupported"
+});
+
+test("an unprotected url applies normally", async () => {
+  const store = fakeStore();
+  store.doNotTouch = async () => new Set(["/other"]);
+  const a = fakeAdapter({ read: async () => "old" });
+  const outcome = await applyRow({ id: 9, url: "/x", field: "title", new_value: "new", base_value: "old" }, a, store);
+  assert.equal(outcome, "applied");
+});
+
+test("opts.protectedUrls is honored without re-querying store.doNotTouch", async () => {
+  const store = fakeStore();
+  let dntCalls = 0;
+  store.doNotTouch = async () => { dntCalls++; return new Set(); };
+  const a = fakeAdapter({ read: async () => "old" });
+  const outcome = await applyRow(
+    { id: 10, url: "/protected", field: "title", new_value: "n", base_value: "old" },
+    a, store, { protectedUrls: new Set(["/protected"]) },
+  );
+  assert.equal(outcome, "escalated");
+  assert.equal(dntCalls, 0);   // used the passed set, issued no extra query
 });
 
 // ---- real adapter wiring (mock fetch) ----
@@ -256,6 +319,20 @@ test("applyRows returns zero counts for an empty row set", async () => {
   const store = fakeStore();
   const tally = await applyRows(fakeAdapter(), { rows: [], store });
   assert.deepEqual(tally, { applied: 0, escalated: 0, failed: 0 });
+});
+
+test("applyRows fetches do_not_touch once for the batch and escalates protected rows", async () => {
+  const store = fakeStore();
+  let dntCalls = 0;
+  store.doNotTouch = async () => { dntCalls++; return new Set(["/b"]); };
+  const a = fakeAdapter({ read: async (row) => row.base_value });
+  const rows = [
+    { id: 1, url: "/a", field: "title", new_value: "a", base_value: "x" },   // applied
+    { id: 2, url: "/b", field: "title", new_value: "b", base_value: "x" },   // protected -> escalated
+  ];
+  const tally = await applyRows(a, { rows, store });
+  assert.deepEqual(tally, { applied: 1, escalated: 1, failed: 0 });
+  assert.equal(dntCalls, 1);   // one lookup for the whole batch, not per row
 });
 
 // ---- rollbackRow (rollback routed through the adapter) ----

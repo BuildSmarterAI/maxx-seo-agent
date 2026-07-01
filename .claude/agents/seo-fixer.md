@@ -29,7 +29,8 @@ explore, or make decisions beyond the single assigned task.
 1. **Load the skill.** Read `.claude/skills/<task>/SKILL.md` to confirm inputs,
    outputs, and guardrails for this task type.
 2. **Load context.** Read root `CLAUDE.md` for SEO thresholds and site entity data.
-   Check `do_not_touch` via `node scripts/mem.mjs queue` — abort if this URL appears.
+   Check `do_not_touch` via `node scripts/mem.mjs dnt "<url>"` — it prints `PROTECTED: …`
+   and exits non-zero (2) when this URL is off-limits; abort immediately if so.
 3. **Run the skill** against the URL. Produce the artifact(s) the skill specifies
    (e.g., `metadata-changes.csv` row, `schema/{slug}.jsonld`, `drafts/{slug}.md`).
 4. **Validate.** Run every applicable validator:
