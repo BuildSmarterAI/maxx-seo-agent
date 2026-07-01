@@ -4,16 +4,25 @@
 import { isPaused, resetMonthIfNew, getMonthSpend, pendingQueue } from "./supabase.mjs";
 
 // Returns { ok:false, reason } to stop, or { ok:true, queue } to proceed.
-export async function check(budgetUsd, queueLimit = 25) {
-  if (await isPaused()) return { ok: false, reason: "control.paused = true → exiting." };
+// `deps` defaults to the real supabase.mjs functions; tests inject fakes so the gate
+// logic runs with no network (same optional-injection pattern as addSpend/applyRow).
+export async function check(budgetUsd, queueLimit = 25, deps = {}) {
+  const {
+    isPaused: paused = isPaused,
+    resetMonthIfNew: resetMonth = resetMonthIfNew,
+    getMonthSpend: monthSpend = getMonthSpend,
+    pendingQueue: queuePending = pendingQueue,
+  } = deps;
 
-  await resetMonthIfNew();
-  const spent = await getMonthSpend();
+  if (await paused()) return { ok: false, reason: "control.paused = true → exiting." };
+
+  await resetMonth();
+  const spent = await monthSpend();
   if (spent >= budgetUsd) {
     return { ok: false, reason: `budget hit ($${spent}/$${budgetUsd}) → exiting.` };
   }
 
-  const queue = await pendingQueue(queueLimit);
+  const queue = await queuePending(queueLimit);
   if (!queue.length) return { ok: false, reason: "queue empty → nothing to do." };
 
   return { ok: true, queue };
