@@ -61,7 +61,9 @@ against current `origin/main`. REC-5/AH1 had **four** sub-items; #41 did one:
   via `node scripts/mem.mjs queue`, but that runs `pendingQueue()` which reads the **`work_queue`** table,
   not `do_not_touch` (`supabase.mjs` ~L74) — it reads the wrong table and would never abort on a protected URL.
 
-→ **Next-fix candidate:** finish (b)+(c)+(d). Small, well-scoped, `safe`-class code + one agent-doc line.
+→ **DONE 2026-06-30 PM — PR #43** (`fix/do-not-touch-enforcement`, CI green, awaiting merge): (b) `mem.mjs dnt`
+CLI, (c) fail-closed `do_not_touch` gate in `cms.mjs` `applyRow()` (also escalates url-less rows), (d) fixed
+`seo-fixer.md:32`. +6 tests, full suite 124/124. Code-reviewed (1 HIGH found + fixed).
 
 ## 5. Open PRs (4) — all `mergeStateStatus: DIRTY` (need rebase onto new `origin/main`)
 
@@ -123,8 +125,7 @@ leaves it unset → lenient (original denylist; normal dev allowed). If you ever
 guard-publish/guard-write" interactively, `SEO_AGENT_GUARDED` is set in your env — unset it.
 
 ## Open follow-ups (audit findings still not done — pick up here)
-- **REC-5/AH1 (b)+(c)+(d)** — the biggest remaining item (§4): `mem.mjs dnt`, `cms.mjs` apply-boundary check,
-  fix `seo-fixer.md:32`.
+- ~~**REC-5/AH1 (b)+(c)+(d)**~~ — **DONE, PR #43** (`fix/do-not-touch-enforcement`, CI green, awaiting merge). See §4.
 - **REC-7** — test `git-delivery.mjs` (`git reset --hard` on failure) + `preflight.mjs` (budget/kill-switch) —
   untested destructive/money paths.
 - **GEO blend (ADR)** — `learned_patterns_geo` now persists (#40) but `prioritize.mjs` doesn't read it yet;
