@@ -70,23 +70,61 @@ export async function attribute({ fetchDecisions, clicksAround, positionAround, 
   return { written };
 }
 
+// Bayesian-style shrinkage toward zero: a change_type with few GEO observations barely
+// contributes, one with many contributes fully. shrink(0)=0, shrink(n→∞)→1.
+function shrink(n, k) {
+  const nn = Number(n) || 0;
+  return nn <= 0 ? 0 : nn / (nn + k);
+}
+
+// Mean absolute value of a numeric list (0 for an empty list). Used to put the GSC and
+// GEO effect signals — measured in different units — on a common scale before blending.
+function meanAbs(values) {
+  if (!values.length) return 0;
+  return values.reduce((s, v) => s + Math.abs(Number(v) || 0), 0) / values.length;
+}
+
 // Injectable core: re-score pending queue items from learned patterns, writing back
 // only when the priority actually changes. All I/O is injected.
-export async function reprioritize({ fetchPatterns, fetchQueue, setPriority, log, weight, base }) {
+//
+// GSC learned_patterns is the anchor signal. GEO learned_patterns_geo (citation-delta
+// per change_type) blends in as a bounded, sample-size-shrunk bonus on the SAME scale:
+//   effect = gsc + geoWeight · shrink(n) · (S_gsc / S_geo) · geo
+// The S_gsc/S_geo ratio (mean |effect| of each signal) auto-rescales GEO's units onto
+// GSC's, so the two incompatible scales combine without a hand-tuned constant. When
+// either signal has no spread we can't calibrate, so the GEO term is suppressed rather
+// than guessed. GEO is OFF by default (empty map / geoWeight 0), so callers that pass no
+// GEO args — and the whole loop until learned_patterns_geo fills — score exactly as before.
+export async function reprioritize({ fetchPatterns, fetchQueue, setPriority, log, weight, base, fetchGeoPatterns = async () => new Map(), geoWeight = 0, shrinkK = 5 }) {
   const patterns = await fetchPatterns();
+  const geoPatterns = await fetchGeoPatterns();
   const queue = await fetchQueue();
+
+  const sGsc = meanAbs([...patterns.values()]);
+  const sGeo = meanAbs([...geoPatterns.values()].map((g) => g.avg_effect));
+  const scale = geoWeight > 0 && sGsc > 0 && sGeo > 0 ? sGsc / sGeo : 0;
+
   let changed = 0;
-  let matched = 0; // rows whose task joined a learned pattern — the learning signal's reach
+  let matched = 0;    // rows whose task joined a GSC learned pattern — the learning signal's reach
+  let geoMatched = 0; // rows that also drew a non-zero GEO bonus — the GEO signal's reach
 
   for (const row of queue) {
     const baseScore = base[row.source] ?? 1;
     const learned = patterns.get(row.task);
     if (learned != null) matched++;
-    const effect = learned ?? 0;
-    const next = priorityScore(baseScore, effect, weight);
+    const gsc = learned ?? 0;
+
+    const geo = geoPatterns.get(row.task);
+    let geoTerm = 0;
+    if (geo && scale > 0) {
+      geoTerm = geoWeight * shrink(geo.n, shrinkK) * scale * Number(geo.avg_effect);
+      if (geoTerm !== 0) geoMatched++;
+    }
+
+    const next = priorityScore(baseScore, gsc + geoTerm, weight);
     if (next !== row.priority) { await setPriority(row.id, next); changed++; }
   }
 
-  log(`reprioritized ${changed}/${queue.length} pending items (${matched} matched a learned pattern).`);
+  log(`reprioritized ${changed}/${queue.length} pending items (${matched} GSC, ${geoMatched} GEO patterns matched).`);
   return { changed, total: queue.length, matched };
 }
