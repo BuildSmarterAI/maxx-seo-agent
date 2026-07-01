@@ -65,7 +65,7 @@ rollback tape. No equivalent needed in repo path (git revert fills that role).
 
 **decision_log** — audit trail of every action the orchestrator took or refused.
 Columns: `url, action, risk_class, change_type, reason, agent, pr_url`.
-Action values: `applied | escalate | skip | queued`.
+Action values: `applied | escalate | skip | queued | rolledback`.
 
 **do_not_touch** — URLs the agent must never edit. Seeded manually. Checked by sensors
 and orchestrator before any action.
@@ -73,8 +73,18 @@ and orchestrator before any action.
 **outcomes** — weekly snapshots of per-URL metrics (clicks, impressions, position,
 citations, conversions). Primary source: GSC. Secondary: CSV imports.
 
-**learned_patterns** — one row per `change_type`, storing `avg_effect` (relative click
-lift) and `n` (sample count). Feeds `prioritize.mjs`.
+**learned_patterns** — one row per `change_type`, storing `avg_effect` (blended
+click/impression/position lift, per ADR-006 #1) and `n` (sample count). Feeds `prioritize.mjs`. **`change_type` uses the `task`
+vocabulary** — the kit-skill name (`metadata-generate`, `blog-write`, `seo-audit`, …),
+the same value space as `work_queue.task`. The orchestrator enforces this by logging
+every applied decision with `--type <task>` (see `orchestrator/goal.mjs` and
+`run.mjs`), so `attribute` keys patterns by the task name and `reprioritize` joins them
+back with `patterns.get(row.task)`. This shared key is what makes the learning loop
+actually reweight the queue. A `decision_log` row whose `change_type` is *not* a task
+name — e.g. a CMS apply that fell back to a field name because the `change_set` carried
+no `--type` (`packs/*/apply.mjs`) — produces a `learned_patterns` row that no queue row
+can ever match: dead weight, never a join. `reprioritize` logs the match rate so such a
+no-op is visible rather than silent.
 
 **control** — single-row table. Holds the kill switch (`paused`) and monthly spend
 tracker (`spend_usd`, `month`). Orchestrator checks both at preflight.
@@ -110,6 +120,95 @@ unparseable output, low score, or fabrication risk → exit 1 → PR blocked.
 **mem.mjs** — CLI wrapper the orchestrator's Bash calls use for all Supabase writes in
 headless/CI mode. Commands: `queue`, `log`, `status`, `changeset`. Avoids MCP
 tool-approval friction in autonomous runs.
+
+---
+
+## Domain glossary — Phase A additions
+
+> Reasoning and forward-looking terms from the domain-modeling session (commit 4ac53e9).
+> The core terms above remain canonical; these extend them. See `docs/adr/`.
+
+### blast_radius
+
+The reasoning framework used to assign a `risk_class` label to a task before it enters the `work_queue`. Describes the *consequence surface* of a failure — how many pages, how much live traffic, or how many downstream systems are affected if the action goes wrong. Not a stored column; a classification criterion.
+
+- Low blast radius → `risk_class = safe` (e.g., updating one page's meta title)
+- High blast radius → `risk_class = gated` (e.g., a global Webflow site publish that flushes all pending changes across every page)
+
+Related: `risk_class`, `work_queue`
+
+### approval-to-publish loop
+
+The sequence from agent output to live content. Two distinct variants exist, keyed by site platform type:
+
+#### Loop A — Repo-based (git-managed sites: Next.js, Hugo, etc.)
+
+```text
+orchestrator → branch + PR (label: seo-auto)
+→ seo-auto-merge.yml queues squash-merge
+→ eval_gate required checks (eval-judge + diff-size) must pass
+→ if pass: auto-merged → CI deploys
+→ if fail: sits open, human reviews and merges manually
+```
+
+#### Loop B — Live CMS (WordPress, Webflow)
+
+```text
+agent writes change_set rows (status=pending)
+→ human flips status=pending→approved  ← human gate (SQL or review UI)
+→ seo-apply-cms.yml runs (nightly schedule or manual dispatch)
+→ WordPress: writes immediately to live (staging URL recommended)
+→ Webflow: stages changes (draft); nothing live yet
+→ Webflow publish: separate explicit step (workflow_dispatch, publish=true + WEBFLOW_ALLOW_SITE_PUBLISH env)
+```
+
+Key difference: Loop A has an automated `eval_gate` before content goes live. Loop B's quality gate is the human who flips `status=approved` — no automated eval-judge runs in the live-CMS path.
+
+Related: `eval-gate`, `change_set`, `snapshot`, `risk_class`
+
+### client_id
+
+A canonical kebab-case slug that uniquely identifies a client across all repos in the Phase A architecture (e.g., `maxx-builders`, `buzz-roofing-co`). Defined in `config/client.json` or the `.env` template per repo. Not enforced as a DB column during Phase A — used as a batch name prefix and as the future migration key when the system moves to multi-tenancy.
+
+See: [ADR-0001](docs/adr/0001-repo-per-client-with-migration-path.md)
+
+Related: `work_queue`, `change_set`
+
+### vertical_config
+
+The set of per-client fields in `CLAUDE.md` that drive the single configurable content skill. Required fields: `VERTICAL` (kebab-case name), `SERVICE_TAXONOMY` (comma-separated services), `LOCAL_MODIFIERS` (city/region list), `STAT_SOURCES` (authoritative citation sources), `PRIMARY_ENTITIES` (legal name, brand, sameAs URLs). Missing fields produce generic output — the orchestrator preflight must validate all are present before dispatching content skills.
+
+See: [ADR-0003](docs/adr/0003-single-configurable-skill-over-vertical-templates.md)
+
+Related: `work_queue`, `client_id`
+
+### gbp_platform
+
+The value `'gbp'` added to the `change_set.platform` enum to support Google Business Profile writes. GBP `change_set` rows follow Loop B (live-CMS path): agent writes rows at `status=pending`, human flips to `approved`, `packs/gbp/apply.mjs` calls the GBP write API. GBP changes remain permanently gated per ADR-0002 — no GBP row can be auto-applied regardless of risk_class.
+
+Fields specific to GBP rows: `page_id` = GBP location ID, `field` = one of `description | category | hours | photo | review_reply | qa_answer`.
+
+Related: `change_set`, `approval-to-publish loop`, `snapshot`
+
+### link_prospects
+
+A new Supabase table tracking the outreach pipeline for link building. One row per prospect domain/contact pair. Created by the `link-prospect` skill (LLM-side); humans approve drafts and send manually; status is updated post-send by operator or future automation.
+
+Status machine: `drafted → approved → sent → replied → won | lost | skipped`
+
+Key fields: `domain`, `contact_email`, `target_page_url` (our page we want linked to), `pitch_angle`, `draft_subject`, `draft_body`, `status`, `batch`, `client_id` (placeholder for Phase B migration), `created_at`, `sent_at`, `outcome_at`
+
+Not part of `change_set` — link outreach is a pipeline with its own multi-stage status, not a field-level CMS edit.
+
+Related: `work_queue`, `client_id`
+
+---
+
+## Architectural Decisions
+
+- [ADR-0001](docs/adr/0001-repo-per-client-with-migration-path.md) — Repo-per-client now; migrate to multi-tenant monorepo at 10 clients or when unified dashboard is needed
+- [ADR-0002](docs/adr/0002-human-gate-policy-for-live-actions.md) — Human gate policy: safe-class auto-executes within thresholds; permanently-gated actions (merges, YMYL, GBP, pricing) never auto-execute
+- [ADR-0003](docs/adr/0003-single-configurable-skill-over-vertical-templates.md) — One configurable `blog-write` skill reads `vertical_config` from `CLAUDE.md` rather than a per-vertical template library; revisit at 5+ verticals or first eval regression
 
 ---
 

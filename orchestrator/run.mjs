@@ -15,6 +15,12 @@ const BUDGET_USD = Number(process.env.MONTHLY_BUDGET_USD || 50);
 const PLATFORM = (process.env.SITE_PLATFORM || "repo").toLowerCase();
 const IS_CMS = PLATFORM === "wordpress" || PLATFORM === "webflow";
 
+// Mark this process tree as the guarded autonomous agent so the PreToolUse hooks
+// (.claude/hooks/guard-publish.sh, guard-write.sh) enforce their strict allowlist + write
+// scoping. Inherited by the SDK's hook subprocesses. Interactive Claude Code sessions never
+// set this, so a developer's own session stays unrestricted.
+process.env.SEO_AGENT_GUARDED = "1";
+
 async function runRepo(queue) {
   const branch = startBranch();
   let costUsd = 0;
@@ -52,7 +58,11 @@ async function runRepo(queue) {
 
   // Delivery failure (commit/push/PR) is handled separately from agent failure.
   try {
-    const { empty, prUrl } = openPR(branch, "seo: automated safe-class fixes [skip ci]", "seo-auto");
+    // No [skip ci]: repo-mode PRs carry content (drafts/schema/links), and per
+    // .claude/rules/workflow.md content changes MUST trigger the eval-gate. A [skip ci]
+    // token here suppresses the eval-gate AND the auto-merge workflow (both on:
+    // pull_request), dead-locking delivery on the required check that never reports.
+    const { empty, prUrl } = openPR(branch, "seo: automated safe-class fixes", "seo-auto");
     if (empty) { console.log("no changes produced → cleaning up."); return; }
     console.log(`PR opened: ${prUrl}  (cost ≈ $${costUsd.toFixed(2)})`);
   } catch (err) {
@@ -73,28 +83,44 @@ async function runCms(queue) {
       prompt: goalCms(PLATFORM),
       options: {
         model: process.env.ORCHESTRATOR_MODEL || "claude-sonnet-4-6",
-        allowedTools: ["Read", "Bash", "Agent"],
+        allowedTools: ["Read", "Write", "Bash", "Agent"],
         permissionMode: "acceptEdits",
         settingSources: ["project"],
         agents: {
           "seo-fixer": {
-            description: "Resolves page_id, reads base_value, generates new value, writes change_set row via mem.mjs. Never writes to the CMS directly.",
-            prompt: `You are fixing ONE URL on a ${PLATFORM} site. Steps in order:
-1. Resolve page_id by calling the ${PLATFORM} API with the URL/slug.
-2. Read the current field value (base_value) from the API.
-3. Generate the improved value using the named kit skill.
-4. Write the change_set row using ONLY these supported field names:
+            description: "Resolves page_id + base_value via cms-read.mjs, generates the new value, writes a JSON payload FILE, returns its path. Never builds shell strings from data; never writes to the CMS directly.",
+            prompt: `You are fixing ONE URL on a ${PLATFORM} site.
+SECURITY — ABSOLUTE RULE: never put a field value, page content, base value, or reason on a
+Bash command line. Bash commands carry ONLY fixed flags, the queue URL, the field name, and
+file paths. All data moves through JSON files you create with the Write tool.
+
+Steps in order:
+1. Resolve page_id AND read the current value (base_value) with ONE safe call:
+   node scripts/cms-read.mjs --url <U> --platform ${PLATFORM} --field <F>
+   (add --collection-id <cId> for a Webflow CMS item). It writes
+   change_set/_pending/<slug>.read.json — READ that file with the Read tool to obtain
+   page_id and base_value. Do NOT capture the command's stdout into a shell variable.
+2. Generate the improved value using the named kit skill. Supported field names ONLY:
    - post_content  (full HTML post body)
-   - title         (Yoast/RankMath SEO title — write as a SEPARATE row from description)
-   - description   (Yoast/RankMath meta description — write as a SEPARATE row from title)
+   - title         (SEO title — a SEPARATE payload from description)
+   - description   (meta description — a SEPARATE payload from title)
    - canonical     (canonical URL)
    - focus         (focus keyword)
    Never use "yoast_meta" or any combined/compound field name.
-   node scripts/mem.mjs changeset --url <U> --page-id <ID> --field <F> --base "<current>" --new "<generated>" --type <task>
-5. Log: node scripts/mem.mjs log --url <U> --action queued --risk safe --type <task> --reason "change_set row written"
-6. Mark done: node scripts/mem.mjs status --url <U> --task <task> --to done
+3. Write the payload JSON with the Write tool to change_set/_pending/<slug>.json:
+   {
+     "platform": "${PLATFORM}", "url": "<U>", "page_id": "<id from step 1>", "field": "<F>",
+     "base_value": <base_value from step 1, copied verbatim>,
+     "new_value": <your generated value, as a JSON string>,
+     "change_type": "<task>", "action": "queued", "risk_class": "safe",
+     "reason": "change_set row written, awaiting approval",
+     "id": <queue row id>, "status_to": "done"
+   }
+   Because this is a JSON file, any quotes/backticks/$()/; in the values are inert data.
+4. Return ONLY the path change_set/_pending/<slug>.json to the orchestrator. Do NOT run
+   mem.mjs yourself — the orchestrator commits the payload with one apply --file call.
 Never write to the CMS directly. Never create git branches.`,
-            tools: ["Read", "Bash", "Glob", "Grep"],
+            tools: ["Read", "Write", "Bash", "Glob", "Grep"],
           },
         },
       },
@@ -102,20 +128,21 @@ Never write to the CMS directly. Never create git branches.`,
       if (typeof msg?.total_cost_usd === "number") costUsd = msg.total_cost_usd;
       if ("result" in msg) console.log(msg.result);
     }
-
-    if (costUsd) await addSpend(costUsd);
-    console.log(`CMS run complete — check change_set table for pending rows. (cost ≈ $${costUsd.toFixed(2)})`);
   } catch (err) {
     // The Agent SDK emits "Claude Code process exited with code 1" as a normal
-    // shutdown signal after the query loop completes — not a real failure.
-    if (/process exited with code 1/i.test(err?.message || "")) {
-      console.log(`CMS run complete — check change_set table for pending rows. (cost ≈ $${costUsd.toFixed(2)})`);
-      if (costUsd) await addSpend(costUsd);
-      return;
+    // shutdown signal after the query loop completes — not a real failure. Any
+    // OTHER error is a real failure: bail without recording spend.
+    if (!/process exited with code 1/i.test(err?.message || "")) {
+      console.error("orchestrator (CMS) failed:", err?.message || err);
+      process.exit(1);
     }
-    console.error("orchestrator (CMS) failed:", err?.message || err);
-    process.exit(1);
   }
+
+  // Single accounting point: reached on normal completion AND on the SDK's exit-code-1
+  // shutdown, but NOT on a real failure (that exits above). One call site removes the
+  // double-count that occurred when both the try-tail and the catch billed the same cost.
+  if (costUsd) await addSpend(costUsd);
+  console.log(`CMS run complete — check change_set table for pending rows. (cost ≈ $${costUsd.toFixed(2)})`);
 }
 
 async function main() {

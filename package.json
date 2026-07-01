@@ -3,9 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "engines": {
-    "node": ">=20"
-  },
+  "engines": { "node": ">=22" },
   "scripts": {
     "test": "node --test",
     "gsc:test": "node --env-file=.env scripts/sensor-gsc.mjs",
@@ -19,16 +17,20 @@
     "eval:build": "node --env-file=.env scripts/build-eval-set.mjs",
     "eval:bench": "node --env-file=.env scripts/eval-benchmark.mjs",
     "judge:calibrate": "node --env-file=.env scripts/judge-calibrate.mjs",
+    "wp:import-metadata": "node --env-file=.env scripts/import-metadata-csv.mjs",
     "wp:apply": "node --env-file=.env packs/wordpress/apply.mjs",
+    "wp:publish-drafts": "node --env-file=.env packs/wordpress/publish-drafts.mjs",
     "wp:rollback": "node --env-file=.env packs/wordpress/rollback.mjs",
     "webflow:apply": "node --env-file=.env packs/webflow/apply.mjs",
     "webflow:publish": "node --env-file=.env packs/webflow/publish.mjs",
     "webflow:rollback": "node --env-file=.env packs/webflow/rollback.mjs",
-    "mem": "node --env-file=.env scripts/mem.mjs"
+    "mem": "node --env-file=.env scripts/mem.mjs",
+    "keyword-research": "node --env-file=.env scripts/keyword-research.mjs --"
   },
   "dependencies": {
     "@anthropic-ai/claude-agent-sdk": "^0.1.0",
     "@supabase/supabase-js": "^2.45.0",
+    "google-auth-library": "^10.7.0",
     "googleapis": "^144.0.0",
     "marked": "^18.0.5"
   }

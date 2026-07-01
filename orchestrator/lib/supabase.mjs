@@ -1,6 +1,7 @@
 // Memory-layer helpers — the persistence seam. Callers (scripts, orchestrator) reach
 // every table through these named helpers; the raw client stays private in client.mjs.
 import { db } from "./client.mjs";
+import { assertTaskType } from "./tasks.mjs";
 
 export async function isPaused() {
   const { data } = await db.from("control").select("paused").eq("id", 1).single();
@@ -26,11 +27,25 @@ export async function resetMonthIfNew() {
   return true;
 }
 
-export async function addSpend(usd) {
-  // getMonthSpend returns 0 on a stale month and the explicit month write below
-  // rolls the counter over, so no separate reset is needed on the write path.
-  const current = await getMonthSpend();
-  await db.from("control").update({ month: currentMonth(), spend_usd: current + Number(usd || 0) }).eq("id", 1);
+// Atomic monthly spend increment via the increment_spend() Postgres function (defined in
+// sql/schema.sql): it does the month-aware add in a single UPDATE, removing the
+// read-modify-write lost-update race when a local `npm run orchestrate` overlaps the
+// nightly CI run (which would silently undercount spend and overrun MONTHLY_BUDGET_USD).
+// `client` is injectable for tests and defaults to the shared service-role client.
+export async function addSpend(usd, client = db) {
+  const amount = Number(usd || 0);
+  const month = currentMonth();
+  const { error } = await client.rpc("increment_spend", { p_amount: amount, p_month: month });
+  if (!error) return;
+  // Fallback for a database where increment_spend() isn't deployed yet (pre-migration):
+  // the prior non-atomic read-modify-write, preserving exact legacy behavior. A stale
+  // stored month reads as a zero base, so the new month's counter starts from this cost.
+  const { data } = await client.from("control").select("month, spend_usd").eq("id", 1).single();
+  const current = data?.month === month ? Number(data?.spend_usd ?? 0) : 0;
+  const { error: writeError } = await client.from("control").update({ month, spend_usd: current + amount }).eq("id", 1);
+  // Best-effort path — don't throw and abort an otherwise-fine run, but never swallow: an
+  // unrecorded spend flies the budget gate blind, so surface it in the CI log.
+  if (writeError) console.warn(`addSpend: fallback failed to record $${amount} — ${writeError.message}`);
 }
 
 export async function doNotTouch() {
@@ -65,6 +80,13 @@ export async function pendingQueue(limit = 25) {
 
 export async function setQueueStatus(url, task, to) {
   await db.from("work_queue").update({ status: to }).eq("url", url).eq("task", task);
+}
+
+// Status update keyed on the queue row id (an integer the agent reads from `mem.mjs queue`).
+// Preferred over setQueueStatus on the autonomous path so the attacker-influenced URL is
+// never placed on a shell command line.
+export async function setQueueStatusById(id, to) {
+  await db.from("work_queue").update({ status: to }).eq("id", Number(id));
 }
 
 // Escalated items not yet mirrored to Linear. The linear_issue_id pointer stays
@@ -133,6 +155,11 @@ export async function positionAround(url, isoDate, lagDays = 28) {
   return metricAround(url, "position", isoDate, lagDays);
 }
 
+// latest impressions snapshot at/just-before a date, and earliest at/after date+lagDays
+export async function impressionsAround(url, isoDate, lagDays = 28) {
+  return metricAround(url, "impressions", isoDate, lagDays);
+}
+
 export async function upsertPattern(change_type, avg_effect, n) {
   await db.from("learned_patterns")
     .upsert({ change_type, avg_effect, n, updated_at: new Date().toISOString() },
@@ -145,6 +172,10 @@ export async function learnedPatterns() {
 }
 
 export async function insertChangeset(row) {
+  // Write-boundary guard: keep a non-task change_type (a CMS field name, or a generic label
+  // like "metadata") out of change_set so it never reaches decision_log as an orphan the
+  // learning loop can't join. Throws before any db write.
+  assertTaskType(row.change_type);
   const { error } = await db.from("change_set").insert(row);
   if (error) throw new Error(`insertChangeset failed: ${error.message}`);
 }

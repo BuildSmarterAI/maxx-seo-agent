@@ -9,6 +9,10 @@
       {
         "matcher": "Bash",
         "hooks": [{ "type": "command", "command": ".claude/hooks/guard-publish.sh" }]
+      },
+      {
+        "matcher": "Write|Edit",
+        "hooks": [{ "type": "command", "command": ".claude/hooks/guard-write.sh" }]
       }
     ],
     "PostToolUse": [

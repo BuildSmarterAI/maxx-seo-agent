@@ -8,6 +8,7 @@ Platform-neutral brain. The audit, generate, and monitor layers work on ANY webs
 - **GSC site URL:** `sc-domain:maxxbuilders.com`
 - **Platform:** WordPress
 - **Apply method:** WP-CLI/REST via `packs/wordpress/` (`npm run wp:apply`). SEO meta written via REST + Application Password; `SEO_PLUGIN` env var selects Yoast or Rank Math.
+- **WordPress environment:** No staging environment. Treat all WP-CLI/REST applies as production-only. Before any apply, confirm a restorable production backup, export affected post/page content and SEO meta, apply only a small approved batch, and verify rendered output after each batch.
 - **Inputs available:** crawl export at `./crawl/*.csv` (Screaming Frog/Sitebulb/Firecrawl), GSC (MCP or export), URL list at `config/urls.txt`
 
 ## Primary entities (E-E-A-T + schema)
@@ -57,7 +58,7 @@ Known cannibalization risk: restaurant cluster has two pages targeting overlappi
 
 **Doorway guardrail:** warn at 30 generated location pages, hard-stop at 50 pending human review.
 
-**AI-search:** answer-first blocks, TL;DR, comparison tables; cover full query intent. Do NOT use llms.txt citation hacks, content chunking, or keyword-variation rewriting (debunked).
+**AI-search:** answer-first blocks, TL;DR, comparison tables; cover full query intent. Do NOT generate llms.txt for AI citations (engines crawl it but do not cite from it — Google "mythbusted" it May 2026), content chunking, or keyword-variation rewriting. Answer-first structure + valid schema are what earn citations.
 
 ## Workflow rules
 
@@ -66,6 +67,7 @@ Known cannibalization risk: restaurant cluster has two pages targeting overlappi
 - Operate at the template level wherever a pattern is shared.
 - Split crawl exports over context by path prefix.
 - Always confirm the platform + apply method before any write step.
+- For Maxx Builders WordPress, never assume staging exists. All applies are production-only and require backup/export plus small-batch approval.
 - Run `/cost` to monitor spend.
 
 ## Never touch

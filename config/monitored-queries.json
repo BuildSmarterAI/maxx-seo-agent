@@ -1,0 +1,50 @@
+[
+  {
+    "query": "How much does commercial construction cost per square foot in Houston in 2026?",
+    "intent": "informational",
+    "target_url": "https://www.maxxbuilders.com/commercial-construction-cost-houston-tx/",
+    "priority": 10
+  },
+  {
+    "query": "What does it cost to build a warehouse in Texas?",
+    "intent": "informational",
+    "target_url": "https://www.maxxbuilders.com/cost-per-square-foot-build-warehouse-texas/",
+    "priority": 9
+  },
+  {
+    "query": "How much does it cost to build a car wash in Texas?",
+    "intent": "informational",
+    "target_url": "https://www.maxxbuilders.com/cost-to-build-a-car-wash-in-texas/",
+    "priority": 8
+  },
+  {
+    "query": "What is the cost of medical office construction in Texas?",
+    "intent": "informational",
+    "target_url": "https://www.maxxbuilders.com/medical-office-construction-costs-texas-2026-comprehensive-guide/",
+    "priority": 8
+  },
+  {
+    "query": "Who are the best retail construction contractors in Houston?",
+    "intent": "commercial",
+    "target_url": "https://www.maxxbuilders.com/best-retail-construction-contractors-in-houston-2026-rankings/",
+    "priority": 9
+  },
+  {
+    "query": "Who is the best commercial general contractor in Houston for design-build?",
+    "intent": "commercial",
+    "target_url": "https://www.maxxbuilders.com/",
+    "priority": 10
+  },
+  {
+    "query": "What are the steps in a commercial construction project?",
+    "intent": "informational",
+    "target_url": "https://www.maxxbuilders.com/10-key-steps-to-a-successful-commercial-construction-project/",
+    "priority": 6
+  },
+  {
+    "query": "How much does hotel construction cost in Texas?",
+    "intent": "informational",
+    "target_url": "https://www.maxxbuilders.com/the-ultimate-2026-hotel-construction-cost-guide-texas-edition/",
+    "priority": 7
+  }
+]

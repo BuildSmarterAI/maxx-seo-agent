@@ -10,7 +10,7 @@ echo "$ts edited ${file:-unknown}" >> .claude/seo-audit.log
 # Validate JSON-LD if a schema file was touched
 case "$file" in
   *.jsonld|*schema*.json)
-    node -e "JSON.parse(require('fs').readFileSync('$file','utf8'))" \
+    node scripts/validate-json.mjs "$file" \
       || { echo "Invalid JSON-LD in $file" >&2; exit 1; } ;;
 esac
 
