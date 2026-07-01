@@ -7,6 +7,7 @@
 //   node scripts/mem.mjs changeset --file PAYLOAD.json  # insert a change_set row from JSON
 //   node scripts/mem.mjs log    --file PAYLOAD.json     # insert a decision_log row from JSON
 //   node scripts/mem.mjs status --id 42 --to done|escalated|in_progress
+//   node scripts/mem.mjs dnt   [URL]                  # do_not_touch guard: exit 2 if URL is protected
 //
 // SECURITY: content-bearing writes (changeset, log, apply) take a FILE path only — the
 // agent writes the JSON payload with the Write tool, and the value travels through the
@@ -14,7 +15,7 @@
 // integer), not the URL. The legacy --flag paths remain for back-compat but the agent
 // prompts no longer use them for any untrusted value. See orchestrator/lib/payload.mjs.
 import { readFileSync } from "node:fs";
-import { pendingQueue, logDecision, insertChangeset, setQueueStatus, setQueueStatusById } from "../orchestrator/lib/supabase.mjs";
+import { pendingQueue, logDecision, insertChangeset, setQueueStatus, setQueueStatusById, doNotTouch } from "../orchestrator/lib/supabase.mjs";
 import { assertTaskType } from "../orchestrator/lib/tasks.mjs";
 import { parseChangesetPayload, parseLogPayload } from "../orchestrator/lib/payload.mjs";
 
@@ -32,6 +33,20 @@ const a = args(rest);
 
 if (cmd === "queue") {
   console.log(JSON.stringify(await pendingQueue(Number(a.limit) || 25)));
+} else if (cmd === "dnt") {
+  // Protected-URL guard for the seo-fixer's step-2 check. Reads the do_not_touch table
+  // (NOT work_queue — the bug this replaces) and signals via exit code so a Bash caller
+  // can abort. `dnt <url>` checks one URL; bare `dnt` prints the whole protected list.
+  const url = rest[0];
+  const protectedUrls = await doNotTouch();
+  if (!url) {
+    console.log(JSON.stringify([...protectedUrls]));
+  } else if (protectedUrls.has(url)) {
+    console.error(`PROTECTED: ${url} is in do_not_touch — abort, do not modify`);
+    process.exit(2);
+  } else {
+    console.log(`OK: ${url} is not in do_not_touch`);
+  }
 } else if (cmd === "apply") {
   // One safe call: changeset + log (+ status by id) from a single JSON payload the agent wrote.
   const payload = readPayload(a.file);

@@ -3,7 +3,7 @@
 // detection. applyRow() owns the per-row apply lifecycle; a platform adapter supplies
 // the I/O (read/write/verify) and the small per-platform audit labels (narrate).
 import { db } from "./client.mjs";
-import { logDecision } from "./supabase.mjs";
+import { logDecision, doNotTouch } from "./supabase.mjs";
 
 export async function approvedRows(platform, limit = 200) {
   const { data } = await db.from("change_set").select("*")
@@ -52,17 +52,38 @@ export async function latestAppliedRow(platform, page_id, field) {
 }
 
 const DRIFT_REASON = "drift: live value changed since generation";
+const PROTECTED_REASON = "do_not_touch: URL is protected — apply blocked at boundary";
+const NO_URL_REASON = "do_not_touch: row has no url — cannot verify protection, blocked at boundary";
 
 // Persistence the apply/rollback loops touch. Injectable so they're testable without a DB.
-const defaultStore = { snapshot, setStatus, logDecision, latestSnapshot, latestAppliedRow };
+const defaultStore = { snapshot, setStatus, logDecision, latestSnapshot, latestAppliedRow, doNotTouch };
 
 // The apply loop body, run once per approved row. The adapter owns all platform I/O
 // (supports/read/write/verify) and the per-platform audit labels (narrate.*); this
 // owns the invariant lifecycle — snapshot → drift gate → write → status + decision-log —
 // with a single failure path. Returns "applied" | "escalated" | "failed" so the caller
 // can tally a summary.
-export async function applyRow(row, adapter, store = defaultStore) {
+export async function applyRow(row, adapter, store = defaultStore, opts = {}) {
   try {
+    // Apply-boundary do_not_touch gate (REC-5/AH1): even if a protected URL slips past the
+    // sensor/enqueue filter, the apply layer refuses to write it. Fail-closed — checked before
+    // supports/read/snapshot so nothing touches the live page. A row with no url can't be
+    // checked at all, so it is escalated rather than written on trust (every live change_set
+    // writer populates url today; this guards a future writer or bug that doesn't).
+    if (!row.url) {
+      await store.setStatus(row.id, "escalated");
+      await store.logDecision({ url: null, action: "escalate", risk_class: "gated", change_type: row.change_type ?? null, reason: NO_URL_REASON });
+      return "escalated";
+    }
+    // protectedUrls is fetched once by applyRows and threaded in; a direct caller falls back
+    // to a per-row store lookup.
+    const protectedUrls = opts.protectedUrls ?? await store.doNotTouch();
+    if (protectedUrls.has(row.url)) {
+      await store.setStatus(row.id, "escalated");
+      await store.logDecision({ url: row.url, action: "escalate", risk_class: "gated", change_type: row.change_type ?? null, reason: PROTECTED_REASON });
+      return "escalated";
+    }
+
     if (!adapter.supports(row)) {
       await store.setStatus(row.id, "escalated");
       await store.logDecision({ url: row.url, action: "escalate", risk_class: "gated", ...adapter.narrate.unsupported(row) });
@@ -96,9 +117,11 @@ export async function applyRow(row, adapter, store = defaultStore) {
 // rows + store are injectable so the loop is testable without a DB.
 export async function applyRows(adapter, { rows, store = defaultStore } = {}) {
   const list = rows ?? await approvedRows(adapter.platform);
+  // One do_not_touch lookup for the whole batch, threaded into each applyRow.
+  const protectedUrls = await (store.doNotTouch ?? doNotTouch)();
   const tally = { applied: 0, escalated: 0, failed: 0 };
   for (const row of list) {
-    const outcome = await applyRow(row, adapter, store);
+    const outcome = await applyRow(row, adapter, store, { protectedUrls });
     if (outcome === "applied") tally.applied++;
     else if (outcome === "escalated") tally.escalated++;
     else tally.failed++;
