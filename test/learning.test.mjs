@@ -171,3 +171,92 @@ test("reprioritize: surfaces a silent no-op — patterns present but no task mat
   assert.deepEqual(writes, [[1, 2]]);
   assert.deepEqual(summary, { changed: 1, total: 1, matched: 0 }); // priority moved, but NO learned signal contributed
 });
+
+// ---- GEO blend (learned_patterns_geo → prioritize) ----
+// GSC learned_patterns is the anchor; GEO citation-delta blends in as a bounded,
+// sample-size-shrunk bonus rescaled onto the GSC scale by S_gsc/S_geo. GEO is OFF
+// unless geoWeight is passed, so existing callers score exactly as before.
+
+test("reprioritize: GEO data is ignored unless geoWeight is set (defaults off)", async () => {
+  const writes = [];
+  await reprioritize({
+    fetchPatterns: async () => new Map([["m", 0.4]]),
+    fetchGeoPatterns: async () => new Map([["m", { avg_effect: 5.0, n: 100 }]]), // huge, but no geoWeight
+    fetchQueue: async () => [{ id: 1, source: "gsc", task: "m", priority: 0 }],
+    setPriority: async (id, p) => writes.push([id, p]),
+    log: () => {}, weight: 5, base: { gsc: 2 },
+  });
+  assert.deepEqual(writes, [[1, 4]]); // GSC-only: 2 + round(0.4*5=2.0) = 4, GEO ignored
+});
+
+test("reprioritize: a calibrated GEO blend adds a bounded bonus over the GSC-only score", async () => {
+  // S_gsc = |0.4| = 0.4 ; S_geo = |0.4| = 0.4 -> ratio 1 ; shrink(5, K=5) = 0.5
+  const cfg = (geoWeight) => {
+    const writes = [];
+    return { writes, run: reprioritize({
+      fetchPatterns: async () => new Map([["m", 0.4]]),
+      fetchGeoPatterns: async () => new Map([["m", { avg_effect: 0.4, n: 5 }]]),
+      fetchQueue: async () => [{ id: 1, source: "gsc", task: "m", priority: 0 }],
+      setPriority: async (id, p) => writes.push([id, p]),
+      log: () => {}, weight: 5, base: { gsc: 2 }, geoWeight, shrinkK: 5,
+    }) };
+  };
+  const off = cfg(0); await off.run;
+  assert.deepEqual(off.writes, [[1, 4]]);   // GSC-only: 2 + round(2.0) = 4
+  const on = cfg(0.6); await on.run;
+  // geoTerm = 0.6 * 0.5 * 1 * 0.4 = 0.12 ; effect 0.52 ; 2 + round(2.6) = 5
+  assert.deepEqual(on.writes, [[1, 5]]);
+});
+
+test("reprioritize: the GEO blend is scale-invariant — 10x the citation units yields identical priorities", async () => {
+  const patterns = new Map([["m", 0.5], ["s", 0.3]]);
+  const run = async (geo) => {
+    const writes = [];
+    await reprioritize({
+      fetchPatterns: async () => patterns,
+      fetchGeoPatterns: async () => geo,
+      fetchQueue: async () => [
+        { id: 1, source: "gsc", task: "m", priority: 0 },
+        { id: 2, source: "gsc", task: "s", priority: 0 },
+      ],
+      setPriority: async (id, p) => writes.push([id, p]),
+      log: () => {}, weight: 5, base: { gsc: 2 }, geoWeight: 0.5, shrinkK: 5,
+    });
+    return writes;
+  };
+  const small = await run(new Map([["m", { avg_effect: 0.4, n: 10 }], ["s", { avg_effect: 0.2, n: 10 }]]));
+  const big = await run(new Map([["m", { avg_effect: 4.0, n: 10 }], ["s", { avg_effect: 2.0, n: 10 }]]));
+  assert.equal(small.length, 2);      // not a vacuous pass — both rows wrote
+  assert.deepEqual(small, big);       // S_gsc/S_geo cancels the 10x → same result
+});
+
+test("reprioritize: a thin GEO sample (low n) contributes less than a well-sampled one", async () => {
+  // S_gsc=0.4, S_geo=0.8 -> ratio 0.5 ; geoWeight 0.5
+  const run = async (n) => {
+    let captured;
+    await reprioritize({
+      fetchPatterns: async () => new Map([["m", 0.4]]),
+      fetchGeoPatterns: async () => new Map([["m", { avg_effect: 0.8, n }]]),
+      fetchQueue: async () => [{ id: 1, source: "gsc", task: "m", priority: 0 }],
+      setPriority: async (id, p) => { captured = p; },
+      log: () => {}, weight: 5, base: { gsc: 2 }, geoWeight: 0.5, shrinkK: 5,
+    });
+    return captured;
+  };
+  const thin = await run(1);   // shrink 1/6 -> geoTerm 0.033 -> effect 0.433 -> 2+round(2.17)=4
+  const thick = await run(95); // shrink 0.95 -> geoTerm 0.19  -> effect 0.59  -> 2+round(2.95)=5
+  assert.equal(thin, 4);
+  assert.equal(thick, 5);
+});
+
+test("reprioritize: zero GEO spread contributes nothing (guards divide-by-zero)", async () => {
+  const writes = [];
+  await reprioritize({
+    fetchPatterns: async () => new Map([["m", 0.4]]),
+    fetchGeoPatterns: async () => new Map([["m", { avg_effect: 0, n: 50 }]]), // S_geo = 0 -> ratio forced to 0
+    fetchQueue: async () => [{ id: 1, source: "gsc", task: "m", priority: 0 }],
+    setPriority: async (id, p) => writes.push([id, p]),
+    log: () => {}, weight: 5, base: { gsc: 2 }, geoWeight: 0.9, shrinkK: 5,
+  });
+  assert.deepEqual(writes, [[1, 4]]); // == GSC-only; no NaN, no divide-by-zero
+});

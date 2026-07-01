@@ -171,6 +171,14 @@ export async function learnedPatterns() {
   return new Map((data ?? []).map((r) => [r.change_type, Number(r.avg_effect)]));
 }
 
+// GEO learned patterns (citation-delta per change_type, #40). Keeps `n` — the priority
+// blend shrinks each type's bonus by its sample size — so this returns a richer value
+// than learnedPatterns(). Empty until attribute-citations.mjs has run.
+export async function learnedPatternsGeo() {
+  const { data } = await db.from("learned_patterns_geo").select("change_type, avg_effect, n");
+  return new Map((data ?? []).map((r) => [r.change_type, { avg_effect: Number(r.avg_effect), n: Number(r.n) }]));
+}
+
 export async function insertChangeset(row) {
   // Write-boundary guard: keep a non-task change_type (a CMS field name, or a generic label
   // like "metadata") out of change_set so it never reaches decision_log as an orphan the
