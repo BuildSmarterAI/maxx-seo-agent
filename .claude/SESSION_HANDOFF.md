@@ -1,116 +1,146 @@
-# Session Handoff — 2026-06-30 (audit + fix sprint)
+# Session Handoff — 2026-06-30 (audit sprint SHIPPED; home continuation)
 
 > You're reading this on branch **`chore/repo-audit-2026-06-30`**, which also holds the full
-> audit at `docs/REPOSITORY-AUDIT-2026-06-30.md`. This is a point-in-time handoff so the work
-> can continue from another machine. `git fetch` first — `origin/main` moved during the session.
+> audit at `docs/REPOSITORY-AUDIT-2026-06-30.md`. Point-in-time handoff for cross-machine
+> continuation. **`git fetch --all` first** — `origin/main` advanced to `0f99e32` during the
+> office sessions. This file was rewritten at the home machine after all 7 audit PRs merged; it
+> **supersedes** the earlier "6 PRs still open" version (that state is now stale).
 
 ## TL;DR
-Ran a 12-phase engineering audit of the repo, then shipped the top findings as **6 open PRs**
-(all CI-green as of this writing, none auto-merged — each is labelled for human review, NOT
-`seo-auto`). Nothing is merged yet. The biggest is the **P0 command-injection fix (#38)**.
+The 12-phase audit is done and **all 7 audit-sprint PRs are MERGED to `origin/main` (HEAD
+`0f99e32`).** Local `main` (`962ed20`) is a clean fast-forward, 9 behind. Four PRs remain open
+(#14 feature + #17/#18/#19 preservation). One correction: **REC-5/AH1 is only ~¼ done** — PR #41
+closed just one of its four sub-items (see §4). The one branch that held unpushed unique work
+(`worktree-grill-docs-reconcile`) has been pushed to origin as a backup.
 
 ---
 
-## ⚑ Session 2 addendum (interactive Claude Code) — 2026-06-30 PM
+## 1. Shipped — merged to `origin/main` (verified via `gh pr list` + `git log origin/main`)
 
-A separate interactive session ran in parallel and **merged two PRs to `main`** (the 6 audit
-PRs above are still OPEN). Reconciled state:
+| PR | Commit | Finding | Post-merge apply step |
+|---|---|---|---|
+| **#38** | `62fae8f` | **P0** — eliminate command injection on the CMS path (REC-1/REC-2); fail-closed env-gated allowlist; Write-scoping; `node -e`→`validate-json.mjs` | See §"env-gated hooks" below |
+| **#40** | `3af9a63` | REC-4 — task-vocabulary fix (`KIT_TASKS`); route `link-graph.mjs` through `enqueue()`+`do_not_touch`; `learned_patterns_geo` table (stops weekly clobber) | Apply `sql/ai-search-schema.sql` in Supabase (idempotent) — **verify done (§3)** |
+| **#33** | `15a828c` | REC-9 — atomic `increment_spend` RPC + single CMS cost accounting | Apply `sql/schema.sql` in Supabase (idempotent) — **verify done (§3)** |
+| **#36** | `4a796cb` | REC-3 — stop hardcoding `[skip ci]` on repo-mode content PRs | Confirm branch protection **requires** the `eval-gate` check |
+| **#34** | `02837e6` | REC-6 — commit missing `check-vitals.sh` PSI canary; stop false-failing | Optional `PAGESPEED_API_KEY` for higher PSI quota |
+| **#35** | `1054a68` | REC-12 (partial) — pin Supabase MCP server version (drop `@latest`) | — |
+| **#41** | `0f99e32` | REC-5/AH1 (**PARTIAL** — see §4) — route PAA + AI-citation sensors through `enqueue()` (`do_not_touch` + dedup) | — |
 
-**SHIPPED + MERGED to `main` (already in `origin/main`):**
-- **#37** (`9405fcc`) — auto competitor-classifier: discovers every domain answer engines cite
-  (`ai_citations.sources`), classifies each new one competitor/reference/noise via Haiku, and
-  scores citation gaps against high-confidence rivals — no hand-curated list. New
-  `competitor_domains` table, `lib/classify.mjs`, `scripts/classify-competitors.mjs`, a classify
-  step in `ai-search-sensors.yml`, 17 tests. DB + code reviewed.
-- **#39** (`7dce4bb`) — wired the `COMPETITOR_MIN_CONFIDENCE` repo var (set to **0.85**) into the
-  citation sensor (it was inert otherwise; code default stays 0.7).
-- **Backfill done:** `competitor_domains` seeded with 83 domains (**36 competitor / 38 reference /
-  9 noise**), spot-checked accurate. ~$0.02 (classifier logs real token usage per run).
+Also already on `main` from earlier in the session: **#37** (`9405fcc`, auto competitor-classifier)
+and **#39** (`7dce4bb`, `COMPETITOR_MIN_CONFIDENCE=0.85` wired into the citation sensor).
+`competitor_domains` was backfilled with 83 domains (36 competitor / 38 reference / 9 noise).
 
-**Config applied (so the AI-search loop actually runs):**
-- `.env` (local, gitignored — NOT pushed): added + validated `PERPLEXITY_API_KEY`,
-  `OPENAI_API_KEY`, `SERPAPI_KEY`; swapped `SUPABASE_ACCESS_TOKEN` to a working Management PAT
-  (`sbp_…`) — the old `sb_p…` value 401'd the Management API.
-- GitHub secrets set: `PERPLEXITY_API_KEY`, `OPENAI_API_KEY`, `SERPAPI_KEY`. GitHub var:
-  `COMPETITOR_MIN_CONFIDENCE=0.85`.
-- Supabase: `sql/ai-search-schema.sql` applied via the **Management API** (now includes
-  `competitor_domains` + CHECK constraints). Schema changes are applied this way going forward.
+## 2. First moves from home
+1. `git fetch --all --prune` (done) → fast-forward local `main`: `git checkout main && git merge --ff-only origin/main`.
+2. Decide next work — the top open item is now **REC-5/AH1 completion (§4)**, the highest-value
+   remaining safety fix. Cut a fresh worktree off `origin/main`, don't reuse a stale one.
+3. Housekeeping when convenient: worktree/branch prune (§7) and open a PR for this audit branch.
 
-**⚠️ #1 thing to verify from the office — the ANTHROPIC key:**
-- Funded key (`sk-ant-…api03-S…`) is in `.env`. A STALE `$env:ANTHROPIC_API_KEY` (`…api03-I…`,
-  dead/401) **shadows it** in local `node --env-file` runs (Node prefers a real env var over the
-  file) → remove it from the PowerShell profile / Windows env.
-- The **GitHub Actions `ANTHROPIC_API_KEY` secret** value is unconfirmed. eval-gate passed on
-  #37/#39 (a good sign it's funded), but verify before relying on the Monday cron / eval-judge /
-  orchestrator — all die on a dead key.
+## 3. ⚠️ VERIFY (merged, but confirm before relying on the loop)
+- **Supabase schema for #40 + #33.** Both PRs need their SQL applied (idempotent, apply via the
+  Management API per standing practice — do NOT ask for the SQL editor). Re-run
+  `sql/ai-search-schema.sql` (→ `learned_patterns_geo`) and `sql/schema.sql` (→ `increment_spend`
+  RPC) to be safe. Code falls back gracefully if absent, but the loop isn't fully wired until both exist.
+- **GitHub Actions `ANTHROPIC_API_KEY` secret** — value still unconfirmed. eval-gate passed on the
+  merged PRs (good sign it's funded), but verify before relying on the Monday cron / orchestrator —
+  all die on a dead key. Local note: a **stale `$env:ANTHROPIC_API_KEY`** (`…api03-I…`, dead/401) can
+  shadow the funded key in `node --env-file` runs — remove it from the PowerShell profile / Windows env.
 
-**Merge-overlap caveat (affects the audit PRs):**
-- **#40 (REC-4) now overlaps the MERGED #37:** both touch `sql/ai-search-schema.sql` and
-  `attribute-citations.mjs`. #37 added the `competitor_domains` table; #40 adds
-  `learned_patterns_geo`. Expect a small conflict in those two files when #40 merges — keep BOTH
-  additions, then re-run `sql/ai-search-schema.sql` in Supabase (idempotent) to get both tables.
+## 4. ⚠️ CORRECTION — REC-5/AH1 is NOT fully closed (only sub-item (a) done)
+The earlier handoff and PR #41's framing imply the `do_not_touch` gap is closed. It is not — verified
+against current `origin/main`. REC-5/AH1 had **four** sub-items; #41 did one:
+- **(a) DONE** — `sensor-paa.mjs` + `sensor-ai-citations.mjs` now route through `enqueue()` with
+  `doNotTouch()` filtering + dedup (matches what #40 did for `link-graph.mjs`).
+- **(b) OPEN** — no `dnt` CLI: `scripts/mem.mjs` dispatch handles only `queue/apply/changeset/log/status`.
+  The `doNotTouch()` helper exists in `supabase.mjs` but is never exposed as `node scripts/mem.mjs dnt <url>`.
+- **(c) OPEN** — no apply-boundary check: `orchestrator/lib/cms.mjs` `applyRow()` gates on
+  `supports → snapshot → drift → write → verify` and **never consults `do_not_touch`** before `adapter.write(row)`.
+  `cms.mjs` doesn't even import `doNotTouch`.
+- **(d) OPEN (live bug)** — `.claude/agents/seo-fixer.md:32` still tells the agent to check `do_not_touch`
+  via `node scripts/mem.mjs queue`, but that runs `pendingQueue()` which reads the **`work_queue`** table,
+  not `do_not_touch` (`supabase.mjs` ~L74) — it reads the wrong table and would never abort on a protected URL.
 
-**Not handled (left for you):** 7 stale `worktree-agent-*` worktrees each hold ONE uncommitted
-modified draft (hotel / medical-office / warehouse / design-build / mock-up) on an old commit
-(`28a4b3b`) — abandoned agent WIP, not pushed. Discard or preserve as you see fit.
+→ **Next-fix candidate:** finish (b)+(c)+(d). Small, well-scoped, `safe`-class code + one agent-doc line.
 
-> A redundant `docs/session-handoff-2026-06-30` branch was pushed earlier this session before
-> this addendum existed — it's superseded by this file; safe to delete.
+## 5. Open PRs (4) — all `mergeStateStatus: DIRTY` (need rebase onto new `origin/main`)
 
----
+| PR | Branch | What | Status / next |
+|---|---|---|---|
+| **#14** | `claude/autoresearch-agent-design-yx4dl4` | AutoResearch Phase A substrate + eval-set/judge calibration (RO-6/RO-1) | **CI green** (test+eval-gate pass). Most shovel-ready real feature — just needs a rebase. ⚠️ local branch is named `autoresearch-update` but tracks this remote — push with the tracked ref, not a new branch. Touches `sql/schema.sql` (see §8). |
+| **#18** | `seo/auto-2026-06-24-test-push` | Preserve warehouse operator cost data (named author, Maxx Houston pricing) | Preservation-only, no CI run. Human triage — extract drafts before any close. |
+| **#19** | `seo/auto-2026-06-24-75455` | Preserve medical-office cost draft + node 22 bump | Preservation-only. The **node 22 bump may be worth cherry-picking** independently. |
+| **#17** | `docs/agent-roster-prd` | Preserve agent-roster PRD + ADRs + domain model | Docs preservation-only, no worktree checked out. |
+
+## 6. Unpushed / at-risk work — now resolved
+- **`worktree-grill-docs-reconcile`** (`71b677f`, 4 ahead / 35 behind) held ADR-007/008/009, a
+  Yoast→Semrush proxy-auth spike, and code edits to `goal.mjs`/`sensor.mjs`/`sensor-gsc.mjs`/`schema.sql`.
+  It existed on **no remote**. **Pushed to `origin/worktree-grill-docs-reconcile` this session** as a backup
+  (preservation only — not merge-ready; see conflict risks §8). Needs a PR + rebase if the ADRs are wanted.
+- Verified there is **no other** unpushed-unique branch. (`worktree-fix+change-type-task-guardrail` looked
+  unpushed but is PR #29 squash-merged as `09aa6e1` in main — content fully absorbed, safe to prune.)
+
+## 7. Worktree & branch hygiene (all verified vs `origin/main`)
+
+**Safe to prune — content fully in `origin/main`** (`git worktree remove` + `git branch -D`):
+- `fix/pr10-lock-sync` (0 ahead; upstream gone) · `worktree-repo-activity-review` (0 ahead, PR #12)
+  · `fix/lockfile-marked-sync` (0 ahead, PR #16, upstream gone)
+- `worktree-gsc-pagination-retry` (PR #24 — `gsc.mjs`/`gsc.test.mjs` byte-identical to main)
+- `worktree-fix+change-type-task-guardrail` (PR #29, verified absorbed)
+- Merged-PR local refs, 1-ahead only from squash patch-id (delete the ref): `chore/pin-volatile-deps`(#35),
+  `feat/deepen-learning-loop`(#20), `fix/ai-search-contracts`(#40), `fix/atomic-spend-counter`(#33),
+  `fix/check-vitals-script`(#34), `fix/cms-command-injection`(#38), `fix/content-pr-eval-gate`(#36),
+  `fix/skip-ci-content-prs`(#32, identical SHA to #36's branch), `feat/finish-cms-apply-seam`(#13).
+
+**Follow-up pushed, but no open PR** (safe on origin; open a PR if the work is wanted):
+- `chore/geo-ai-seo-audit` (5 ahead) — post-#11 commits: fresh `seo-audit.md` + AI-SEO WP change-set
+  manifest + metadata CSV. **This is a pending CMS change-set — human manifest review before any apply.**
+- `seo/blog-city-cost-guides` (3 ahead) — post-#8 commits: Fort Worth + San Antonio cost guides + review companions.
+
+**7 orphan scratch worktrees** (`worktree-agent-*`, all at `28a4b3b`, 39 behind, one uncommitted draft each).
+Verified by per-draft diff vs main/#18/#19 — **no operator cost data, bylines, or project specs at risk**
+(all byte-identical to `origin/main`). The only unique content is small `## Internal Links` blocks:
+- **Discard directly** (superset already in main/#18): `hotel-construction-guide.md` (a19e16…),
+  `design-build-construction-houston.md` (a5818e…), `cost-per-square-foot-build-warehouse-texas.md` (af9481…,
+  a pre-correction draft — its "Ace Steel" ref was *deliberately removed* as inaccurate).
+- **Port the 3-link `## Internal Links` block onto the canonical `origin/main` draft, then discard**:
+  `medical-office-…-guide.md` (a1cbc8…), `warehouse-construction-cost-per-square-foot.md` (a20f27…),
+  `the-ultimate-2026-hotel-…-edition.md` (a3735d…), `importance-of-mock-up-rooms-…-industry.md` (aa9a7a…).
+  Low-value, reconstructable links, but they exist nowhere else and satisfy the ≥3-internal-links gate.
+
+## 8. Conflict risks to expect on rebase
+- **`sql/schema.sql`** is touched by BOTH open PR #14 AND `worktree-grill-docs-reconcile`, and they make the
+  **same deletion** (both remove the `increment_spend()` function + its revoke/grant block, still present in
+  main from #33). Direct overlapping-hunk conflict on whichever rebases second — keep main's #33 version.
+- **`scripts/sensor-gsc.mjs`** in `grill-docs-reconcile` re-inlines `googleapis` and drops the
+  `import … from '../orchestrator/lib/gsc.mjs'` seam — conflicts with the merged GSC pagination/retry
+  refactor (#24), where `origin/main`'s `sensor-gsc.mjs` imports from the `gsc.mjs` seam.
+
+## Operational note — env-gated hooks (from #38)
+`.claude/hooks/guard-publish.sh` + `guard-write.sh` enforce the strict allowlist / write-scoping **only when
+`SEO_AGENT_GUARDED=1`** (set by `orchestrator/run.mjs` for the autonomous agent). Interactive Claude Code
+leaves it unset → lenient (original denylist; normal dev allowed). If you ever see "DENIED by
+guard-publish/guard-write" interactively, `SEO_AGENT_GUARDED` is set in your env — unset it.
+
+## Open follow-ups (audit findings still not done — pick up here)
+- **REC-5/AH1 (b)+(c)+(d)** — the biggest remaining item (§4): `mem.mjs dnt`, `cms.mjs` apply-boundary check,
+  fix `seo-fixer.md:32`.
+- **REC-7** — test `git-delivery.mjs` (`git reset --hard` on failure) + `preflight.mjs` (budget/kill-switch) —
+  untested destructive/money paths.
+- **GEO blend (ADR)** — `learned_patterns_geo` now persists (#40) but `prioritize.mjs` doesn't read it yet;
+  decide how to blend citation delta with GSC lift (incompatible scales) and wire it.
+- **REC-12 remainder** — exact-pin the agent SDK + declare `zod`; both need a `package-lock.json` change
+  (lockfiles are "Never touch" — needs explicit OK or a clean `npm install`).
+- **REC-8/10/11** — consolidate the two Supabase clients + two schema files; README/doc index + repoint the
+  phantom ADR links in `CONTEXT.md`; de-dupe markdown→HTML + the re-introduced CSV bug.
+- **Untracked `.codex/` + `.agents/` harnesses** — still carry the old `node -e` pattern and broken
+  `do_not_touch` check; reconcile from `.claude` sources or remove. (Neither is git-tracked.)
+
+## Local artifacts NOT in the repo
+- P0 plan: `~/.claude/plans/p0-command-injection-cozy-parasol.md` (home dir, not pushed) — reference only; #38 shipped.
+- Untracked in the working tree: `.agents/`, `.codex/`, `blog-ideas.md`, `output/wp-7340-backup-2026-05-18-17-57-58.json`.
 
 ## Read order to get oriented
 1. This file.
-2. `docs/REPOSITORY-AUDIT-2026-06-30.md` (on this branch) — the full 12-phase audit, ranked risks, REC-1…REC-17.
-3. The 6 PRs below (each PR body is self-contained).
-
-## Open PRs (all branched off `origin/main`; review/merge from GitHub)
-
-| PR | Branch | Finding | Touches | Apply-step before/after merge |
-|---|---|---|---|---|
-| **#38** | `fix/cms-command-injection` | **REC-1/REC-2 (P0 critical)** — eliminate command injection on the autonomous CMS path; replace Bash denylist with a fail-closed, env-gated allowlist; scope the agent's new Write tool; replace the `node -e` validator | `payload.mjs`(new), `cms-read.mjs`(new), `validate-json.mjs`(new), `seo-keys.mjs`(new), `guard-write.sh`(new), `mem.mjs`, `run.mjs`, `goal.mjs`, `supabase.mjs`, `apply.mjs`, hooks, `settings.json`, `test/payload.test.mjs` | Confirm the job that runs `runCms` passes `WP_*`/`WEBFLOW_*` for `cms-read` (`seo-apply-cms.yml` does; `seo-sensors.yml` doesn't). |
-| **#40** | `fix/ai-search-contracts` | **REC-4** — task-vocabulary fix (`internal-link-graph`/`entity-authority`/`faq-schema` → `KIT_TASKS`); route `link-graph.mjs` through `enqueue()`+`do_not_touch`; stop the weekly `learned_patterns` clobber via a separate `learned_patterns_geo` table | `tasks.mjs`, `tasks.test.mjs`, `ai-search-schema.sql`, `attribute-citations.mjs`, `link-graph.mjs` | Apply updated `sql/ai-search-schema.sql` in Supabase (creates `learned_patterns_geo`; idempotent). |
-| **#33** | `fix/atomic-spend-counter` | **REC-9** — atomic `increment_spend` RPC + single CMS cost accounting | `supabase.mjs`, `run.mjs`, `schema.sql`, `test/spend.test.mjs` | Apply updated `sql/schema.sql` in Supabase (creates `increment_spend`; idempotent). Safe before apply (code falls back). |
-| **#36** | `fix/content-pr-eval-gate` | **REC-3** — stop hardcoding `[skip ci]` on repo-mode content PRs (was dead-locking delivery). *(Replaced #32, which I closed.)* | `run.mjs` | Verify branch protection **requires** the `eval-gate` check. |
-| **#34** | `fix/check-vitals-script` | **REC-6** — commit the missing `check-vitals.sh` PSI canary; stop false-failing on tool errors | `scripts/check-vitals.sh`(new), `packs/webflow/publish.mjs` | Optional `PAGESPEED_API_KEY` for higher PSI quota. |
-| **#35** | `chore/pin-volatile-deps` | **REC-12 (partial)** — pin the Supabase MCP server version (drop `@latest`) | `.mcp.json` | — |
-
-## Merge-order caveats
-- `origin/main` advanced to **#37** (auto-classify cited competitor domains) during the session. #33–#38 were branched off the prior main, so their bases are slightly behind — GitHub diffs against the merge-base so they review fine, but a base-update/rebase may be wanted.
-- **#33 and #38 both touch `run.mjs` (`runCms`) and `supabase.mjs`** → expect a trivial conflict on the second-merged; resolve by keeping both changes (the single-accounting refactor + the `SEO_AGENT_GUARDED` line + the `addSpend` RPC).
-- **#40 is disjoint** from all the others (no overlap).
-
-## IMPORTANT operational note — the env-gated hooks (from #38)
-After #38 merges, `.claude/hooks/guard-publish.sh` and `guard-write.sh` enforce a **strict allowlist
-/ write-scoping ONLY when `SEO_AGENT_GUARDED=1`** (set by `orchestrator/run.mjs` for the autonomous
-agent). Interactive Claude Code sessions leave it unset → lenient (the original denylist; all normal
-dev commands allowed). This matters: an earlier draft applied the strict allowlist to ALL sessions
-and locked the interactive session out of `git`/`npm`/editing `.claude/` — the env gate is the fix.
-If you ever see "DENIED by guard-publish/guard-write" in an interactive session, `SEO_AGENT_GUARDED`
-is set in your env — unset it.
-
-## Open follow-ups (audit findings NOT yet done — pick up here)
-- **REC-5 / AH1 (HIGH, safety):** the `do_not_touch` agent-side check is a no-op — `seo-fixer` runs
-  `mem.mjs queue` (reads `work_queue`), not `do_not_touch`. Add a real `mem.mjs dnt <url>` command
-  (uses the existing `doNotTouch()` helper) + an apply-boundary check in `orchestrator/lib/cms.mjs`,
-  and fix the `seo-fixer` step-2 instruction. (P0 #38 already added Write-scoping + the allowlist;
-  this is the remaining protected-URL gap.)
-- **REC-7:** test `git-delivery.mjs` (runs `git reset --hard` on failure) and `preflight.mjs`
-  (budget/kill-switch gate) — the untested destructive/money paths.
-- **GEO blend (ADR):** `learned_patterns_geo` now persists (PR #40) but isn't read by `prioritize.mjs`
-  yet. Decide how to blend the citation delta with the GSC lift (incompatible scales) and wire it.
-- **REC-12 remainder:** exact-pin the agent SDK + declare `zod` — both need a `package-lock.json`
-  change (lockfiles are "Never touch" — needs an explicit OK or run `npm install`).
-- **REC-8/REC-10/REC-11:** consolidate the two Supabase clients + two schema files; README/doc index
-  + repoint the phantom ADR links in `CONTEXT.md`; de-dupe markdown→HTML + the re-introduced CSV bug.
-- **Untracked `.codex/` harness (AH3):** still carries the old `node -e` pattern and the broken
-  `do_not_touch` check; reconcile from the `.claude` sources or remove. (It is NOT git-tracked.)
-
-## Local artifacts NOT in the repo
-- Plan for the P0: `~/.claude/plans/p0-command-injection-cozy-parasol.md` (your home dir, not pushed).
-  REC-4 and the P0 are both DONE (PRs #40 and #38); the plan is reference only.
-
-## To resume in a new session
-1. `git fetch origin`
-2. Read this file + the audit doc (`git show chore/repo-audit-2026-06-30:docs/REPOSITORY-AUDIT-2026-06-30.md`, or check out this branch).
-3. Review/merge the 6 PRs (apply the Supabase SQL steps noted above), or start **REC-5/AH1** as the next fix.
+2. `docs/REPOSITORY-AUDIT-2026-06-30.md` (this branch) — the full 12-phase audit, REC-1…REC-17.
+3. The 4 open PRs (each body is self-contained).
