@@ -8,6 +8,8 @@
 //   node scripts/mem.mjs log    --file PAYLOAD.json     # insert a decision_log row from JSON
 //   node scripts/mem.mjs status --id 42 --to done|escalated|in_progress
 //   node scripts/mem.mjs dnt   [URL]                  # do_not_touch guard: exit 2 if URL is protected
+//   node scripts/mem.mjs experiment --surface skill --target blog-write --variant v2 --arm treatment --alloc 0.5
+//   node scripts/mem.mjs evalset    --type blog-write --label bad --mode placeholder --source synthetic --artifact "..."
 //
 // SECURITY: content-bearing writes (changeset, log, apply) take a FILE path only — the
 // agent writes the JSON payload with the Write tool, and the value travels through the
@@ -15,7 +17,7 @@
 // integer), not the URL. The legacy --flag paths remain for back-compat but the agent
 // prompts no longer use them for any untrusted value. See orchestrator/lib/payload.mjs.
 import { readFileSync } from "node:fs";
-import { pendingQueue, logDecision, insertChangeset, setQueueStatus, setQueueStatusById, doNotTouch } from "../orchestrator/lib/supabase.mjs";
+import { pendingQueue, logDecision, insertChangeset, setQueueStatus, setQueueStatusById, doNotTouch, recordExperiment, insertEvalExample } from "../orchestrator/lib/supabase.mjs";
 import { assertTaskType } from "../orchestrator/lib/tasks.mjs";
 import { parseChangesetPayload, parseLogPayload } from "../orchestrator/lib/payload.mjs";
 
@@ -77,9 +79,16 @@ if (cmd === "queue") {
   } else {
     // Reject a non-task --type at the CLI boundary so a stray label can't enter decision_log.
     assertTaskType(a.type);
+    // Provenance (model + prompt_variant_id) is stamped from flags-or-env so the frozen
+    // orchestrator goal prompt does NOT need to change: when an experiment is active the
+    // runner exports PROMPT_VARIANT_ID and every decision is auto-tagged; otherwise null
+    // (= baseline). cost_usd stays null per-decision (run-level cost → control.spend_usd).
     await logDecision({
       url: a.url, action: a.action, risk_class: a.risk || "safe",
       change_type: a.type, reason: a.reason, agent: a.agent || "orchestrator", pr_url: a.pr,
+      model: a.model || process.env.ORCHESTRATOR_MODEL || "claude-sonnet-4-6",
+      prompt_variant_id: a.variant || process.env.PROMPT_VARIANT_ID || null,
+      cost_usd: a.cost ? Number(a.cost) : null,
     });
   }
   console.log("logged");
@@ -87,6 +96,23 @@ if (cmd === "queue") {
   if (a.id != null) await setQueueStatusById(a.id, a.to);
   else await setQueueStatus(a.url, a.task, a.to);
   console.log("updated");
+} else if (cmd === "experiment") {
+  // node scripts/mem.mjs experiment --surface skill --target blog-write --variant v2 --arm treatment --alloc 0.5 --metric avg_effect
+  await recordExperiment({
+    surface: a.surface, target: a.target, variant_id: a.variant, arm: a.arm,
+    allocation: a.alloc ? Number(a.alloc) : 0, metric: a.metric ?? null,
+    value: a.value ? Number(a.value) : null, n: a.n ? Number(a.n) : 0,
+    status: a.status || "active",
+  });
+  console.log("experiment row inserted");
+} else if (cmd === "evalset") {
+  // node scripts/mem.mjs evalset --type blog-write --label bad --mode placeholder --source synthetic --artifact "..." --url U --lift 0.12
+  await insertEvalExample({
+    change_type: a.type, url: a.url ?? null, artifact: a.artifact ?? null,
+    label: a.label, failure_mode: a.mode ?? null,
+    realized_lift: a.lift ? Number(a.lift) : null, source: a.source || "human",
+  });
+  console.log("eval_set row inserted");
 } else {
   console.error("unknown command:", cmd);
   process.exit(1);

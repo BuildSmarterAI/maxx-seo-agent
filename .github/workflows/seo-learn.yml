@@ -39,6 +39,24 @@ jobs:
           node scripts/prioritize.mjs
           node scripts/push-escalations.mjs
 
+      # RO-1 weekly judge calibration (matches the roadmap cadence). Refreshes the eval_set
+      # benchmark, then scores the judge against it and RECORDS a recommendation to
+      # judge_calibration. Informational only — it never gates a merge and never swaps the
+      # judge config (a human ratifies via the JUDGE_* vars). continue-on-error so a model
+      # blip can't fail the attribution job above. Needs ANTHROPIC_API_KEY for the judge calls.
+      - name: Eval-set + judge calibration
+        continue-on-error: true
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          JUDGE_MODEL: ${{ vars.JUDGE_MODEL || 'claude-haiku-4-5-20251001' }}
+          JUDGE_MIN_SCORE: ${{ vars.JUDGE_MIN_SCORE || '3' }}
+          EVAL_BENCH_LIMIT: ${{ vars.EVAL_BENCH_LIMIT || '60' }}
+        run: |
+          node scripts/build-eval-set.mjs
+          node scripts/judge-calibrate.mjs
+
       - name: Remove key
         if: always()
         run: rm -f "${{ github.workspace }}/gcp.json"

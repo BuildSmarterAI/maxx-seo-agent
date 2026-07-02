@@ -231,12 +231,23 @@ and fail-closed — and it shrinks the judge's job to genuinely subjective quali
 
 1. `experiments`, `eval_set`, `judge_calibration` tables exist (human-applied) and the
    `decision_log` provenance columns are populated by the orchestrator on every decision.
-2. `eval_set` holds ≥ ~50 mined examples per high-volume `change_type` plus the four
-   synthetic negative classes.
-3. `scripts/eval-benchmark.mjs` runs in CI and emits an AUC the team trusts.
-4. RO-1 has produced at least one champion judge bundle with a measured AUC and override
-   rate, ratified by a human.
+   — *Schema shipped; provenance auto-stamped by `mem.mjs log`.*
+2. `eval_set` holds the synthetic negative classes (shipped) plus mined examples per
+   high-volume `change_type` once outcomes + draft artifacts accrue.
+   — *`scripts/build-eval-set.mjs` seeds synthetics now and enriches from mined lift as data lands.*
+3. `scripts/eval-benchmark.mjs` runs and emits an AUC the team trusts. — *Shipped; runs in
+   the weekly `seo-learn` job.*
+4. RO-1 has produced at least one champion judge recommendation with a measured AUC.
+   — *`scripts/judge-calibrate.mjs` shipped; writes `judge_calibration` and recommends (human
+   ratifies via `JUDGE_*` vars). `override_rate` deferred until per-PR judge verdicts are
+   persisted.*
 5. RO-13 has converted the known `ACTION-PLAN.md` defect classes into deterministic checks.
+   — *Shipped in the Phase-A kickoff (`scripts/validators/content-guards.mjs`).*
+
+**Status:** the RO-6/RO-1 consumers are built and wired (weekly `seo-learn`); calibration is
+informational and never gates a merge. Remaining to clear the gate: apply the schema in
+Supabase (human), then let ~3–4 weeks of provenance-tagged outcomes accrue so mined examples
+and lift-based labels join the synthetic seed.
 
 With that substrate in place, RO-2 (prompt/bandit optimization) has a real, low-noise
 reward signal — and the system can begin optimizing itself.

@@ -192,6 +192,40 @@ export async function setPriority(id, priority) {
   await db.from("work_queue").update({ priority }).eq("id", id);
 }
 
+// ---- AutoResearch Phase A: experiment + eval registry (write paths) ----
+// The optimizer loops that consume these come later (need accrued provenance data);
+// these are the write paths so the tables don't sit dead. Throw loudly on error, like
+// insertChangeset/escalatedQueue — a missing table (migration not run) must fail, not
+// silently no-op.
+
+export async function recordExperiment(row) {
+  const { error } = await db.from("experiments").insert(row);
+  if (error) throw new Error(`recordExperiment failed: ${error.message}`);
+}
+
+export async function updateExperimentValue(id, value, n) {
+  const { error } = await db.from("experiments")
+    .update({ value, n, updated_at: new Date().toISOString() }).eq("id", id);
+  if (error) throw new Error(`updateExperimentValue failed: ${error.message}`);
+}
+
+export async function insertEvalExample(row) {
+  const { error } = await db.from("eval_set").insert(row);
+  if (error) throw new Error(`insertEvalExample failed: ${error.message}`);
+}
+
+export async function evalSet(change_type) {
+  const q = db.from("eval_set").select("*");
+  const { data, error } = change_type ? await q.eq("change_type", change_type) : await q;
+  if (error) throw new Error(`evalSet failed: ${error.message}`);
+  return data ?? [];
+}
+
+export async function recordJudgeCalibration(row) {
+  const { error } = await db.from("judge_calibration").insert(row);
+  if (error) throw new Error(`recordJudgeCalibration failed: ${error.message}`);
+}
+
 // ---- sitemap diff state ----
 
 export async function sitemapSeen() {
