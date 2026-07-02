@@ -13,7 +13,7 @@ Building a hotel in Texas in 2026 costs between **$150 and $600+ per square foot
 
 ---
 
-## Key Takeaways
+## TL;DR / Key Takeaways
 
 - Hard costs range from ~$150/SF (limited-service, economy) to $450+/SF (full-service, upscale) in Texas markets.
 - Soft costs (design, permits, FF&E, OS&E, pre-opening) add 20–30% on top of hard costs.
@@ -213,6 +213,14 @@ Hard cost is the construction contract value — labor and materials for the phy
 ### Does Maxx Builders do hotel construction in Texas?
 
 Yes. Maxx Builders is a Texas commercial general contractor providing pre-construction, GMP contracting, and construction management for hotel and hospitality projects across the state. We work with select-service and upper-midscale flag projects and have completed hotel work in DFW, the San Antonio market, and secondary Texas markets. Contact us to discuss your project.
+
+---
+
+## Internal Links
+
+- [Maxx Builders Commercial Construction Services](/commercial-construction/)
+- [Texas Commercial Construction Cost Breakdown](/commercial-construction-texas/)
+- [Design-Build Construction for Commercial Projects](/design-build/)
 
 ---
 
