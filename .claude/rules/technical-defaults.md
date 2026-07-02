@@ -31,6 +31,10 @@ throw a descriptive error if missing (see `supabase.mjs` as the pattern).
 | `WP_BASE_URL`, `WP_APP_PASSWORD`, `SEO_PLUGIN` | WordPress staging host credentials | packs/wordpress/ |
 | `WEBFLOW_API_TOKEN`, `WEBFLOW_SITE_ID` | Webflow account dashboard | packs/webflow/ |
 | `CITATIONS_CSV`, `CONVERSIONS_CSV` | Optional file paths for attribution data | scripts/collect-outcomes.mjs |
+| `SERPAPI_KEY`, `AIO_SAMPLES` | SerpApi key + per-run AIO sample count (default 3) | sensor-ai-citations.mjs (AIO capture) |
+| `CITATION_EVENT_WINDOW_DAYS` | Lookback for the AIO snapshot diff (default 60) | scripts/diff-citation-events.mjs |
+| `CITATION_ANALYST_MODEL` | Optional override; default `claude-sonnet-4-6` | scripts/analyze-citation-events.mjs |
+| `SELF_INFLICTED_LEAD_DAYS`, `ANALYST_BATCH_LIMIT`, `ALGO_UPDATES_FILE` | Analyst window (14), batch cap (50), algo-calendar path | scripts/analyze-citation-events.mjs |
 
 ## Model routing
 
