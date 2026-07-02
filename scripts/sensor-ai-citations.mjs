@@ -7,7 +7,8 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { db, targetDomain } from "../lib/db.mjs";
-import { ALL_ENGINES, scoreResult } from "../lib/engines.mjs";
+import { ALL_ENGINES, scoreResult, askGoogleAIO } from "../lib/engines.mjs";
+import { majorityVote } from "../lib/citation-events.mjs";
 import { selectCompetitorDomains } from "../lib/classify.mjs";
 import { enqueue, doNotTouch } from "../orchestrator/lib/supabase.mjs";
 
@@ -21,6 +22,7 @@ if (!domain) {
 const ENV_COMPETITORS = (process.env.COMPETITOR_DOMAINS || "")
   .split(",").map((s) => s.trim()).filter(Boolean);
 const MIN_CONF = Number(process.env.COMPETITOR_MIN_CONFIDENCE || 0.7);
+const AIO_SAMPLES = Number(process.env.AIO_SAMPLES || 3); // multi-sample majority to defeat AIO flicker
 
 // Load the monitored question set. Prefer the DB (ai_queries); fall back to a JSON file.
 async function loadQueries() {
@@ -110,6 +112,43 @@ async function run() {
         engine: result.engine,
         status: s.cited ? `CITED #${s.position}` : (s.brandMentioned ? "mention" : "miss"),
         competitors: s.competitorsCited.join(",") || "-",
+      });
+    }
+
+    // Google AI Overview — the citation surface that matters most, and the most volatile.
+    // Capture AIO_SAMPLES times and majority-vote to strip intra-run rendering flicker before
+    // logging ONE consensus google_aio row (ADR-007). No enqueue here — the PR#2 analyst gates
+    // action off the citation_events diff, not off a raw miss.
+    const aioSamples = [];
+    for (let i = 0; i < AIO_SAMPLES; i++) {
+      const r = await askGoogleAIO(q.query);
+      if (r.available === false) break;   // no SERPAPI_KEY → AIO capture disabled
+      if (!r.answered) continue;          // failed fetch → exclude (unknown, not "absent")
+      const sc = scoreResult(r, domain, COMPETITORS);
+      aioSamples.push({ present: r.present, cited: sc.cited, position: sc.position, competitors: sc.competitorsCited, sources: sc.sources, brand: sc.brandMentioned });
+    }
+    if (aioSamples.length) {
+      const v = majorityVote(aioSamples);
+      const presentVotes = aioSamples.filter((x) => x.present).length;
+      const brandVotes = aioSamples.filter((x) => x.present && x.brand).length;
+      citationRows.push({
+        query: q.query,
+        engine: "google_aio",
+        answered: true,
+        aio_present: v.present,
+        cited: v.cited,
+        brand_mentioned: brandVotes * 2 > presentVotes,
+        position: v.position,
+        sources: [...new Set(aioSamples.flatMap((x) => x.sources || []).filter(Boolean))],
+        competitors: v.competitors,
+        target_url: q.target_url || null,
+      });
+      if (v.cited) cto++; else miss++;
+      summary.push({
+        query: q.query.slice(0, 40),
+        engine: "google_aio",
+        status: v.present ? (v.cited ? `CITED #${v.position}` : "miss") : "no-aio",
+        competitors: v.competitors.join(",") || "-",
       });
     }
   }
