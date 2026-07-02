@@ -14,7 +14,7 @@ A mock-up room is a single, fully built guest room constructed before the rest o
 
 ---
 
-## Key Takeaways
+## TL;DR / Key Takeaways
 
 - A mock-up room is built in two stages: rough (structural systems exposed) then finished (brand standards applied).
 - Most national hotel brands (Marriott, Hilton, Hyatt, IHG) require a brand-approved mock-up before full construction proceeds.
@@ -233,6 +233,14 @@ Skipping the mock-up means design errors, brand non-compliance, and ADA issues a
 ## Case Study: Two-Stage Hilton Mock-Up, DFW Metroplex
 
 On a 150-key upper-midscale hotel project in the DFW Metroplex, Maxx Builders completed the two-stage Hilton brand mock-up inspection with zero major punch list items. The outcome resulted from maintaining a dedicated finish binder updated after every subcontractor installation, and scheduling the brand rep inspection three weeks before the rest of the floors reached the same stage. The early inspection window gave the team time to correct a PTAC mounting height discrepancy across all standard rooms before any were drywalled closed.
+
+---
+
+## Internal Links
+
+- [Hospitality construction services](/hospitality-construction/) — Maxx Builders' hotel and hospitality construction practice.
+- [Commercial construction services](/commercial-construction/) — full-service commercial GC work across Texas.
+- [Project portfolio](/portfolio/) — completed hospitality and commercial projects.
 
 ---
 

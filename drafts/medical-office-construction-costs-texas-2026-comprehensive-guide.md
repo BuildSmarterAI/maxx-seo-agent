@@ -12,7 +12,7 @@ Medical office construction in Texas costs between $200 and $450 per square foot
 
 ---
 
-## Key Takeaways
+## TL;DR / Key Takeaways
 
 - Ground-up medical office: **$200–$450/sq ft** in Texas (2026)
 - Tenant improvement (shell space): **$80–$200/sq ft**
@@ -518,6 +518,14 @@ MEP systems (HVAC, plumbing, medical gas, electrical) typically represent 30–4
 ### Do I need a healthcare-specialized general contractor in Texas?
 
 Not legally required, but strongly advisable. Medical facilities have specific HVAC, plumbing, and infection-control requirements that general commercial contractors consistently underestimate. Cost overruns from MEP scope gaps and re-work are common when contractors lack healthcare experience. Maxx Builders holds a Texas GC license, carries the insurance and bonding required for healthcare construction projects, and has completed medical office and ambulatory care facility projects across DFW, Houston, and secondary Texas markets. Our pre-construction team provides cost estimates from early design — before full construction documents are complete — which is particularly valuable for physician groups seeking lender commitments in parallel with design.
+
+---
+
+## Internal Links
+
+- [Medical office construction services — Maxx Builders](https://www.maxxbuilders.com/commercial-construction/) — Commercial construction services overview
+- [How to evaluate a commercial general contractor in Texas](https://www.maxxbuilders.com/blog/) — Related resources and project insights
+- [Commercial construction cost guide Texas 2026](https://www.maxxbuilders.com/commercial-construction/) — Texas commercial construction services and resources
 
 ---
 
