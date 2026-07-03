@@ -1,0 +1,12 @@
+{
+  "_note": "Confirmed Google ranking/spam updates. Read by scripts/analyze-citation-events.mjs: the analyst treats an in-window Google update as a strong confounder for an AIO citation swing. IMPORTANT — a MISSING recent entry biases verdicts toward self_inflicted, so MAINTAIN THIS FILE: append new updates from https://status.search.google.com/ as Google announces them. Entries below are verified complete through 2025-03-13 (assistant knowledge); anything after that date must be added manually. Dates are the announced START (YYYY-MM-DD).",
+  "updates": [
+    { "date": "2024-03-05", "name": "March 2024 core update" },
+    { "date": "2024-03-05", "name": "March 2024 spam update" },
+    { "date": "2024-08-15", "name": "August 2024 core update" },
+    { "date": "2024-11-11", "name": "November 2024 core update" },
+    { "date": "2024-12-12", "name": "December 2024 core update" },
+    { "date": "2024-12-19", "name": "December 2024 spam update" },
+    { "date": "2025-03-13", "name": "March 2025 core update" }
+  ]
+}
