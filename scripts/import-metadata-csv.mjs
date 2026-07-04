@@ -11,7 +11,7 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { db as sb } from "../lib/db.mjs";
 import { parseCsv } from "./lib/csv.mjs";
-import { validateMetadataRecords, buildChangeSetRow } from "./lib/metadata.mjs";
+import { validateMetadataRecords, buildChangeSetRow, computeChanges } from "./lib/metadata.mjs";
 
 const ROOT  = join(dirname(fileURLToPath(import.meta.url)), "..");
 const BASE  = process.env.WP_BASE_URL?.replace(/\/$/, "");
@@ -36,8 +36,10 @@ async function resolvePageId(url) {
     // Homepage — find by page set as front page
     const settings = await fetch(`${BASE}/wp-json/wp/v2/settings`, { headers: { Authorization: AUTH } }).then(r => r.json()).catch(() => ({}));
     if (settings.page_on_front) return String(settings.page_on_front);
-    // fallback: look for page with slug '' or id 2
-    return "2";
+    // No reliable homepage id without page_on_front. Skip rather than guessing: the old
+    // hardcoded "2" wrote to the wrong page (this site's front page is not id 2). The
+    // caller logs the skip.
+    return null;
   }
 
   // Try posts first, then pages
@@ -67,7 +69,7 @@ async function main() {
   let inserted = 0, skipped = 0, failed = 0;
 
   for (const row of rows) {
-    const { url, page_id: csvPageId, current_title, new_title, current_description, new_description, canonical } = row;
+    const { url, page_id: csvPageId } = row;
     if (!url) continue;
 
     // Resolve WP page_id
@@ -78,16 +80,9 @@ async function main() {
       continue;
     }
 
-    // canonical's base_value stays empty (Yoast auto-generates if unset) and is queued
-    // whenever a non-empty value is supplied; title/description only when they actually change.
-    const FIELDS = [
-      { field: "title",       current: current_title,       next: new_title },
-      { field: "description", current: current_description, next: new_description },
-      { field: "canonical",   current: "",                  next: canonical, always: true },
-    ];
-    const changes = FIELDS
-      .filter((f) => f.next && (f.always || f.next !== f.current))
-      .map((f) => ({ field: f.field, base_value: f.current || "", new_value: f.next }));
+    // title/description staged only when they change; canonical staged with a null base_value
+    // (unknown live baseline — no spurious drift). Rules live in ./lib/metadata.mjs.
+    const changes = computeChanges(row);
 
     if (changes.length === 0) {
       console.log(`  = no changes  ${url}`);

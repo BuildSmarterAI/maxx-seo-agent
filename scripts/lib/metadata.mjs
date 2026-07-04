@@ -97,6 +97,27 @@ export function validateMetadataRecords(rows) {
   return errors;
 }
 
+// Map a validated CSV row to the change_set field-changes to stage for it.
+//  - title / description: staged only when new_ actually differs from current_; the CSV's
+//    current_ value is the drift base_value (matches prior importer semantics).
+//  - canonical: staged whenever a value is supplied, with a NULL base_value. The importer
+//    has no reliable live canonical baseline (there is no current_canonical column), so a
+//    forced "" was a false baseline that made cms.drifted() escalate every page whose live
+//    canonical wasn't literally "". null tells the drift gate to skip the check; the
+//    pre-write snapshot remains the rollback safety net, and fix-base-values.mjs is the
+//    deliberate tool for learning a real baseline when drift protection is wanted.
+export function computeChanges(row) {
+  const changes = [];
+  for (const [field, current, next] of [
+    ["title", row.current_title, row.new_title],
+    ["description", row.current_description, row.new_description],
+  ]) {
+    if (next && next !== current) changes.push({ field, base_value: current || "", new_value: next });
+  }
+  if (row.canonical) changes.push({ field: "canonical", base_value: null, new_value: row.canonical });
+  return changes;
+}
+
 // Build a WordPress change_set row for the importer. Staged as `pending` so the
 // ADR-005 human approval gate (pending → approved) is never skipped by a bulk import.
 export function buildChangeSetRow({ page_id, url, field, base_value, new_value, batch }) {

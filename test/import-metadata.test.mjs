@@ -7,7 +7,7 @@
 // Pure functions only — no DB, no network, no env. Run: node --test
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { validateMetadataRecords, buildChangeSetRow } from "../scripts/lib/metadata.mjs";
+import { validateMetadataRecords, buildChangeSetRow, computeChanges } from "../scripts/lib/metadata.mjs";
 
 // A blank row keyed exactly like parseCsv() output; override only the fields under test.
 const row = (o) => ({
@@ -114,4 +114,50 @@ test("buildChangeSetRow stages rows as `pending`, never `approved` (ADR-005 gate
   assert.equal(r.platform, "wordpress");
   assert.equal(r.field, "title");
   assert.equal(r.new_value, "New");
+});
+
+// ── computeChanges (M4) ────────────────────────────────────────────────────────
+// The row→change_set-field mapping. canonical must carry a NULL base_value (the importer
+// has no reliable live canonical baseline), so cms.drifted() skips the check instead of
+// escalating against a guessed "" every time the live canonical differs. title/description
+// keep their prior semantics: staged only when they actually change, base = CSV current_*.
+
+test("computeChanges stages canonical with a null base_value, not '' (no spurious drift)", () => {
+  const canon = computeChanges(row({ canonical: "https://www.maxxbuilders.com/x/" }))
+    .find((c) => c.field === "canonical");
+  assert.ok(canon, "canonical change is staged");
+  assert.equal(canon.base_value, null, "null baseline → cms.drifted() short-circuits, no spurious escalation");
+  assert.equal(canon.new_value, "https://www.maxxbuilders.com/x/");
+});
+
+test("computeChanges stages title only when it changes, with CSV current as base_value", () => {
+  const changed = computeChanges(row({ current_title: "Old", new_title: "New" }))
+    .find((c) => c.field === "title");
+  assert.ok(changed);
+  assert.equal(changed.base_value, "Old");
+  assert.equal(changed.new_value, "New");
+  const unchanged = computeChanges(row({ current_title: "Same", new_title: "Same" }))
+    .find((c) => c.field === "title");
+  assert.equal(unchanged, undefined, "an unchanged title is not staged");
+});
+
+test("computeChanges stages description with the same rules as title", () => {
+  const d = computeChanges(row({ current_description: "Old d", new_description: "New d" }))
+    .find((c) => c.field === "description");
+  assert.ok(d);
+  assert.equal(d.base_value, "Old d");
+  assert.equal(d.new_value, "New d");
+});
+
+test("computeChanges stages canonical even when title/description are unchanged", () => {
+  const fields = computeChanges(row({
+    current_title: "T", new_title: "T",             // unchanged
+    current_description: "D", new_description: "D",  // unchanged
+    canonical: "https://www.maxxbuilders.com/x/",
+  })).map((c) => c.field);
+  assert.deepEqual(fields, ["canonical"]);
+});
+
+test("computeChanges returns [] for a row with no changes and no canonical", () => {
+  assert.deepEqual(computeChanges(row({ current_title: "T", new_title: "T" })), []);
 });
