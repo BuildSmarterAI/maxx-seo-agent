@@ -2,6 +2,7 @@
 // every table through these named helpers; the raw client stays private in client.mjs.
 import { db } from "./client.mjs";
 import { assertTaskType } from "./tasks.mjs";
+import { canonicalizeSet, isProtected } from "./url.mjs";
 
 export async function isPaused() {
   const { data } = await db.from("control").select("paused").eq("id", 1).single();
@@ -48,9 +49,12 @@ export async function addSpend(usd, client = db) {
   if (writeError) console.warn(`addSpend: fallback failed to record $${amount} — ${writeError.message}`);
 }
 
+// Returns a Set of CANONICAL do_not_touch forms (scheme/www/slash-agnostic — see url.mjs).
+// Compare with isProtected(), never raw Set.has(): a stored `https://www.host.com/legal/`
+// must match a candidate `https://host.com/legal` (Panel-A A1/A2).
 export async function doNotTouch() {
   const { data } = await db.from("do_not_touch").select("url");
-  return new Set((data ?? []).map((r) => r.url));
+  return canonicalizeSet((data ?? []).map((r) => r.url));
 }
 
 // Fail fast on malformed rows with a domain error instead of letting them die
@@ -64,11 +68,20 @@ function validateQueueItem(item) {
   }
 }
 
-export async function enqueue(items) {
+// Chokepoint do_not_touch filter: the single waist every queue item flows through. Even if a
+// caller's own ingest filter is missing or normalization-blind, a protected URL cannot be
+// queued here. `protectedSet`/`client` are injectable (tests); by default the protected set is
+// fetched fresh and canonicalized. Dropped rows are logged — never silently swallowed.
+export async function enqueue(items, { protectedSet = null, client = db, dnt = doNotTouch } = {}) {
   if (!items?.length) return;
   items.forEach(validateQueueItem);
+  const skip = protectedSet ?? (await dnt());
+  const safe = items.filter((it) => !isProtected(skip, it.url));
+  const dropped = items.length - safe.length;
+  if (dropped) console.warn(`enqueue: dropped ${dropped} do_not_touch item(s) at the chokepoint`);
+  if (!safe.length) return;
   // upsert ignores duplicates via the (url,task,status) unique constraint
-  await db.from("work_queue").upsert(items, { onConflict: "url,task,status", ignoreDuplicates: true });
+  await client.from("work_queue").upsert(safe, { onConflict: "url,task,status", ignoreDuplicates: true });
 }
 
 export async function pendingQueue(limit = 25) {

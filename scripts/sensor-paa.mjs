@@ -8,6 +8,7 @@
 import { db } from "../lib/db.mjs";
 import { askClaude, askPerplexity } from "../lib/engines.mjs";
 import { enqueue, doNotTouch } from "../orchestrator/lib/supabase.mjs";
+import { isProtected } from "../orchestrator/lib/url.mjs";
 
 const SERPAPI_KEY = process.env.SERPAPI_KEY;
 
@@ -81,7 +82,7 @@ async function run() {
     // Route through the queue seam: do_not_touch filter + validation + dedup-upsert, instead of
     // a raw insert that could enqueue a protected URL and duplicate rows on re-run.
     const skip = await doNotTouch();
-    await enqueue(queueRows.filter((r) => !skip.has(r.url)));
+    await enqueue(queueRows.filter((r) => !isProtected(skip, r.url)), { protectedSet: skip });
   }
 
   console.log(`[paa] questions_captured=${paaRows.length} faq_tasks_queued=${queueRows.length} source=${source}`);

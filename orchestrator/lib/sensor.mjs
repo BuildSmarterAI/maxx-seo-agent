@@ -4,6 +4,7 @@
 // fetch() applies threshold filtering internally and returns only qualifying items.
 // The harness owns: doNotTouch filtering, queue-item mapping, enqueue, error isolation.
 import { doNotTouch, enqueue } from "./supabase.mjs";
+import { isProtected } from "./url.mjs";
 
 export async function runSensor(sensor, env) {
   let rawItems = [];
@@ -18,7 +19,7 @@ export async function runSensor(sensor, env) {
   }
 
   const skip = await doNotTouch();
-  const filtered = rawItems.filter((item) => !skip.has(item.url));
+  const filtered = rawItems.filter((item) => !isProtected(skip, item.url));
   const skippedCount = rawItems.length - filtered.length;
 
   const queueItems = filtered.flatMap((item) => {
@@ -33,7 +34,7 @@ export async function runSensor(sensor, env) {
 
   let enqueueError = null;
   try {
-    await enqueue(queueItems);
+    await enqueue(queueItems, { protectedSet: skip });
     console.log(
       `[${sensor.name}] enqueued ${queueItems.length} items` +
       (skippedCount ? ` (${skippedCount} skipped by do_not_touch)` : "")
