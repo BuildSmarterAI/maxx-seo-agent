@@ -7,6 +7,7 @@
 import { readdir, readFile } from "node:fs/promises";
 import { join, basename, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import { lintSchemaArtifact } from "../../scripts/lib/schema-lint.mjs";
 
 const ROOT    = join(dirname(fileURLToPath(import.meta.url)), "../..");
 const BASE    = process.env.WP_BASE_URL?.replace(/\/$/, "");
@@ -190,12 +191,25 @@ async function main() {
 
     const html = markdownToHtml(md);
 
-    // JSON-LD schema block
+    // JSON-LD schema block. A schema artifact that fails lint (leaked OPERATOR_INSERT_*
+    // placeholders, broken structure — audit H2) refuses the whole draft: publishing the
+    // post without its schema would silently drop the artifact, and publishing WITH it
+    // would ship placeholder text into a live page.
     let schemaBlock = "";
+    let jsonld = null;
     try {
-      const jsonld = await readFile(join(schemaDir, `${slug}.jsonld`), "utf8");
+      jsonld = await readFile(join(schemaDir, `${slug}.jsonld`), "utf8");
+    } catch { /* no schema file — fine, post publishes without a schema block */ }
+    if (jsonld !== null) {
+      const schemaErrors = lintSchemaArtifact(jsonld, { jsonLd: true });
+      if (schemaErrors.length) {
+        console.error(`✗ refused  ${slug}: schema/${slug}.jsonld failed validation — fix the artifact first:`);
+        schemaErrors.forEach((e) => console.error(`    • ${e}`));
+        failed++;
+        continue;
+      }
       schemaBlock = `\n<!-- wp:html --><script type="application/ld+json">${jsonld}</script><!-- /wp:html -->`;
-    } catch { /* no schema file */ }
+    }
 
     // ── GUARD (invariants 1 & 2): resolve fields. NEVER fall back to slug. NEVER emit "". ──
     const title = (meta.title || "").trim();

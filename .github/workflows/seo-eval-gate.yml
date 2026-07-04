@@ -46,6 +46,30 @@ jobs:
             node scripts/check-content-guards.mjs $files
           fi
 
+      # Deterministic artifact validators (audit H2/M6). Unlike the judge steps these run
+      # on EVERY PR — they are lint-grade facts (leaked OPERATOR_INSERT_* placeholders,
+      # broken JSON-LD, metadata cap/duplicate/canonical violations), not judgement, and
+      # they are diff-scoped so PRs that touch neither surface pass at zero cost. The
+      # shipped placeholder schema arrived via a human-path commit, so seo-auto-only
+      # enforcement would not have caught it.
+      - name: Artifact validators (schema JSON-LD + metadata CSV)
+        env:
+          BASE_REF: origin/${{ github.base_ref }}
+        run: |
+          schema=$(git diff --name-only --diff-filter=ACM "$BASE_REF"...HEAD -- 'schema/*.jsonld')
+          if [ -n "$schema" ]; then
+            echo "validating changed schema artifacts:"; echo "$schema"
+            node scripts/validate-json.mjs $schema
+          else
+            echo "artifact-validators: no schema changes → skip."
+          fi
+          csv=$(git diff --name-only --diff-filter=ACM "$BASE_REF"...HEAD -- metadata-changes.csv)
+          if [ -n "$csv" ]; then
+            node scripts/validate-metadata-csv.mjs
+          else
+            echo "artifact-validators: no metadata-changes.csv change → skip."
+          fi
+
       - name: LLM-as-judge
         if: contains(github.event.pull_request.labels.*.name, 'seo-auto')
         env:
