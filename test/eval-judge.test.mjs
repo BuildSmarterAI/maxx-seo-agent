@@ -46,10 +46,51 @@ test("parseVerdict: throws on non-JSON", () => {
   assert.throws(() => parseVerdict("totally not json"));
 });
 
-test("decide: pass only on explicit pass === true", () => {
-  assert.equal(decide({ pass: true }), true);
-  assert.equal(decide({ pass: false }), false);
-  assert.equal(decide({}), false);            // missing pass → fail closed
-  assert.equal(decide({ pass: "true" }), false); // non-boolean → fail closed
+// A well-formed passing verdict: model passed, all four rubric dimensions ≥ minScore, no
+// fabrication flag. decide() must re-derive the gate from these fields, never trust `pass` alone.
+const fullPass = () => ({
+  pass: true,
+  scores: { quality: 5, brand_safety: 5, fact_checkability: 5, information_gain: 5 },
+  fabrication_risk: false,
+});
+
+test("decide: passes a well-formed verdict clearing every rubric dimension", () => {
+  assert.equal(decide(fullPass(), { minScore: 3 }), true);
+});
+
+test("decide: blocks when the model self-reports pass=false or a non-boolean pass", () => {
+  assert.equal(decide({ ...fullPass(), pass: false }, { minScore: 3 }), false);
+  assert.equal(decide({ ...fullPass(), pass: "true" }, { minScore: 3 }), false);
   assert.equal(decide(null), false);
+});
+
+// A4: the gate must NOT trust the model's `pass` bool against its own contradicting data.
+test("decide: blocks pass=true when any rubric score is below minScore", () => {
+  const v = { ...fullPass(), scores: { quality: 2, brand_safety: 5, fact_checkability: 5, information_gain: 5 } };
+  assert.equal(decide(v, { minScore: 3 }), false);
+});
+
+// The model self-reporting pass=true while flagging fabrication is exactly the contradiction
+// the gate must catch — including a truthy non-boolean flag (Haiku under JSON-only prompting
+// can emit "true"/1), which must fail closed like the pass check does.
+test("decide: blocks pass=true when fabrication_risk is set (any truthy value)", () => {
+  for (const flag of [true, "true", "yes", 1]) {
+    assert.equal(decide({ ...fullPass(), fabrication_risk: flag }, { minScore: 3 }), false,
+      `fabrication_risk=${JSON.stringify(flag)} must block`);
+  }
+});
+
+// Fail closed on any malformed / incomplete scores object.
+test("decide: fails closed on missing, empty, incomplete, or non-numeric scores", () => {
+  assert.equal(decide({ pass: true }, { minScore: 3 }), false);              // no scores object
+  assert.equal(decide({ pass: true, scores: {} }, { minScore: 3 }), false);  // empty
+  assert.equal(decide({ pass: true, scores: { quality: 5, brand_safety: 5, fact_checkability: 5 } }, { minScore: 3 }), false); // missing information_gain
+  assert.equal(decide({ ...fullPass(), scores: { ...fullPass().scores, quality: "5" } }, { minScore: 3 }), false); // non-numeric
+  assert.equal(decide({ ...fullPass(), scores: null }, { minScore: 3 }), false);
+});
+
+test("decide: enforces the config's minScore threshold", () => {
+  const v = { ...fullPass(), scores: { quality: 3, brand_safety: 3, fact_checkability: 3, information_gain: 3 } };
+  assert.equal(decide(v, { minScore: 3 }), true);
+  assert.equal(decide(v, { minScore: 4 }), false);
 });

@@ -23,8 +23,10 @@ export function aggregateScore(verdict) {
 }
 
 // Predicted label from a verdict: pass → "good", anything else → "bad" (fail-closed).
-export function classify(verdict) {
-  return decide(verdict) ? "good" : "bad";
+// decide() re-checks scores against config.minScore, so thread the benchmarked config through
+// — otherwise a non-default-threshold variant is scored against the env default.
+export function classify(verdict, config = loadConfig()) {
+  return decide(verdict, config) ? "good" : "bad";
 }
 
 // Confusion over [{ actual, predicted }]. "bad" is the class we must not miss.
@@ -65,7 +67,7 @@ export async function runBenchmark(config = loadConfig(), { judge = judgeText, e
     let verdict;
     try { verdict = await judge(ex.artifact, config); }
     catch { verdict = { pass: false, scores: {} }; }   // unjudgeable → treat as a block
-    results.push({ actual: ex.label, predicted: classify(verdict) });
+    results.push({ actual: ex.label, predicted: classify(verdict, config) });
     scored.push({ score: aggregateScore(verdict), label: ex.label });
   }
   const c = confusion(results);

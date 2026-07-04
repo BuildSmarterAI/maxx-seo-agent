@@ -40,9 +40,25 @@ export function parseVerdict(out) {
   return JSON.parse(out.replace(/```json|```/g, "").trim());
 }
 
-// The gate decision, pure: pass only on an explicit pass === true.
-export function decide(verdict) {
-  return verdict?.pass === true;
+// The four rubric dimensions buildPrompt asks the judge to score. decide() requires every
+// one to be present and ≥ minScore; a verdict missing a dimension is malformed → fails closed.
+// Keep in sync with the JSON template in buildPrompt.
+const SCORE_DIMENSIONS = ["quality", "brand_safety", "fact_checkability", "information_gain"];
+
+// The gate decision, pure and fail-closed. The model self-reports `pass`, but we never trust
+// it alone (a self-report can contradict the model's own scores): re-derive the verdict from
+// the structured fields it also returned. Block unless the model passed AND every rubric
+// dimension is a finite number ≥ minScore AND fabrication_risk is not set. Any missing,
+// malformed, or non-numeric score → block.
+export function decide(verdict, config = loadConfig()) {
+  if (verdict?.pass !== true) return false;
+  if (verdict.fabrication_risk) return false; // any truthy flag → fail closed (not just === true)
+  const scores = verdict.scores;
+  if (!scores || typeof scores !== "object") return false;
+  return SCORE_DIMENSIONS.every((k) => {
+    const v = scores[k];
+    return typeof v === "number" && Number.isFinite(v) && v >= config.minScore;
+  });
 }
 
 // Judge a single piece of text: build the prompt, call the model, parse the verdict.
@@ -99,8 +115,8 @@ async function main(config = loadConfig()) {
 
   console.log(JSON.stringify(verdict, null, 2));
 
-  if (!decide(verdict)) {
-    annotateError("low-score", "verdict pass !== true (score below threshold or risk flag set).");
+  if (!decide(verdict, config)) {
+    annotateError("low-score", "verdict blocked: pass !== true, a score below threshold, or a risk flag set.");
     console.error("eval-gate: judge did not pass → human review.");
     return 1;
   }

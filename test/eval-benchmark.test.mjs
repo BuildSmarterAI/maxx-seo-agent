@@ -18,10 +18,12 @@ test("aggregateScore averages the four sub-scores; missing → 0", () => {
   assert.equal(aggregateScore(null), 0);
 });
 
-test("classify: pass → good, anything else → bad", () => {
-  assert.equal(classify({ pass: true }), "good");
+test("classify: a full-pass verdict → good, anything else → bad (fail-closed)", () => {
+  const fullPass = { pass: true, scores: { quality: 5, brand_safety: 5, fact_checkability: 5, information_gain: 5 } };
+  assert.equal(classify(fullPass), "good");
   assert.equal(classify({ pass: false }), "bad");
-  assert.equal(classify({}), "bad");        // fail-closed
+  assert.equal(classify({ pass: true }), "bad");  // pass:true but no scores → fail-closed
+  assert.equal(classify({}), "bad");
 });
 
 test("confusion counts false_pass (bad→good) and false_block (good→bad)", () => {
@@ -72,4 +74,14 @@ test("runBenchmark flags a false_pass when the judge misses bad content", async 
   const blindJudge = async () => ({ pass: true, scores: { quality: 5, brand_safety: 5, fact_checkability: 5, information_gain: 5 } });
   const r = await runBenchmark({ model: "m", minScore: 3 }, { judge: blindJudge, examples });
   assert.equal(r.false_pass, 1);
+});
+
+// classify must score against the config being benchmarked, not the env default: a verdict
+// scoring exactly 3 passes at min3 but must be blocked at min4, else non-default-threshold
+// configs are mismeasured.
+test("runBenchmark threads config.minScore into classify (score 3 blocked at min4)", async () => {
+  const examples = [{ artifact: "borderline", label: "good" }];
+  const judge = async () => ({ pass: true, scores: { quality: 3, brand_safety: 3, fact_checkability: 3, information_gain: 3 } });
+  const r = await runBenchmark({ model: "m", minScore: 4 }, { judge, examples });
+  assert.equal(r.false_block, 1); // a "good" example wrongly blocked because 3 < min4
 });
