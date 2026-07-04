@@ -1,7 +1,9 @@
 #!/usr/bin/env node
 // scripts/import-metadata-csv.mjs
-// Reads metadata-changes.csv, looks up WP post IDs via REST, and upserts
-// rows into the change_set Supabase table as status=approved so wp:apply picks them up.
+// Reads metadata-changes.csv, looks up WP post IDs via REST, and upserts rows into
+// the change_set Supabase table as status=pending, so a human still flips them to
+// approved (ADR-005 gate) before the nightly wp:apply cron writes them live.
+// The CSV is validated up front — nothing is inserted if any row fails.
 // env: WP_BASE_URL, WP_USER, WP_APP_PASSWORD, SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY
 
 import { readFile } from "node:fs/promises";
@@ -9,6 +11,7 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { db as sb } from "../lib/db.mjs";
 import { parseCsv } from "./lib/csv.mjs";
+import { validateMetadataRecords, buildChangeSetRow } from "./lib/metadata.mjs";
 
 const ROOT  = join(dirname(fileURLToPath(import.meta.url)), "..");
 const BASE  = process.env.WP_BASE_URL?.replace(/\/$/, "");
@@ -51,6 +54,16 @@ async function main() {
   const csv  = await readFile(join(ROOT, "metadata-changes.csv"), "utf8");
   const rows = parseCsv(csv);
 
+  // Validate the whole CSV before touching Supabase. A single bad row (over-cap,
+  // no-op, duplicate title, or non-self-referencing canonical) aborts the import —
+  // nothing is staged — so unvalidated metadata can't slip into the approval queue.
+  const errors = validateMetadataRecords(rows);
+  if (errors.length) {
+    console.error(`import-metadata-csv: ${errors.length} validation issue(s) — nothing inserted:`);
+    errors.forEach((e) => console.error(" •", e));
+    process.exit(1);
+  }
+
   let inserted = 0, skipped = 0, failed = 0;
 
   for (const row of rows) {
@@ -83,16 +96,14 @@ async function main() {
     }
 
     for (const change of changes) {
-      const { error } = await sb.from("change_set").insert({
-        platform:   "wordpress",
+      const { error } = await sb.from("change_set").insert(buildChangeSetRow({
         page_id,
         url,
         field:      change.field,
         base_value: change.base_value,
         new_value:  change.new_value,
-        status:     "approved",
         batch:      BATCH,
-      });
+      }));
       if (error) {
         console.error(`  ✗ failed  ${url} [${change.field}]: ${error.message}`);
         failed++;
