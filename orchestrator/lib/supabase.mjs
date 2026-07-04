@@ -52,8 +52,12 @@ export async function addSpend(usd, client = db) {
 // Returns a Set of CANONICAL do_not_touch forms (scheme/www/slash-agnostic — see url.mjs).
 // Compare with isProtected(), never raw Set.has(): a stored `https://www.host.com/legal/`
 // must match a candidate `https://host.com/legal` (Panel-A A1/A2).
-export async function doNotTouch() {
-  const { data } = await db.from("do_not_touch").select("url");
+// Fails CLOSED on a read error (cross-review 56-3): an empty set would silently disable
+// every enforcement layer that consumes this (sensor ingest, enqueue chokepoint, dispatch
+// re-check, cms apply gate) — throw and abort the run instead, like escalatedQueue.
+export async function doNotTouch(client = db) {
+  const { data, error } = await client.from("do_not_touch").select("url");
+  if (error) throw new Error(`doNotTouch failed: ${error.message}`);
   return canonicalizeSet((data ?? []).map((r) => r.url));
 }
 
@@ -98,8 +102,12 @@ export async function setQueueStatus(url, task, to) {
 // Status update keyed on the queue row id (an integer the agent reads from `mem.mjs queue`).
 // Preferred over setQueueStatus on the autonomous path so the attacker-influenced URL is
 // never placed on a shell command line.
-export async function setQueueStatusById(id, to) {
-  await db.from("work_queue").update({ status: to }).eq("id", Number(id));
+// Throws on error (verify round 2): a silently swallowed failure — e.g. the
+// work_queue unique(url,task,status) constraint when a same-status twin exists — let
+// callers believe a status change landed when the row never moved.
+export async function setQueueStatusById(id, to, client = db) {
+  const { error } = await client.from("work_queue").update({ status: to }).eq("id", Number(id));
+  if (error) throw new Error(`setQueueStatusById failed: ${error.message}`);
 }
 
 // Escalated items not yet mirrored to Linear. The linear_issue_id pointer stays

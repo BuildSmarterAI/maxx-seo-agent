@@ -93,6 +93,50 @@ test("isProtected works against a raw path-only set (apply.test injection shape)
   assert.equal(isProtected(new Set(["/other"]), "/protected"), false);
 });
 
+test("isProtected matches a path-only entry against an absolute candidate (cross-review 56-1)", () => {
+  // The verified bypass: a hand-typed path-only do_not_touch row protected NOTHING because
+  // every real candidate in the system (sensor URLs, work_queue rows, change_set.url) is absolute.
+  const set = canonicalizeSet(["/terms-and-conditions/"]);
+  assert.equal(isProtected(set, "https://www.maxxbuilders.com/terms-and-conditions/"), true);
+  assert.equal(isProtected(set, "http://maxxbuilders.com/terms-and-conditions"), true);
+});
+
+test("isProtected matches an absolute entry against a path-only candidate (cross-review 56-1)", () => {
+  const set = canonicalizeSet(["https://www.maxxbuilders.com/terms-and-conditions/"]);
+  assert.equal(isProtected(set, "/terms-and-conditions"), true);
+  assert.equal(isProtected(set, "/Terms-And-Conditions/"), true);
+});
+
+test("hand-typed entry shapes without a leading slash still protect their page (verify round 2)", () => {
+  // Bare slug (copied straight from the WP admin slug field), slashless nested path,
+  // trailing-slash slug — all realistic free-text shapes for a hand-maintained table.
+  assert.equal(isProtected(canonicalizeSet(["terms-and-conditions"]), "https://www.maxxbuilders.com/terms-and-conditions/"), true);
+  assert.equal(isProtected(canonicalizeSet(["legal/"]), "https://maxxbuilders.com/legal"), true);
+  assert.equal(isProtected(canonicalizeSet(["legal/privacy"]), "https://maxxbuilders.com/legal/privacy"), true);
+});
+
+test("query/hash on a path-only entry are dropped like their absolute counterparts (verify round 2)", () => {
+  assert.equal(isProtected(canonicalizeSet(["/legal?x=1"]), "https://maxxbuilders.com/legal"), true);
+  assert.equal(isProtected(canonicalizeSet(["/legal#top"]), "https://maxxbuilders.com/legal"), true);
+});
+
+test("a slashless nested entry never misparses as host/path and over-protects the tail (verify round 2)", () => {
+  const set = canonicalizeSet(["blog/my-post"]);
+  assert.equal(isProtected(set, "/my-post"), false); // the probe-confirmed false-protect
+  assert.equal(isProtected(set, "/blog/my-post"), true); // the page the entry meant
+  assert.equal(isProtected(set, "https://maxxbuilders.com/blog/my-post"), true);
+});
+
+test("cross-shape matching still refuses non-members in both directions", () => {
+  assert.equal(isProtected(canonicalizeSet(["/legal"]), "https://x.com/pricing"), false);
+  assert.equal(isProtected(canonicalizeSet(["https://x.com/legal"]), "/pricing"), false);
+});
+
+test("absolute entries still never match across hosts (path matching is path-only-shape only)", () => {
+  const set = canonicalizeSet(["https://a.com/legal"]);
+  assert.equal(isProtected(set, "https://b.com/legal"), false);
+});
+
 test("isProtected is safe on empty set and null url", () => {
   assert.equal(isProtected(new Set(), "https://x.com/legal"), false);
   assert.equal(isProtected(canonicalizeSet(["https://x.com/legal/"]), null), false);
