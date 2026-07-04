@@ -23,12 +23,25 @@ function parseHttpUrl(s) {
   }
 }
 
-// Normalize for self-reference comparison: ignore scheme, leading www, trailing
-// slash(es), and query/hash. `https://www.x.com/a/` and `https://x.com/a` match.
+// Normalize for self-reference comparison: ignore scheme, leading www, and trailing
+// slash(es). `https://www.x.com/a/` and `https://x.com/a` match. A non-default port is
+// kept (a different origin must not count as self-referencing); query/hash never reach
+// here — canonicals carrying them are rejected outright in validateMetadataRecords.
 function normalizeUrl(u) {
   const host = u.hostname.replace(/^www\./, "").toLowerCase();
+  const port = u.port ? `:${u.port}` : "";
   const path = u.pathname.replace(/\/+$/, "");
-  return `${host}${path}`;
+  return `${host}${port}${path}`;
+}
+
+// Lowercase every row's keys. parseCsv keys rows by the CSV's literal (trimmed) header
+// casing, but every rule in this file reads lowercase keys — without this repair a
+// mixed-case header ("New_Title") makes validation silently vacuous and the importer
+// silently skip rows. Both the CLI validator and the importer apply this after parseCsv.
+export function normalizeRowKeys(rows) {
+  return rows.map((row) =>
+    Object.fromEntries(Object.entries(row).map(([k, v]) => [k.trim().toLowerCase(), v])),
+  );
 }
 
 // Validate agent-generated metadata rows. Returns an array of human-readable error
@@ -55,6 +68,13 @@ export function validateMetadataRecords(rows) {
     // are self-guarding (they no-op on empty values).
     if (!newTitle && !newDesc && !canonical) return;
 
+    // page_id is trusted verbatim downstream (the importer prefers it over URL
+    // resolution) — when supplied it must at least be a plain numeric id.
+    const pageId = (row.page_id || "").trim();
+    if (pageId && !/^\d+$/.test(pageId)) {
+      errors.push(`row ${line}: page_id must be numeric ("${pageId}")`);
+    }
+
     if (newTitle && newTitle === curTitle) {
       errors.push(`row ${line}: new_title unchanged from current ("${newTitle}")`);
     }
@@ -78,16 +98,25 @@ export function validateMetadataRecords(rows) {
       }
     }
 
-    // Canonical safety: if supplied it must be an absolute http(s) URL that
+    // Canonical safety: if supplied it must be a clean absolute http(s) URL that
     // self-references this row's page. A self-referencing canonical is the documented
-    // default; a cross-page canonical silently deindexes the page.
+    // default; a cross-page canonical silently deindexes the page. FAIL CLOSED: when
+    // the row's url can't be parsed (missing scheme, empty), self-reference cannot be
+    // verified — reject rather than silently skipping the check (a skipped check let a
+    // cross-domain canonical validate green).
     if (canonical) {
       const canon = parseHttpUrl(canonical);
       if (!canon) {
         errors.push(`row ${line}: canonical is not an absolute http(s) URL ("${canonical}")`);
-      } else if (url) {
+      } else if (canon.search || canon.hash) {
+        // normalizeUrl ignores search/hash, so a parameterized canonical would pass the
+        // self-reference comparison — and a canonical should never carry params anyway.
+        errors.push(`row ${line}: canonical must not carry a query string or fragment ("${canonical}")`);
+      } else {
         const target = parseHttpUrl(url);
-        if (target && normalizeUrl(canon) !== normalizeUrl(target)) {
+        if (!target) {
+          errors.push(`row ${line}: cannot verify canonical self-reference — url is not an absolute http(s) URL ("${url}")`);
+        } else if (normalizeUrl(canon) !== normalizeUrl(target)) {
           errors.push(`row ${line}: canonical does not self-reference (canonical "${canonical}" ≠ url "${url}")`);
         }
       }

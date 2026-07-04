@@ -7,7 +7,7 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { parseCsv, parseCsvRecords } from "./lib/csv.mjs";
-import { validateMetadataRecords, REQUIRED_COLUMNS } from "./lib/metadata.mjs";
+import { validateMetadataRecords, normalizeRowKeys, REQUIRED_COLUMNS } from "./lib/metadata.mjs";
 
 const csvPath = resolve(process.argv[2] || "metadata-changes.csv");
 
@@ -32,7 +32,9 @@ if (missing.length) {
   process.exit(1);
 }
 
-const rows = parseCsv(raw);
+// normalizeRowKeys: parseCsv preserves header casing; the rules read lowercase keys.
+// Without it, mixed-case headers ("New_Title") made every check silently vacuous.
+const rows = normalizeRowKeys(parseCsv(raw));
 const errors = validateMetadataRecords(rows);
 
 if (errors.length) {

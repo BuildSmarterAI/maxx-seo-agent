@@ -4,10 +4,18 @@
 // and cross-page/malformed canonicals), and (b) stage every change_set row as `pending`
 // so the ADR-005 human approval gate is never bypassed by the importer.
 //
-// Pure functions only — no DB, no network, no env. Run: node --test
+// Pure functions only — no DB, no network, no env (the CLI regression test spawns the
+// validator script, which is also env-free). Run: node --test
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { validateMetadataRecords, buildChangeSetRow, computeChanges } from "../scripts/lib/metadata.mjs";
+import { spawnSync } from "node:child_process";
+import { writeFileSync, rmSync, mkdtempSync } from "node:fs";
+import { join, dirname } from "node:path";
+import { tmpdir } from "node:os";
+import { fileURLToPath } from "node:url";
+import { validateMetadataRecords, buildChangeSetRow, computeChanges, normalizeRowKeys } from "../scripts/lib/metadata.mjs";
+
+const REPO_ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 
 // A blank row keyed exactly like parseCsv() output; override only the fields under test.
 const row = (o) => ({
@@ -160,4 +168,96 @@ test("computeChanges stages canonical even when title/description are unchanged"
 
 test("computeChanges returns [] for a row with no changes and no canonical", () => {
   assert.deepEqual(computeChanges(row({ current_title: "T", new_title: "T" })), []);
+});
+
+// ── cross-review fixes ─────────────────────────────────────────────────────────
+// Findings confirmed by the 2026-07-04 adversarial cross-review of PR #57.
+
+// HIGH: the self-reference check must FAIL CLOSED when the row's url can't be parsed
+// as an absolute http(s) URL. Previously the check silently skipped, so a schemeless
+// url + cross-domain canonical validated green and could reach the live site.
+test("a canonical with a schemeless row url is rejected, not silently skipped (fail closed)", () => {
+  const errs = validateMetadataRecords([row({
+    url: "www.maxxbuilders.com/a/",                       // no scheme → unparseable
+    new_title: "Title A",
+    canonical: "https://competitor.com/steal/",           // cross-domain!
+  })]);
+  assert.ok(errs.length > 0, "must error, not pass green");
+  assert.ok(errs.some((e) => /cannot verify canonical self-reference/.test(e)), errs.join("; "));
+});
+
+test("a canonical with an empty row url is rejected (fail closed)", () => {
+  const errs = validateMetadataRecords([row({
+    url: "",
+    canonical: "https://www.maxxbuilders.com/a/",
+  })]);
+  assert.ok(errs.some((e) => /cannot verify canonical self-reference/.test(e)), errs.join("; "));
+});
+
+// MEDIUM: canonicals carrying a query string or fragment must be rejected — normalizeUrl
+// ignores search/hash, so "?replytocom=99" previously passed the self-reference check and
+// would consolidate signal onto a parameterized URL.
+test("a canonical carrying a query string is rejected", () => {
+  const errs = validateMetadataRecords([row({
+    url: "https://www.maxxbuilders.com/a/",
+    new_title: "Title A",
+    canonical: "https://www.maxxbuilders.com/a/?replytocom=99",
+  })]);
+  assert.ok(errs.some((e) => /query string or fragment/.test(e)), errs.join("; "));
+});
+
+test("a canonical carrying a fragment is rejected", () => {
+  const errs = validateMetadataRecords([row({
+    url: "https://www.maxxbuilders.com/a/",
+    canonical: "https://www.maxxbuilders.com/a/#section",
+  })]);
+  assert.ok(errs.some((e) => /query string or fragment/.test(e)), errs.join("; "));
+});
+
+// MEDIUM: a non-default port is a different origin — must not count as self-referencing.
+test("a canonical on a non-default port does not self-reference", () => {
+  const errs = validateMetadataRecords([row({
+    url: "https://www.maxxbuilders.com/a/",
+    canonical: "https://www.maxxbuilders.com:8080/a/",
+  })]);
+  assert.ok(errs.some((e) => /self-reference/.test(e)), errs.join("; "));
+});
+
+// LOW: page_id, when supplied, must be numeric — it is trusted verbatim downstream.
+test("a non-numeric page_id on a touched row is rejected", () => {
+  const errs = validateMetadataRecords([row({ new_title: "Title A", page_id: "2020; drop" })]);
+  assert.ok(errs.some((e) => /page_id must be numeric/.test(e)), errs.join("; "));
+});
+
+test("a numeric or empty page_id passes", () => {
+  assert.deepEqual(validateMetadataRecords([row({ new_title: "Title A", page_id: "2020" })]), []);
+  assert.deepEqual(validateMetadataRecords([row({ new_title: "Title B", page_id: "" })]), []);
+});
+
+// MEDIUM (header-case regression): parseCsv preserves header casing but every rule reads
+// lowercase keys — mixed-case headers made validation silently vacuous. normalizeRowKeys
+// is the shared repair both the CLI validator and the importer apply after parseCsv.
+test("normalizeRowKeys lowercases keys so mixed-case CSV headers still validate", () => {
+  const raw = [{ URL: "https://www.maxxbuilders.com/a/", New_Title: "x".repeat(61), "current_title": "Old" }];
+  const norm = normalizeRowKeys(raw);
+  assert.equal(norm[0].url, "https://www.maxxbuilders.com/a/");
+  assert.equal(norm[0].new_title, "x".repeat(61));
+  const errs = validateMetadataRecords(norm);
+  assert.ok(errs.some((e) => /new_title too long/.test(e)), "over-cap caught after normalization");
+});
+
+test("CLI validator catches an over-cap title under mixed-case headers (regression pin)", () => {
+  const dir = mkdtempSync(join(tmpdir(), "meta-csv-"));
+  const csvPath = join(dir, "mixed-case.csv");
+  writeFileSync(csvPath, [
+    "url,page_id,Current_Title,New_Title,current_description,New_Description,canonical",
+    `https://www.maxxbuilders.com/a/,,Old Title,${"x".repeat(80)},,,`,
+  ].join("\n"), "utf8");
+  try {
+    const res = spawnSync(process.execPath, [join(REPO_ROOT, "scripts", "validate-metadata-csv.mjs"), csvPath], { encoding: "utf8" });
+    assert.equal(res.status, 1, `validator must exit 1 on an over-cap title regardless of header casing\nstdout: ${res.stdout}\nstderr: ${res.stderr}`);
+    assert.ok(/new_title too long/.test(res.stderr), res.stderr);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
 });

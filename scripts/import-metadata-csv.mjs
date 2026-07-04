@@ -11,7 +11,7 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { db as sb } from "../lib/db.mjs";
 import { parseCsv } from "./lib/csv.mjs";
-import { validateMetadataRecords, buildChangeSetRow, computeChanges } from "./lib/metadata.mjs";
+import { validateMetadataRecords, buildChangeSetRow, computeChanges, normalizeRowKeys } from "./lib/metadata.mjs";
 
 const ROOT  = join(dirname(fileURLToPath(import.meta.url)), "..");
 const BASE  = process.env.WP_BASE_URL?.replace(/\/$/, "");
@@ -54,7 +54,9 @@ async function resolvePageId(url) {
 
 async function main() {
   const csv  = await readFile(join(ROOT, "metadata-changes.csv"), "utf8");
-  const rows = parseCsv(csv);
+  // normalizeRowKeys: parseCsv preserves header casing; validation and the destructures
+  // below read lowercase keys. Without it, mixed-case headers silently skip every row.
+  const rows = normalizeRowKeys(parseCsv(csv));
 
   // Validate the whole CSV before touching Supabase. A single bad row (over-cap,
   // no-op, duplicate title, or non-self-referencing canonical) aborts the import —
