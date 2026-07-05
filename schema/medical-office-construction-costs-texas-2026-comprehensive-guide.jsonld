@@ -12,11 +12,11 @@
       "inLanguage": "en-US",
       "author": {
         "@type": "Person",
-        "@id": "https://www.maxxbuilders.com/#author-REPLACE",
-        "name": "[OPERATOR INSERT: Author full name]",
-        "jobTitle": "[OPERATOR INSERT: e.g., Licensed General Contractor]",
+        "@id": "https://www.maxxbuilders.com/#author-harris-khan",
+        "name": "Harris Khan",
+        "jobTitle": "President, Maxx Builders",
         "sameAs": [
-          "[OPERATOR INSERT: LinkedIn URL]"
+          "https://www.linkedin.com/in/maxxbuildersharris/"
         ]
       },
       "publisher": {
