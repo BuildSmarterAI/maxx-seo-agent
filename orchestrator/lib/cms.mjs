@@ -166,9 +166,13 @@ export async function rollbackRow(adapter, { page_id, field, collection_id }, st
   const matched = await store.latestAppliedRow(adapter.platform, page_id, field);
   if (matched) await store.setStatus(matched.id, "rolledback");
 
+  // change_type: null, not `field` — a rollback isn't a kit task, and "title"/"description"
+  // are CMS field names, not KIT_TASKS members. Logging the field name here would let it
+  // join the learning loop's byType aggregation as a fake task (the orphan-leak class
+  // already fixed for narrate.applied(); see A11).
   await store.logDecision({
     url: null, action: "rolledback", risk_class: "safe",
-    change_type: field, reason: `${adapter.platform} rollback ${field} on ${page_id}`,
+    change_type: null, reason: `${adapter.platform} rollback ${field} on ${page_id}`,
   });
   return { restored: old, rowId: matched?.id ?? null };
 }

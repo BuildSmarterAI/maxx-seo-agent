@@ -1,7 +1,7 @@
 // Memory-layer helpers — the persistence seam. Callers (scripts, orchestrator) reach
 // every table through these named helpers; the raw client stays private in client.mjs.
 import { db } from "./client.mjs";
-import { assertTaskType } from "./tasks.mjs";
+import { assertTaskType, KIT_TASKS } from "./tasks.mjs";
 
 export async function isPaused() {
   const { data } = await db.from("control").select("paused").eq("id", 1).single();
@@ -126,12 +126,22 @@ export async function activeUrls(limit, sinceDays = 28) {
   return [...new Set((data ?? []).map((r) => r.url))];
 }
 
+// Pure, exported for direct testing — orphan-leak backstop (A11): logDecision has no
+// assertTaskType gate at write time (unlike insertChangeset), so a stray non-task
+// change_type (a CMS field name, a legacy generic label) can land in decision_log. This
+// keeps every appliedDecisions() consumer (the learning loop, eval-set mining) clean
+// without trusting the writer, mirroring the precedent already established in
+// scripts/attribute-citations.mjs's own KIT_TASKS filter for the GEO learning path.
+export function filterKitTaskDecisions(rows) {
+  return rows.filter((r) => KIT_TASKS.has(r.change_type));
+}
+
 export async function appliedDecisions(sinceDays = 120) {
   const since = new Date(Date.now() - sinceDays * 864e5).toISOString();
   const { data } = await db.from("decision_log")
     .select("url, change_type, created_at")
     .eq("action", "applied").not("change_type", "is", null).gte("created_at", since);
-  return data ?? [];
+  return filterKitTaskDecisions(data ?? []);
 }
 
 async function metricAround(url, metric, isoDate, lagDays) {
