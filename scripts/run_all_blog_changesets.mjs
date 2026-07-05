@@ -2,8 +2,8 @@
 // changeset rows into Supabase so `npm run wp:apply` can push them to WordPress.
 // design-build-construction-houston has no existing WP post — use create_design_build_post.mjs
 import { readFileSync } from 'fs';
-import { marked } from 'marked';
 import { insertChangeset } from '../orchestrator/lib/supabase.mjs';
+import { toCleanMarkdown, renderMarkdown } from './lib/wp-content.mjs';
 
 // WP post IDs confirmed via API 2026-06-25
 const POSTS = [
@@ -39,15 +39,14 @@ const POSTS = [
   },
 ];
 
-// Strip markdown front-matter (--- ... ---) before converting
-function stripFrontmatter(md) {
-  return md.replace(/^---[\s\S]*?---\n/, '');
-}
-
 let inserted = 0;
 for (const post of POSTS) {
   const md = readFileSync(`drafts/${post.slug}.md`, 'utf8');
-  const html = marked.parse(stripFrontmatter(md));
+  // Shared pipeline: strips the bold-label header (the old YAML-only strip no-op'd on it and
+  // leaked metadata into the body — audit M2) and internal-only sections, renders via the
+  // one shared renderer, keeping output identical to publish-drafts.mjs.
+  const { markdown } = toCleanMarkdown(md);
+  const html = await renderMarkdown(markdown);
 
   await insertChangeset({
     platform: 'wordpress',
@@ -57,11 +56,14 @@ for (const post of POSTS) {
     base_value: null,
     new_value: html,
     change_type: 'blog-write',
-    status: 'approved',
+    // M3: stage pending, not approved. post_content is not drift-checkable, and the nightly
+    // apply-cms cron auto-applies APPROVED rows to a no-staging prod site — so a human must
+    // flip these to approved (the ADR-005 gate) before they can go live.
+    status: 'pending',
   });
   console.log(`  ✓ ${post.page_id} → ${post.slug}`);
   inserted++;
 }
 
-console.log(`\n${inserted} rows inserted with status=approved.`);
-console.log('Next: npm run wp:apply');
+console.log(`\n${inserted} rows inserted with status=pending (approve in change_set before wp:apply).`);
+console.log('Next: review + approve rows, then npm run wp:apply');
