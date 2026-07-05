@@ -39,6 +39,16 @@ test("collectPageUrls dedupes urls seen across child sitemaps", async () => {
   assert.deepEqual(pages, ["https://x.com/a/"]);
 });
 
+// A13: onEnqueued now owns committing sitemap_seen state, called by the harness only after
+// a successful enqueue (see test/sensor.test.mjs for the ordering guarantee itself, tested
+// against a fake sensor). markSitemapSeen([]) short-circuits before touching the network, so
+// this one is directly testable without a DB mock.
+test("sitemapSensor.onEnqueued is a network-free no-op for an empty rawItems list", async () => {
+  const { sitemapSensor } = await import("../scripts/sensor-sitemap.mjs");
+  assert.equal(typeof sitemapSensor.onEnqueued, "function");
+  await assert.doesNotReject(() => sitemapSensor.onEnqueued([]));
+});
+
 test("isHomepage is true only for the site root path", () => {
   assert.equal(isHomepage("https://www.maxxbuilders.com/"), true);
   assert.equal(isHomepage("http://www.maxxbuilders.com/"), true);
