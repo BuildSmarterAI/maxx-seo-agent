@@ -11,10 +11,19 @@ import { execSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
 // Scalar knobs, read once. JUDGE_MAX_DIFF_CHARS defaults to the prior hard-coded cap.
+// A non-numeric JUDGE_MIN_SCORE (typo, e.g. "min4") must fail loudly here — left unchecked,
+// Number(...) silently produces NaN, `v >= NaN` is false for every rubric dimension, and
+// every PR blocks with the misleading "low-score" annotation instead of naming the real cause.
 export function loadConfig(env = process.env) {
+  const minScore = Number(env.JUDGE_MIN_SCORE || 3);
+  if (!Number.isFinite(minScore)) {
+    const err = new Error(`JUDGE_MIN_SCORE must be a finite number, got "${env.JUDGE_MIN_SCORE}"`);
+    err.kind = "config-error";
+    throw err;
+  }
   return {
     baseRef:      env.BASE_REF || "origin/main",
-    minScore:     Number(env.JUDGE_MIN_SCORE || 3),
+    minScore,
     model:        env.JUDGE_MODEL || "claude-haiku-4-5-20251001",
     maxDiffChars: Number(env.JUDGE_MAX_DIFF_CHARS || 60000),
   };
@@ -43,16 +52,20 @@ export function parseVerdict(out) {
 // The four rubric dimensions buildPrompt asks the judge to score. decide() requires every
 // one to be present and ≥ minScore; a verdict missing a dimension is malformed → fails closed.
 // Keep in sync with the JSON template in buildPrompt.
-const SCORE_DIMENSIONS = ["quality", "brand_safety", "fact_checkability", "information_gain"];
+export const SCORE_DIMENSIONS = ["quality", "brand_safety", "fact_checkability", "information_gain"];
 
 // The gate decision, pure and fail-closed. The model self-reports `pass`, but we never trust
 // it alone (a self-report can contradict the model's own scores): re-derive the verdict from
 // the structured fields it also returned. Block unless the model passed AND every rubric
-// dimension is a finite number ≥ minScore AND fabrication_risk is not set. Any missing,
-// malformed, or non-numeric score → block.
+// dimension is a finite number ≥ minScore AND fabrication_risk is present and explicitly
+// `false`. Any missing, malformed, or non-numeric score → block; a missing fabrication_risk
+// key → block (the same fail-closed treatment as a missing score, not a silent pass).
 export function decide(verdict, config = loadConfig()) {
   if (verdict?.pass !== true) return false;
-  if (verdict.fabrication_risk) return false; // any truthy flag → fail closed (not just === true)
+  // Require the key present and explicitly `false` — a missing key (the most common
+  // small-model JSON-drift mode) must fail closed the same as a missing score dimension,
+  // not silently pass because `undefined` happens to be falsy.
+  if (verdict.fabrication_risk !== false) return false;
   const scores = verdict.scores;
   if (!scores || typeof scores !== "object") return false;
   return SCORE_DIMENSIONS.every((k) => {
@@ -129,7 +142,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   main()
     .then((code) => process.exit(code))
     .catch((e) => {
-      annotateError("uncaught", e?.message || String(e));
+      annotateError(e?.kind || "uncaught", e?.message || String(e));
       process.exit(1);
     });
 }

@@ -5,7 +5,7 @@
 // Run: node --test
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { loadConfig, buildPrompt, parseVerdict, decide } from "../scripts/eval-judge.mjs";
+import { loadConfig, buildPrompt, parseVerdict, decide, SCORE_DIMENSIONS } from "../scripts/eval-judge.mjs";
 
 test("loadConfig: defaults", () => {
   const c = loadConfig({});
@@ -21,6 +21,13 @@ test("loadConfig: env overrides", () => {
   assert.equal(c.minScore, 4);
   assert.equal(c.model, "x");
   assert.equal(c.maxDiffChars, 100);
+});
+
+// Cross-review 58-2: a typo'd JUDGE_MIN_SCORE (e.g. "min4") must fail loudly at config load,
+// not silently become NaN — `v >= NaN` is false for every score, so every PR would block with
+// the misleading "low-score" annotation instead of a config error naming the real cause.
+test("loadConfig: throws a descriptive error on a non-numeric JUDGE_MIN_SCORE, not NaN", () => {
+  assert.throws(() => loadConfig({ JUDGE_MIN_SCORE: "min4" }), /JUDGE_MIN_SCORE/);
 });
 
 test("buildPrompt: embeds minScore and the diff, asks for JSON-only", () => {
@@ -80,11 +87,30 @@ test("decide: blocks pass=true when fabrication_risk is set (any truthy value)",
   }
 });
 
-// Fail closed on any malformed / incomplete scores object.
+// Cross-review 58-1: the check was truthy-only (`if (verdict.fabrication_risk) return false`),
+// so a verdict MISSING the key entirely — the most common small-model JSON-drift mode —
+// passed if scores cleared, asymmetric against the missing-score-dimension fail-closed rule.
+// fabrication_risk must be present and explicitly `false` to pass.
+test("decide: blocks when fabrication_risk is absent (missing key, not just truthy)", () => {
+  const { fabrication_risk, ...withoutFlag } = fullPass();
+  assert.equal(decide(withoutFlag, { minScore: 3 }), false);
+});
+
+test("decide: blocks a non-boolean fabrication_risk even when falsy (e.g. 0, \"\", null)", () => {
+  for (const flag of [0, "", null, undefined]) {
+    assert.equal(decide({ ...fullPass(), fabrication_risk: flag }, { minScore: 3 }), false,
+      `fabrication_risk=${JSON.stringify(flag)} must block (only strict boolean false passes)`);
+  }
+});
+
+// Fail closed on any malformed / incomplete scores object. Each verdict carries
+// fabrication_risk:false so it clears that gate and the assertion genuinely exercises the
+// SCORES branch it names — otherwise a missing fabrication_risk would short-circuit first
+// and these would pass for the wrong reason (cross-review 58-regression nit).
 test("decide: fails closed on missing, empty, incomplete, or non-numeric scores", () => {
-  assert.equal(decide({ pass: true }, { minScore: 3 }), false);              // no scores object
-  assert.equal(decide({ pass: true, scores: {} }, { minScore: 3 }), false);  // empty
-  assert.equal(decide({ pass: true, scores: { quality: 5, brand_safety: 5, fact_checkability: 5 } }, { minScore: 3 }), false); // missing information_gain
+  assert.equal(decide({ pass: true, fabrication_risk: false }, { minScore: 3 }), false);             // no scores object
+  assert.equal(decide({ pass: true, fabrication_risk: false, scores: {} }, { minScore: 3 }), false); // empty
+  assert.equal(decide({ pass: true, fabrication_risk: false, scores: { quality: 5, brand_safety: 5, fact_checkability: 5 } }, { minScore: 3 }), false); // missing information_gain
   assert.equal(decide({ ...fullPass(), scores: { ...fullPass().scores, quality: "5" } }, { minScore: 3 }), false); // non-numeric
   assert.equal(decide({ ...fullPass(), scores: null }, { minScore: 3 }), false);
 });
@@ -93,4 +119,15 @@ test("decide: enforces the config's minScore threshold", () => {
   const v = { ...fullPass(), scores: { quality: 3, brand_safety: 3, fact_checkability: 3, information_gain: 3 } };
   assert.equal(decide(v, { minScore: 3 }), true);
   assert.equal(decide(v, { minScore: 4 }), false);
+});
+
+// Cross-review 58-3: a rubric rename in buildPrompt's JSON template that isn't mirrored in
+// SCORE_DIMENSIONS (or vice versa) previously shipped with a fully green suite, then silently
+// failed every verdict closed (or silently stopped scoring a dimension) in prod. Pin the two
+// in sync: every SCORE_DIMENSIONS member must appear as a JSON key in the built prompt.
+test("SCORE_DIMENSIONS stays in sync with buildPrompt's JSON template", () => {
+  const prompt = buildPrompt(loadConfig({}), "x");
+  for (const dim of SCORE_DIMENSIONS) {
+    assert.match(prompt, new RegExp(`"${dim}"`), `buildPrompt template is missing rubric dimension "${dim}"`);
+  }
 });

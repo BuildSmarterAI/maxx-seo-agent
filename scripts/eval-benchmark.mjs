@@ -9,15 +9,17 @@
 // The scoring functions are pure and exported for tests; runBenchmark takes an injectable
 // judge so it is testable without a model call.
 import { fileURLToPath } from "node:url";
-import { loadConfig, decide, judgeText } from "./eval-judge.mjs";
+import { loadConfig, decide, judgeText, SCORE_DIMENSIONS } from "./eval-judge.mjs";
 import { evalSet } from "../orchestrator/lib/supabase.mjs";
 
 const BENCH_LIMIT = Number(process.env.EVAL_BENCH_LIMIT || 60);
 
-// Mean of the four sub-scores; higher = the judge thinks the content is better.
+// Mean of the sub-scores; higher = the judge thinks the content is better. Averages over the
+// same SCORE_DIMENSIONS decide() gates on (single source of truth) so a rubric rename can't
+// leave this metric silently averaging a stale set of dimensions.
 export function aggregateScore(verdict) {
   const s = verdict?.scores || {};
-  const vals = ["quality", "brand_safety", "fact_checkability", "information_gain"]
+  const vals = SCORE_DIMENSIONS
     .map((k) => Number(s[k])).filter(Number.isFinite);
   return vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : 0;
 }
