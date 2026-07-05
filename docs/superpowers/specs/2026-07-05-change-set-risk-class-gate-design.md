@@ -160,6 +160,27 @@ the live site at all, matching the do_not_touch gate's placement rationale.
    `proceed` that authorized this design/implementation.
 7. Human-merge only — no `seo-auto` label.
 
+## Amendments from adversarial verify (post-approval, pre-commit)
+
+A 4-lens adversarial Workflow (bypass / regression / caller-contract / semantics,
+default-to-refute) ran over the implemented diff before commit, per the Ultracode standing
+instruction. It surfaced one real defect in the as-approved design, now fixed:
+
+- **Fail-open default, fixed.** The design as approved had `parseChangesetPayload()` default
+  a missing `risk_class` to `'safe'` (matching `parseLogPayload`'s existing posture). The
+  bypass and semantics lenses independently flagged this as fail-*open* dressed as
+  fail-closed: an omitted field — from a future prompt-template drift, a model deviation, or
+  any caller that forgets the key — would silently become the permissive value and sail
+  through the new `applyRow()` gate unchanged. Fixed: the default is now `'gated'` (escalate
+  on absence), both in `payload.mjs` and in the `change_set.risk_class` column's DB default
+  (`sql/schema.sql`), for the same reason. Verified: the actual live production template (the
+  seo-fixer subagent prompt embedded in `orchestrator/run.mjs`'s `runCms()`, NOT
+  `goal.mjs::goalCms()`'s own text) already writes `"risk_class": "safe"` explicitly into
+  every real payload today, so this fail-closed default is never exercised by the current
+  live pipeline — it only hardens the failure mode the fix targets, with no behavior change
+  to production today. Test `test/payload.test.mjs` updated accordingly (asserts `'gated'`
+  on absence, not `'safe'`).
+
 ## Open questions / follow-ups (not this PR)
 
 - **Task-type → risk_class centralization.** `orchestrator/lib/tasks.mjs`'s `KIT_TASKS` is a
@@ -171,3 +192,30 @@ the live site at all, matching the do_not_touch gate's placement rationale.
   explicitly deferred per Harris's call above. Revisit if a gated row is ever observed in
   `change_set` in practice, or if the human-approval workflow starts handling gated
   overrides directly.
+- **Other `change_set` insert paths bypass `parseChangesetPayload` entirely — found by the
+  adversarial verify, NOT fixed here, needs Harris's scope call.** `scripts/mem.mjs`'s legacy
+  `changeset` command (no `--file` flag path), `scripts/run_all_blog_changesets.mjs`, and
+  `scripts/lib/metadata.mjs::buildChangeSetRow()` (used by `scripts/import-metadata-csv.mjs`)
+  all construct `change_set` rows as hand-built object literals and call
+  `insertChangeset()`/a raw Supabase insert directly — none of them go through
+  `parseChangesetPayload()`, so none of them set `risk_class` explicitly. Once the schema
+  migration lands, these rows get their `risk_class` purely from the column default (now
+  `'gated'` post-fix, so they'll fail closed/escalate rather than silently apply — an
+  improvement over the pre-fix `'safe'` default, but they still never get a *deliberate*
+  classification, and a human running one of these scripts on a genuinely safe change would
+  now see it escalate rather than apply). All three are manual, human-run scripts today (not
+  part of the unattended orchestrator loop), so practical risk is low, but the audit's
+  original claim — "risk_class enforcement is structurally guaranteed" — is not fully true
+  system-wide until these paths are either routed through `parseChangesetPayload` or
+  explicitly set `risk_class` themselves. Flagged for Harris to decide: fold into this PR,
+  or track as a distinct follow-up finding.
+- **`rollbackRow()` has no `risk_class` or `do_not_touch` check** (unlike `applyRow()`) —
+  already an intentional design choice per the original design ("rollback is an intentional
+  human override"), reconfirmed by the adversarial verify's regression lens as a real but
+  deliberately-scoped-out asymmetry, not a defect to fix here.
+- **Historical `change_set` row backfill.** The semantics lens noted that defaulting
+  ~162 existing (already-terminal: applied/escalated/failed) rows to a classification value
+  they were never actually assessed against could mislead a future reporting/analytics query
+  that reads `risk_class` as if it reflects a real decision. Accepted as noted in the
+  original design — these rows are already terminal, so the column is inert for them
+  functionally; only a documentation/analytics-hygiene concern, not fixed here.
