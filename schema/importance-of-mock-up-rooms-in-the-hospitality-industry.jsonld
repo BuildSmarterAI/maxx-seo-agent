@@ -19,9 +19,9 @@
     },
     "author": {
       "@type": "Person",
-      "name": "OPERATOR_INSERT_AUTHOR_NAME",
-      "jobTitle": "OPERATOR_INSERT_TITLE",
-      "sameAs": "OPERATOR_INSERT_LINKEDIN_URL"
+      "name": "Harris Khan",
+      "jobTitle": "President, Maxx Builders",
+      "sameAs": "https://www.linkedin.com/in/maxxbuildersharris/"
     },
     "about": [
       {
