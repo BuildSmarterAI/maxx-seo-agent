@@ -1,6 +1,10 @@
 #!/usr/bin/env node
 // sensor-sitemap.mjs — sitemap sensor config + entry point.
-// fetch() handles sitemap_seen state (sensor-specific) via the memory module;
+// onEnqueued() commits sitemap_seen state (sensor-specific) via the memory module, but only
+// after the harness's enqueue() has succeeded (A13) — committing it inside fetch(), before
+// enqueue even ran, meant a failed enqueue (e.g. a transient Supabase blip) permanently
+// dropped a URL from future discovery: it was already marked "seen" so it would never be
+// re-offered, yet it never made it into work_queue either.
 // doNotTouch filtering is owned by the harness.
 import { fileURLToPath } from "node:url";
 import { sitemapSeen, markSitemapSeen } from "../orchestrator/lib/supabase.mjs";
@@ -76,10 +80,16 @@ export const sitemapSensor = {
     const seen = await sitemapSeen();
     const fresh = urls.filter((u) => !seen.has(u));
 
-    if (fresh.length) await markSitemapSeen(fresh);
-
     console.log(`[sitemap] ${urls.length} page urls, ${fresh.length} new`);
     return fresh.map((url) => ({ url, signalType: "new-url", value: 1 }));
+  },
+
+  // Called by the harness only once enqueue() has succeeded. rawItems is every fresh url
+  // the harness saw BEFORE do_not_touch filtering — a protected url must still be marked
+  // seen (it's simply never queued), or it would be rediscovered as "fresh" every run.
+  async onEnqueued(rawItems) {
+    const urls = rawItems.map((item) => item.url);
+    if (urls.length) await markSitemapSeen(urls);
   },
 };
 

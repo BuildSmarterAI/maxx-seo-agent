@@ -1,8 +1,17 @@
 // sensor.mjs — runSensor harness for all sensors.
 //
-// Sensor interface: { name, thresholds, fetch(env, thresholds) → { url, signalType, value }[] }
-// fetch() applies threshold filtering internally and returns only qualifying items.
-// The harness owns: doNotTouch filtering, queue-item mapping, enqueue, error isolation.
+// Sensor interface: { name, thresholds, fetch(env, thresholds) → { url, signalType, value }[],
+// onEnqueued?(rawItems) }. fetch() applies threshold filtering internally and returns only
+// qualifying items. The harness owns: doNotTouch filtering, queue-item mapping, enqueue,
+// error isolation, and — via the optional onEnqueued hook — sensor-specific "seen"/dedup
+// state commits. onEnqueued runs ONLY after enqueue() succeeds (A13): committing dedup state
+// before a successful enqueue let a transient enqueue failure permanently drop a URL from
+// future discovery (it would never be "fresh" again, and never made it into work_queue
+// either). It receives the full pre-do_not_touch-filter rawItems, not just the enqueued
+// subset, so a protected URL is still marked seen (matching prior behavior — it's just never
+// queued) instead of being rediscovered every run.
+// deps are injectable so this harness is testable without a network (same pattern as
+// orchestrator/lib/preflight.mjs's check()).
 import { doNotTouch, enqueue } from "./supabase.mjs";
 import { isProtected } from "./url.mjs";
 
@@ -50,6 +59,19 @@ export async function runSensor(sensor, env, deps = {}) {
   } catch (err) {
     enqueueError = err;
     console.error(`[${sensor.name}] enqueue failed:`, err?.message ?? err);
+  }
+
+  // Separate from the enqueue try/catch above: onEnqueued's own failure is a distinct,
+  // lower-severity problem (the queue write already succeeded) and must not be
+  // misattributed as an enqueue failure — that would mislead triage and, via the CLI's
+  // `if (error) process.exit(1)`, fail the whole run over an already-durable write. A
+  // retry next run is safe (enqueue's upsert is idempotent), so log and move on.
+  if (!enqueueError) {
+    try {
+      await sensor.onEnqueued?.(rawItems);
+    } catch (err) {
+      console.error(`[${sensor.name}] onEnqueued failed:`, err?.message ?? err);
+    }
   }
 
   return { sensor: sensor.name, count: queueItems.length, error: enqueueError };
