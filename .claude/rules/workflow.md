@@ -56,6 +56,11 @@ rankings or violate brand policy.
 - One PR per orchestrator run. Don't open multiple PRs from the same run.
 - Never merge, rebase, or squash PRs manually — the `seo-auto-merge` workflow handles
   this after all required checks pass.
+- **Stacked PRs + squash-merge hazard:** if a PR is stacked on another PR's branch,
+  don't `--delete-branch` the base when squash-merging it — the base's rewritten
+  squash commit makes the stacked PR's branch diverge, and GitHub auto-closes it as
+  CONFLICTING. Retarget the stacked PR onto `main` *before* merging the base, or
+  recover by rebasing its content commit `--onto main` and opening a fresh PR.
 
 ## Interactive vs. headless operating modes
 
