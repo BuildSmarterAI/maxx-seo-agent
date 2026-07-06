@@ -12,8 +12,10 @@ BRANCH="${2:-main}"
 shift || true; shift || true
 EXTRA=("$@")     # additional required check job names (e.g. vitals)
 
-# Build the contexts JSON array: always require eval-gate, plus any extras.
-contexts='["eval-gate"'
+# Build the contexts JSON array: always require eval-gate AND the unit-test job
+# (audit M6 — without "test" required, a seo-auto PR could auto-merge with failing
+# tests), plus any extras.
+contexts='["eval-gate","test"'
 for c in "${EXTRA[@]:-}"; do [ -n "$c" ] && contexts+=",\"$c\""; done
 contexts+=']'
 
