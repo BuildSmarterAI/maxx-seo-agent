@@ -31,11 +31,30 @@ function recorder(responses = {}) {
   return { calls, exec: makeExec(run) };
 }
 
-test("startBranch creates and checks out a dated seo/auto branch", () => {
-  const { calls, exec } = recorder();
+test("startBranch checks the tree is clean, then creates and checks out a dated seo/auto branch", () => {
+  const { calls, exec } = recorder(); // no responses → status returns "" (clean)
   const branch = startBranch(exec);
   assert.match(branch, /^seo\/auto-\d{4}-\d{2}-\d{2}-\d{1,5}$/);
-  assert.deepEqual(calls, [`git checkout -b ${branch}`]);
+  // `--untracked-files=all` is pinned deliberately (overrides a dev's status.showUntrackedFiles=no,
+  // which would otherwise hide untracked WIP from the precondition — cross-review bypass finding).
+  assert.deepEqual(calls, ["git status --porcelain --untracked-files=all", `git checkout -b ${branch}`]);
+});
+
+// A7: the orchestrator must NEVER run on top of a dev's uncommitted/untracked work — it would
+// otherwise be swept into the auto-PR (openPR's `git add -A`) or wiped by rollback's
+// `git reset --hard`. startBranch refuses (throws) on a dirty tree and never creates the branch.
+test("startBranch refuses a dirty working tree and creates no branch (clean-tree precondition)", () => {
+  const { calls, exec } = recorder({ "git status --porcelain": " M dev-wip.txt\n?? dev-notes.md" });
+  assert.throws(() => startBranch(exec), /working tree|clean|commit or stash/i);
+  assert.deepEqual(calls, ["git status --porcelain --untracked-files=all"]); // stopped BEFORE any checkout -b
+  assert.ok(!calls.some((c) => c.includes("checkout -b")), "must not create a branch on a dirty tree");
+});
+
+// Untracked-only dirt (e.g. a dev's scratch files) is just as dangerous: `git add -A` would
+// stage it into the auto-PR commit. porcelain reports it, so the precondition must catch it too.
+test("startBranch refuses an untracked-only dirty tree", () => {
+  const { exec } = recorder({ "git status --porcelain": "?? scratch.txt" });
+  assert.throws(() => startBranch(exec), /working tree|clean|commit or stash/i);
 });
 
 test("rollback discards work with git reset --hard, then deletes the branch", () => {

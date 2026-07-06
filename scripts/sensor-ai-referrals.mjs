@@ -78,8 +78,16 @@ async function run() {
     if (conversions > 0) outcomeRows.push({ url, metric: "conversions", value: conversions });
   }
 
-  if (referralRows.length) await db.from("ai_referrals").insert(referralRows);
-  if (outcomeRows.length) await db.from("outcomes").insert(outcomeRows);
+  // Never-swallow (A12): matches the guard already established for the outcomes insert in
+  // the sibling sensor-ai-citations.mjs — a failed insert must be visible, not silent.
+  if (referralRows.length) {
+    const { error } = await db.from("ai_referrals").insert(referralRows);
+    if (error) console.error(`[ai-referrals] ai_referrals insert FAILED — 0 of ${referralRows.length} rows logged: ${error.message}`);
+  }
+  if (outcomeRows.length) {
+    const { error } = await db.from("outcomes").insert(outcomeRows);
+    if (error) console.error(`[ai-referrals] outcomes insert FAILED — 0 of ${outcomeRows.length} outcomes logged: ${error.message}`);
+  }
 
   console.log(`[ai-referrals] rows=${referralRows.length} sessions=${totalSessions} conversions=${totalConv} window=${DAYS}d`);
 }

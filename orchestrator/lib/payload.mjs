@@ -9,6 +9,7 @@ import { assertTaskType } from "./tasks.mjs";
 
 // The same supported-field set the CMS prompt and the WP/Webflow adapters accept.
 const CHANGESET_FIELDS = new Set(["post_content", "title", "description", "canonical", "focus"]);
+const RISK_CLASSES = new Set(["safe", "gated"]);
 
 function reqStr(obj, key) {
   const v = obj?.[key];
@@ -25,6 +26,12 @@ export function parseChangesetPayload(obj) {
   if (!CHANGESET_FIELDS.has(field))
     throw new Error(`payload: unsupported field "${field}" (allowed: ${[...CHANGESET_FIELDS].join(", ")})`);
   const change_type = assertTaskType(obj.change_type ?? null); // a kit task or null, else throws
+  // Fail-closed default: an omitted risk_class must NOT silently become the permissive
+  // "safe" value — that would let a future caller bypass classification just by leaving
+  // the field out. Absence escalates (gated) instead of applying.
+  const risk_class = obj.risk_class || "gated";
+  if (!RISK_CLASSES.has(risk_class))
+    throw new Error(`payload: invalid risk_class "${risk_class}" (must be safe or gated)`);
   return {
     platform:    obj.platform || process.env.SITE_PLATFORM || "wordpress",
     page_id:     obj.page_id ?? null,
@@ -33,6 +40,7 @@ export function parseChangesetPayload(obj) {
     base_value:  obj.base_value ?? null,
     new_value:   reqStr(obj, "new_value"),
     change_type,
+    risk_class,
     status:      "pending",
   };
 }

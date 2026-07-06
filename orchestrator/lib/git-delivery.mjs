@@ -14,13 +14,38 @@ export function makeExec(run = (c) => execSync(c, { stdio: "pipe" }).toString().
 const defaultExec = makeExec();
 
 // Create and check out a dated work branch; returns its name.
+//
+// Clean-tree precondition (A7): refuse to start if the working tree carries ANY uncommitted
+// or untracked change. The orchestrator would otherwise sweep a dev's in-progress work into
+// the auto-PR (openPR's `git add -A`) or destroy it on the failure path (rollback's
+// `git reset --hard`). Failing loudly here — before the branch exists — is the only point
+// that can distinguish the dev's work from the agent's (everything the agent produces comes
+// AFTER this check), so it is also what makes rollback's unqualified reset safe by construction.
+// `--untracked-files=all` is REQUIRED, not cosmetic: a plain `git status --porcelain` honors a
+// dev's global `status.showUntrackedFiles=no` config and would report untracked WIP as clean,
+// letting `git add -A` sweep it into the PR — the command-line flag overrides that config.
+// gitignored files (node_modules, .env, gcp.json) stay invisible either way, exactly as wanted.
 export function startBranch(exec = defaultExec) {
+  const dirty = exec.sh("git status --porcelain --untracked-files=all");
+  if (dirty) {
+    throw new Error(
+      "startBranch: refusing to run on a dirty working tree — commit or stash your changes first. " +
+      "The orchestrator would otherwise sweep them into an auto-PR (git add -A) or discard them " +
+      `on rollback (git reset --hard). Uncommitted/untracked paths:\n${dirty}`
+    );
+  }
   const branch = `seo/auto-${new Date().toISOString().slice(0, 10)}-${Date.now().toString().slice(-5)}`;
   exec.sh(`git checkout -b ${branch}`);
   return branch;
 }
 
 // Discard any work and delete the branch (used on failure or when nothing changed).
+// The `git reset --hard` is intentionally unqualified: startBranch's clean-tree precondition
+// guarantees the tree was clean when the branch began, so any TRACKED modification present now
+// is the agent's own uncommitted output — exactly what rollback throws away. It cannot reach a
+// dev's pre-existing changes, because the orchestrator refuses to start when any are present.
+// (reset --hard does not remove files the agent newly created as untracked; those linger and,
+// on a local rerun, would trip the next startBranch's precondition — moot in CI, fresh checkout.)
 export function rollback(branch, exec = defaultExec) {
   exec.shq("git reset --hard");
   exec.shq(`git checkout - && git branch -D ${branch}`);

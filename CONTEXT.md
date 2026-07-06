@@ -52,7 +52,9 @@ snapshot before writing and escalate on drift.
 ## Supabase tables (memory layer)
 
 **work_queue** — pending actions. Columns: `url, task, risk_class, priority, status,
-source`. Status values: `pending | in_progress | done | escalated`.
+source`. Status values: `pending | in_progress | done | escalated | skipped-dnt` (the last
+is written only by `preflight.check()` when a do_not_touch entry newly protects a row that
+was already queued — one-way, no automatic revival).
 
 **change_set** — one row per field edit the `seo-fixer` wants to make on a CMS page.
 Columns: `platform, page_id, url, field, base_value, new_value, status, change_type`.

@@ -2,6 +2,7 @@
 // every table through these named helpers; the raw client stays private in client.mjs.
 import { db } from "./client.mjs";
 import { assertTaskType, KIT_TASKS } from "./tasks.mjs";
+import { canonicalizeSet, isProtected } from "./url.mjs";
 
 export async function isPaused() {
   const { data } = await db.from("control").select("paused").eq("id", 1).single();
@@ -48,9 +49,16 @@ export async function addSpend(usd, client = db) {
   if (writeError) console.warn(`addSpend: fallback failed to record $${amount} — ${writeError.message}`);
 }
 
-export async function doNotTouch() {
-  const { data } = await db.from("do_not_touch").select("url");
-  return new Set((data ?? []).map((r) => r.url));
+// Returns a Set of CANONICAL do_not_touch forms (scheme/www/slash-agnostic — see url.mjs).
+// Compare with isProtected(), never raw Set.has(): a stored `https://www.host.com/legal/`
+// must match a candidate `https://host.com/legal` (Panel-A A1/A2).
+// Fails CLOSED on a read error (cross-review 56-3): an empty set would silently disable
+// every enforcement layer that consumes this (sensor ingest, enqueue chokepoint, dispatch
+// re-check, cms apply gate) — throw and abort the run instead, like escalatedQueue.
+export async function doNotTouch(client = db) {
+  const { data, error } = await client.from("do_not_touch").select("url");
+  if (error) throw new Error(`doNotTouch failed: ${error.message}`);
+  return canonicalizeSet((data ?? []).map((r) => r.url));
 }
 
 // Fail fast on malformed rows with a domain error instead of letting them die
@@ -64,11 +72,20 @@ function validateQueueItem(item) {
   }
 }
 
-export async function enqueue(items) {
+// Chokepoint do_not_touch filter: the single waist every queue item flows through. Even if a
+// caller's own ingest filter is missing or normalization-blind, a protected URL cannot be
+// queued here. `protectedSet`/`client` are injectable (tests); by default the protected set is
+// fetched fresh and canonicalized. Dropped rows are logged — never silently swallowed.
+export async function enqueue(items, { protectedSet = null, client = db, dnt = doNotTouch } = {}) {
   if (!items?.length) return;
   items.forEach(validateQueueItem);
+  const skip = protectedSet ?? (await dnt());
+  const safe = items.filter((it) => !isProtected(skip, it.url));
+  const dropped = items.length - safe.length;
+  if (dropped) console.warn(`enqueue: dropped ${dropped} do_not_touch item(s) at the chokepoint`);
+  if (!safe.length) return;
   // upsert ignores duplicates via the (url,task,status) unique constraint
-  await db.from("work_queue").upsert(items, { onConflict: "url,task,status", ignoreDuplicates: true });
+  await client.from("work_queue").upsert(safe, { onConflict: "url,task,status", ignoreDuplicates: true });
 }
 
 export async function pendingQueue(limit = 25) {
@@ -85,8 +102,12 @@ export async function setQueueStatus(url, task, to) {
 // Status update keyed on the queue row id (an integer the agent reads from `mem.mjs queue`).
 // Preferred over setQueueStatus on the autonomous path so the attacker-influenced URL is
 // never placed on a shell command line.
-export async function setQueueStatusById(id, to) {
-  await db.from("work_queue").update({ status: to }).eq("id", Number(id));
+// Throws on error (verify round 2): a silently swallowed failure — e.g. the
+// work_queue unique(url,task,status) constraint when a same-status twin exists — let
+// callers believe a status change landed when the row never moved.
+export async function setQueueStatusById(id, to, client = db) {
+  const { error } = await client.from("work_queue").update({ status: to }).eq("id", Number(id));
+  if (error) throw new Error(`setQueueStatusById failed: ${error.message}`);
 }
 
 // Escalated items not yet mirrored to Linear. The linear_issue_id pointer stays
