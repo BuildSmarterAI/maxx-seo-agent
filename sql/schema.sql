@@ -18,7 +18,7 @@ create table if not exists work_queue (
   task        text,                         -- which kit skill to run
   risk_class  text default 'safe',          -- safe | gated
   priority    int  default 0,
-  status      text default 'pending',       -- pending | in_progress | done | escalated
+  status      text default 'pending',       -- pending | in_progress | done | escalated | skipped-dnt
   source      text,                         -- gsc | sitemap | deploy | citation | manual
   created_at  timestamptz default now(),
   unique (url, task, status)

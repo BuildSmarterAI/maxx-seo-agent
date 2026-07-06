@@ -4,6 +4,7 @@
 // the I/O (read/write/verify) and the small per-platform audit labels (narrate).
 import { db } from "./client.mjs";
 import { logDecision, doNotTouch } from "./supabase.mjs";
+import { isProtected } from "./url.mjs";
 import { scanPlaceholders } from "../../scripts/validators/content-guards.mjs";
 
 export async function approvedRows(platform, limit = 200) {
@@ -80,7 +81,7 @@ export async function applyRow(row, adapter, store = defaultStore, opts = {}) {
     // protectedUrls is fetched once by applyRows and threaded in; a direct caller falls back
     // to a per-row store lookup.
     const protectedUrls = opts.protectedUrls ?? await store.doNotTouch();
-    if (protectedUrls.has(row.url)) {
+    if (isProtected(protectedUrls, row.url)) {
       await store.setStatus(row.id, "escalated");
       await store.logDecision({ url: row.url, action: "escalate", risk_class: "gated", change_type: row.change_type ?? null, reason: PROTECTED_REASON });
       return "escalated";

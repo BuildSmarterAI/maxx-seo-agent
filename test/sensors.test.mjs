@@ -39,6 +39,73 @@ test("collectPageUrls dedupes urls seen across child sitemaps", async () => {
   assert.deepEqual(pages, ["https://x.com/a/"]);
 });
 
+// ---- SSRF hardening (A10): a child <loc> entry is attacker-influenced content living
+// inside the fetched XML — it must never be followed off-host or off-scheme. ----
+test("collectPageUrls refuses a child sitemap on a different host (cross-host SSRF)", async () => {
+  const index = "<sitemapindex><sitemap><loc>http://169.254.169.254/latest/meta-data/.xml</loc></sitemap>" +
+                "<sitemap><loc>https://x.com/page-sitemap.xml</loc></sitemap></sitemapindex>";
+  const page = "<urlset><url><loc>https://x.com/c/</loc></url></urlset>";
+  let metadataFetched = false;
+  const fake = (u) => {
+    if (u.includes("169.254.169.254")) { metadataFetched = true; return Promise.resolve("<urlset></urlset>"); }
+    return Promise.resolve(u.includes("page-sitemap") ? page : index);
+  };
+  const pages = await collectPageUrls("https://x.com/sitemap.xml", fake);
+  assert.equal(metadataFetched, false, "the off-host child must never be fetched");
+  assert.deepEqual(pages, ["https://x.com/c/"]);
+});
+
+test("collectPageUrls refuses a child sitemap on a non-http(s) scheme", async () => {
+  const index = "<sitemapindex><sitemap><loc>file:///etc/passwd.xml</loc></sitemap>" +
+                "<sitemap><loc>https://x.com/page-sitemap.xml</loc></sitemap></sitemapindex>";
+  const page = "<urlset><url><loc>https://x.com/c/</loc></url></urlset>";
+  let fileFetched = false;
+  const fake = (u) => {
+    if (u.startsWith("file://")) { fileFetched = true; return Promise.resolve("<urlset></urlset>"); }
+    return Promise.resolve(u.includes("page-sitemap") ? page : index);
+  };
+  const pages = await collectPageUrls("https://x.com/sitemap.xml", fake);
+  assert.equal(fileFetched, false, "a non-http(s) child scheme must never be fetched");
+  assert.deepEqual(pages, ["https://x.com/c/"]);
+});
+
+test("collectPageUrls allows a same-host child sitemap regardless of scheme casing/port", async () => {
+  const index = "<sitemapindex><sitemap><loc>https://x.com:443/page-sitemap.xml</loc></sitemap></sitemapindex>";
+  const page = "<urlset><url><loc>https://x.com/c/</loc></url></urlset>";
+  const fake = (u) => Promise.resolve(u.includes("page-sitemap") ? page : index);
+  const pages = await collectPageUrls("https://x.com/sitemap.xml", fake);
+  assert.deepEqual(pages, ["https://x.com/c/"]);
+});
+
+// The isSafeChildSitemapUrl allowlist only inspects the pre-fetch URL string — fetch()
+// follows redirects by default, so a same-host URL that 302s to an off-host/internal
+// target would defeat the guard entirely unless the real fetcher refuses to follow
+// redirects on child fetches. This can't be exercised through the injectable fetchText
+// (that's precisely what makes the recursion network-free/testable) — it's a property of
+// collectPageUrls' DEFAULT fetcher, so verify it the same way test/apply.test.mjs verifies
+// real adapter I/O: mock the global fetch and inspect what options are actually passed.
+test("default fetcher refuses to follow redirects on child sitemap fetches (redirect-bypass hardening)", async () => {
+  const realFetch = globalThis.fetch;
+  const seen = [];
+  globalThis.fetch = async (url, init = {}) => {
+    seen.push({ url, redirect: init.redirect });
+    if (url.includes("child-sitemap")) {
+      return { text: async () => "<urlset><url><loc>https://x.com/c/</loc></url></urlset>" };
+    }
+    return { text: async () => "<sitemapindex><sitemap><loc>https://x.com/child-sitemap.xml</loc></sitemap></sitemapindex>" };
+  };
+  try {
+    const pages = await collectPageUrls("https://x.com/sitemap.xml");
+    assert.deepEqual(pages, ["https://x.com/c/"]);
+    const rootCall = seen.find((s) => s.url === "https://x.com/sitemap.xml");
+    const childCall = seen.find((s) => s.url.includes("child-sitemap"));
+    assert.equal(rootCall.redirect, undefined, "root fetch (trusted operator SITEMAP_URL) still allows redirects");
+    assert.equal(childCall.redirect, "error", "child fetch must refuse to follow a redirect, not silently trust it");
+  } finally {
+    globalThis.fetch = realFetch;
+  }
+});
+
 test("isHomepage is true only for the site root path", () => {
   assert.equal(isHomepage("https://www.maxxbuilders.com/"), true);
   assert.equal(isHomepage("http://www.maxxbuilders.com/"), true);

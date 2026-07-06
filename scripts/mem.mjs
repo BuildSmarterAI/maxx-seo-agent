@@ -18,6 +18,7 @@
 // prompts no longer use them for any untrusted value. See orchestrator/lib/payload.mjs.
 import { readFileSync } from "node:fs";
 import { pendingQueue, logDecision, insertChangeset, setQueueStatus, setQueueStatusById, doNotTouch, recordExperiment, insertEvalExample } from "../orchestrator/lib/supabase.mjs";
+import { isProtected } from "../orchestrator/lib/url.mjs";
 import { assertTaskType } from "../orchestrator/lib/tasks.mjs";
 import { parseChangesetPayload, parseLogPayload } from "../orchestrator/lib/payload.mjs";
 
@@ -43,7 +44,7 @@ if (cmd === "queue") {
   const protectedUrls = await doNotTouch();
   if (!url) {
     console.log(JSON.stringify([...protectedUrls]));
-  } else if (protectedUrls.has(url)) {
+  } else if (isProtected(protectedUrls, url)) {
     console.error(`PROTECTED: ${url} is in do_not_touch — abort, do not modify`);
     process.exit(2);
   } else {
