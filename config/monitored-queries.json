@@ -12,6 +12,12 @@
     "priority": 9
   },
   {
+    "query": "How much does commercial construction cost per square foot in Texas in 2026?",
+    "intent": "informational",
+    "target_url": "https://www.maxxbuilders.com/texas-commercial-construction-cost-2025-2026/",
+    "priority": 10
+  },
+  {
     "query": "How much does it cost to build a car wash in Texas?",
     "intent": "informational",
     "target_url": "https://www.maxxbuilders.com/cost-to-build-a-car-wash-in-texas/",

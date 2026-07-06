@@ -1,0 +1,37 @@
+{
+  "skill": "restructure-for-citation",
+  "generated_at": "2026-07-06",
+  "query": "How much does commercial construction cost per square foot in Texas in 2026?",
+  "platform": "wordpress",
+  "page_id": null,
+  "url": "https://www.maxxbuilders.com/texas-commercial-construction-cost-2025-2026/",
+  "status": "pending",
+  "field": "content",
+  "change_type": "restructure-for-citation",
+  "base_value": null,
+  "answer_block": "<div class=\"answer-first\">\n<p><strong>Quick answer:</strong> Texas commercial construction costs <strong>$190 to $340 per square foot</strong> in 2025–2026. Industrial warehouses sit on the low end ($160–$250/SF) and hospitality/healthcare projects on the high end ($280–$450/SF). Austin commands the highest premium (10–15% above state average) while San Antonio offers the most competitive pricing, and annual cost escalation is running 3–6% statewide.</p>\n<table>\n<thead>\n<tr><th>Building Type</th><th>2025–2026 Range ($/SF)</th></tr>\n</thead>\n<tbody>\n<tr><td>Industrial / Warehouse</td><td>$160 – $250</td></tr>\n<tr><td>Office / Corporate</td><td>$210 – $330</td></tr>\n<tr><td>Retail / Restaurant</td><td>$230 – $370</td></tr>\n<tr><td>Multifamily / Mixed-Use</td><td>$230 – $350</td></tr>\n<tr><td>Medical / Healthcare</td><td>$280 – $440</td></tr>\n<tr><td>Hospitality / Hotel</td><td>$310 – $450</td></tr>\n</tbody>\n</table>\n</div>",
+  "answer_block_plain": "Quick answer: Texas commercial construction costs $190 to $340 per square foot in 2025–2026. Industrial warehouses sit on the low end ($160–$250/SF) and hospitality/healthcare projects on the high end ($280–$450/SF). Austin commands the highest premium (10–15% above state average) while San Antonio offers the most competitive pricing, and annual cost escalation is running 3–6% statewide.\n\nCost per square foot by building type (2025–2026):\n- Industrial / Warehouse: $160 – $250\n- Office / Corporate: $210 – $330\n- Retail / Restaurant: $230 – $370\n- Multifamily / Mixed-Use: $230 – $350\n- Medical / Healthcare: $280 – $440\n- Hospitality / Hotel: $310 – $450",
+  "new_value_description": "Prepend answer_block immediately after the H1, before existing intro. Preserve all original body content below. page_id + base_value (current post_content) resolved at apply time via WP REST read.",
+  "claims_used": [
+    "$190 to $340 per square foot",
+    "industrial warehouses on the low end ($160–$250/SF)",
+    "hospitality/healthcare projects on the high end ($280–$450/SF)",
+    "Austin commanding the highest premium (10–15% above state average)",
+    "San Antonio offering the most competitive pricing",
+    "Annual cost escalation is running 3–6% statewide",
+    "Industrial / Warehouse | $140 | $160 – $250",
+    "Office / Corporate | $185 | $210 – $330",
+    "Retail / Restaurant | $200 | $230 – $370",
+    "Multifamily / Mixed-Use | $190 | $230 – $350",
+    "Medical / Healthcare | $250 | $280 – $440",
+    "Hospitality / Hotel | $250 | $310 – $450"
+  ],
+  "verification": {
+    "verdict": "pass",
+    "grounded": true,
+    "titleLen": 59,
+    "descLen": 147,
+    "notes": "Every figure in the answer block is grounded verbatim in the source opening text ($190-$340/SF, warehouse $160-$250, hospitality/healthcare $280-$450, Austin 10-15% premium, San Antonio most competitive, 3-6% annual escalation) or in table 2's 2025-2026 Range column (all six building-type ranges match exactly: Industrial/Warehouse $160-$250, Office $210-$330, Retail/Restaurant $230-$370, Multifamily $230-$350, Medical $280-$440, Hospitality $310-$450). Description figures ($160-$250, $280-$450) also grounded. Title 59 chars, description ~147 chars, both within limits. Block directly answers the per-SF query with an answer-first structure plus cost table. No keyword stuffing. Pass."
+  },
+  "notes": "Answer block grounded strictly in the page's own cost figures (adversarially verified). H1/URL unchanged. No body content deleted."
+}
