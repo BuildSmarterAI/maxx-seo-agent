@@ -11,6 +11,7 @@ import { ALL_ENGINES, scoreResult, askGoogleAIO } from "../lib/engines.mjs";
 import { majorityVote } from "../lib/citation-events.mjs";
 import { selectCompetitorDomains } from "../lib/classify.mjs";
 import { enqueue, doNotTouch } from "../orchestrator/lib/supabase.mjs";
+import { isProtected } from "../orchestrator/lib/url.mjs";
 
 const domain = targetDomain();
 if (!domain) {
@@ -166,8 +167,8 @@ async function run() {
   if (queueRows.length) {
     // Route through the queue seam: do_not_touch filter + validation + dedup-upsert.
     const skip = await doNotTouch();
-    const fresh = queueRows.filter((r) => !skip.has(r.url));
-    await enqueue(fresh);
+    const fresh = queueRows.filter((r) => !isProtected(skip, r.url));
+    await enqueue(fresh, { protectedSet: skip });
     enqueued = fresh.length;
   }
 

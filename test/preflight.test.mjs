@@ -21,6 +21,9 @@ process.env.SUPABASE_SERVICE_ROLE_KEY ||= "dummy_service_role_key_000000";
 const { check } = await import("../orchestrator/lib/preflight.mjs");
 
 // Records which gate functions ran, in order; configurable paused/spent/queue.
+// doNotTouch/setQueueStatusById/logDecision are faked too: before cross-review 56-3 these
+// tests silently leaned on the REAL doNotTouch() failing open (network error → empty set)
+// — the exact defect that fix removes. No dep here may ever reach the network.
 function fakeDeps({ paused = false, spent = 0, queue = [{ id: 1 }] } = {}) {
   const calls = [];
   const deps = {
@@ -28,6 +31,9 @@ function fakeDeps({ paused = false, spent = 0, queue = [{ id: 1 }] } = {}) {
     resetMonthIfNew: async () => { calls.push("resetMonthIfNew"); },
     getMonthSpend: async () => { calls.push("getMonthSpend"); return spent; },
     pendingQueue: async (limit) => { calls.push(`pendingQueue:${limit}`); return queue; },
+    doNotTouch: async () => { calls.push("doNotTouch"); return new Set(); },
+    setQueueStatusById: async () => { calls.push("setQueueStatusById"); },
+    logDecision: async () => { calls.push("logDecision"); },
   };
   return { calls, deps };
 }

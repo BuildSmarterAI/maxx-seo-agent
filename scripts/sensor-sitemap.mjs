@@ -16,17 +16,49 @@ export function extractUrls(xml) {
 
 const isSitemap = (u) => /\.xml(\?|#|$)/i.test(u);
 
+// SSRF guard (A10): a child <loc> entry is content living INSIDE the fetched XML —
+// effectively attacker-influenced if the sitemap is ever compromised or proxied. Only
+// follow it if it's http(s) and on the exact same host as the root sitemap; anything else
+// (a cloud metadata IP, a file:// URL, a different host) is refused, never fetched.
+function isSafeChildSitemapUrl(childUrl, rootUrl) {
+  let child, root;
+  try {
+    child = new URL(childUrl);
+    root = new URL(rootUrl);
+  } catch {
+    return false;
+  }
+  if (child.protocol !== "http:" && child.protocol !== "https:") return false;
+  return child.hostname.toLowerCase() === root.hostname.toLowerCase();
+}
+
+// The hostname allowlist above only inspects the pre-fetch URL string — fetch() follows
+// redirects by default, so a same-host URL that redirects to an off-host/internal target
+// would defeat the guard entirely. Child fetches refuse to follow any redirect at all
+// (redirect: "error" throws, caught by the existing per-child try/catch below) rather than
+// silently trusting wherever the response points. The root fetch (a trusted, operator-set
+// SITEMAP_URL) keeps default redirect behavior — a legitimate http->https or canonical-path
+// redirect on the root sitemap must not break the sensor.
+async function defaultFetchText(url, isChild = false) {
+  const res = await fetch(url, isChild ? { redirect: "error" } : undefined);
+  return res.text();
+}
+
 // Expand a sitemap or sitemap-index into actual PAGE urls. A sitemap index's
 // <loc> entries are child sitemaps (*.xml), not pages — without recursing we'd
 // enqueue the .xml files themselves (the cause of the sitemap-audit noise).
 // Recurse one level into child sitemaps and keep only non-sitemap urls.
 // fetchText is injectable so the recursion is testable without the network.
-export async function collectPageUrls(rootUrl, fetchText = (u) => fetch(u).then((r) => r.text())) {
+export async function collectPageUrls(rootUrl, fetchText = defaultFetchText) {
   const locs = extractUrls(await fetchText(rootUrl));
   const pages = locs.filter((u) => !isSitemap(u));
   for (const child of locs.filter(isSitemap)) {
+    if (!isSafeChildSitemapUrl(child, rootUrl)) {
+      console.error(`[sitemap] refusing to fetch child sitemap off-host/off-scheme: ${child}`);
+      continue;
+    }
     try {
-      pages.push(...extractUrls(await fetchText(child)).filter((u) => !isSitemap(u)));
+      pages.push(...extractUrls(await fetchText(child, true)).filter((u) => !isSitemap(u)));
     } catch (e) {
       console.error(`[sitemap] failed to fetch child sitemap ${child}: ${e.message}`);
     }

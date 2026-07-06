@@ -13,7 +13,8 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { query } from "@anthropic-ai/claude-agent-sdk";
 import { db } from "../lib/db.mjs";
-import { enqueue, doNotTouch, clicksAround, logDecision } from "../orchestrator/lib/supabase.mjs";
+import { enqueue, doNotTouch, clicksAround, logDecision, filterKitTaskDecisions } from "../orchestrator/lib/supabase.mjs";
+import { isProtected } from "../orchestrator/lib/url.mjs";
 import {
   candidateWindow, selfInflictedCandidates, algoUpdatesInWindow,
   buildAnalystPrompt, parseVerdict, validateVerdict, groundVerdict, verdictAction, citationActionRow,
@@ -74,7 +75,10 @@ async function run() {
     // Surface loudly: a failed read here silently empties the candidates and biases the verdict
     // away from self_inflicted for this event — never swallow it.
     if (decErr) console.error(`[analyst] event ${ev.id} decision_log read failed (${decErr.message}) — candidates empty, verdict may skew.`);
-    const candidates = selfInflictedCandidates({ event: ev, decisions: decisions ?? [], leadDays: LEAD_DAYS });
+    // Orphan-leak backstop (A11): this query has no action filter (unlike appliedDecisions()),
+    // so an escalate/skip-path change_type like the content-guard's "content" sentinel could
+    // otherwise reach the model as a self-inflicted candidate. Same filter, same reason.
+    const candidates = selfInflictedCandidates({ event: ev, decisions: filterKitTaskDecisions(decisions ?? []), leadDays: LEAD_DAYS });
     const inWindowUpdates = algoUpdatesInWindow(win, algoUpdates);
     let gscDelta = null;
     if (ev.target_url) { try { gscDelta = await clicksAround(ev.target_url, ev.captured_at, 7); } catch { /* optional */ } }
@@ -102,10 +106,10 @@ async function run() {
     let status = action.action;
     if (!row) {
       logged++; status = "log";
-    } else if (!ev.target_url || skip.has(ev.target_url)) {
+    } else if (!ev.target_url || isProtected(skip, ev.target_url)) {
       skipped++; status = "skip(no-url/dnt)"; // actionable but no writable / protected target
     } else {
-      await enqueue([row]);
+      await enqueue([row], { protectedSet: skip });
       if (action.action === "escalate") {
         // Audit trail (matches the escalation convention in orchestrator/lib/cms.mjs): the verdict
         // rationale must survive somewhere a human sees it, not just on the citation_events row.

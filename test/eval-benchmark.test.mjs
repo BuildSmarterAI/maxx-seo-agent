@@ -18,10 +18,12 @@ test("aggregateScore averages the four sub-scores; missing → 0", () => {
   assert.equal(aggregateScore(null), 0);
 });
 
-test("classify: pass → good, anything else → bad", () => {
-  assert.equal(classify({ pass: true }), "good");
+test("classify: a full-pass verdict → good, anything else → bad (fail-closed)", () => {
+  const fullPass = { pass: true, scores: { quality: 5, brand_safety: 5, fact_checkability: 5, information_gain: 5 }, fabrication_risk: false };
+  assert.equal(classify(fullPass), "good");
   assert.equal(classify({ pass: false }), "bad");
-  assert.equal(classify({}), "bad");        // fail-closed
+  assert.equal(classify({ pass: true }), "bad");  // pass:true but no scores → fail-closed
+  assert.equal(classify({}), "bad");
 });
 
 test("confusion counts false_pass (bad→good) and false_block (good→bad)", () => {
@@ -55,8 +57,8 @@ test("runBenchmark with a perfect injected judge scores 0 false_pass, auc 1", as
   ];
   // fake judge: passes 'good' artifacts with high scores, fails 'bad' with low scores
   const judge = async (text) => text.startsWith("good")
-    ? { pass: true,  scores: { quality: 5, brand_safety: 5, fact_checkability: 5, information_gain: 5 } }
-    : { pass: false, scores: { quality: 1, brand_safety: 1, fact_checkability: 1, information_gain: 1 } };
+    ? { pass: true,  scores: { quality: 5, brand_safety: 5, fact_checkability: 5, information_gain: 5 }, fabrication_risk: false }
+    : { pass: false, scores: { quality: 1, brand_safety: 1, fact_checkability: 1, information_gain: 1 }, fabrication_risk: false };
 
   const r = await runBenchmark({ model: "m", minScore: 3 }, { judge, examples });
   assert.equal(r.false_pass, 0);
@@ -69,7 +71,17 @@ test("runBenchmark with a perfect injected judge scores 0 false_pass, auc 1", as
 
 test("runBenchmark flags a false_pass when the judge misses bad content", async () => {
   const examples = [{ artifact: "bad one", label: "bad" }];
-  const blindJudge = async () => ({ pass: true, scores: { quality: 5, brand_safety: 5, fact_checkability: 5, information_gain: 5 } });
+  const blindJudge = async () => ({ pass: true, scores: { quality: 5, brand_safety: 5, fact_checkability: 5, information_gain: 5 }, fabrication_risk: false });
   const r = await runBenchmark({ model: "m", minScore: 3 }, { judge: blindJudge, examples });
   assert.equal(r.false_pass, 1);
+});
+
+// classify must score against the config being benchmarked, not the env default: a verdict
+// scoring exactly 3 passes at min3 but must be blocked at min4, else non-default-threshold
+// configs are mismeasured.
+test("runBenchmark threads config.minScore into classify (score 3 blocked at min4)", async () => {
+  const examples = [{ artifact: "borderline", label: "good" }];
+  const judge = async () => ({ pass: true, scores: { quality: 3, brand_safety: 3, fact_checkability: 3, information_gain: 3 }, fabrication_risk: false });
+  const r = await runBenchmark({ model: "m", minScore: 4 }, { judge, examples });
+  assert.equal(r.false_block, 1); // a "good" example wrongly blocked because 3 < min4
 });

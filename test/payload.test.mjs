@@ -20,11 +20,11 @@ const baseChangeset = (over = {}) => ({
 });
 
 test("parseChangesetPayload returns the exact insertChangeset row shape", () => {
-  const row = parseChangesetPayload(baseChangeset({ base_value: "Old Title" }));
+  const row = parseChangesetPayload(baseChangeset({ base_value: "Old Title", risk_class: "safe" }));
   assert.deepEqual(row, {
     platform: "wordpress", page_id: "123", url: "https://www.maxxbuilders.com/x/",
     field: "title", base_value: "Old Title", new_value: "New SEO Title",
-    change_type: "metadata-generate", status: "pending",
+    change_type: "metadata-generate", risk_class: "safe", status: "pending",
   });
 });
 
@@ -51,6 +51,23 @@ test("parseChangesetPayload defaults page_id/base_value to null and platform fro
   assert.equal(row.page_id, null);
   assert.equal(row.base_value, null);
   assert.equal(row.status, "pending");
+});
+
+test("parseChangesetPayload carries a valid risk_class through", () => {
+  const row = parseChangesetPayload(baseChangeset({ risk_class: "gated" }));
+  assert.equal(row.risk_class, "gated");
+});
+
+test("parseChangesetPayload defaults risk_class to gated (fail-closed) when absent", () => {
+  const row = parseChangesetPayload(baseChangeset());
+  assert.equal(row.risk_class, "gated");
+});
+
+test("parseChangesetPayload rejects an invalid risk_class", () => {
+  assert.throws(
+    () => parseChangesetPayload(baseChangeset({ risk_class: "yolo" })),
+    /invalid risk_class "yolo"/,
+  );
 });
 
 test("parseLogPayload returns the logDecision row shape with defaults", () => {

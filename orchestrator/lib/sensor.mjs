@@ -13,9 +13,17 @@
 // deps are injectable so this harness is testable without a network (same pattern as
 // orchestrator/lib/preflight.mjs's check()).
 import { doNotTouch, enqueue } from "./supabase.mjs";
+import { isProtected } from "./url.mjs";
 
+// `deps` is injectable for tests (same optional-injection pattern as preflight.mjs).
 export async function runSensor(sensor, env, deps = {}) {
-  const { doNotTouch: dnt = doNotTouch, enqueue: nq = enqueue } = deps;
+  const { doNotTouch: dnt = doNotTouch, enqueue: enq = enqueue } = deps;
+
+  // Resolve the protected set BEFORE fetch (verify round 2): sensor.fetch can commit state
+  // (the sitemap sensor marks fresh URLs seen), so a do_not_touch read error — which now
+  // throws fail-closed — must abort while aborting is still free. After fetch, it would
+  // strand committed side effects and permanently drop that night's signals.
+  const skip = await dnt();
 
   let rawItems = [];
   let fetchError = null;
@@ -28,8 +36,7 @@ export async function runSensor(sensor, env, deps = {}) {
     return { sensor: sensor.name, count: 0, error: fetchError };
   }
 
-  const skip = await dnt();
-  const filtered = rawItems.filter((item) => !skip.has(item.url));
+  const filtered = rawItems.filter((item) => !isProtected(skip, item.url));
   const skippedCount = rawItems.length - filtered.length;
 
   const queueItems = filtered.flatMap((item) => {
@@ -44,7 +51,7 @@ export async function runSensor(sensor, env, deps = {}) {
 
   let enqueueError = null;
   try {
-    await nq(queueItems);
+    await enq(queueItems, { protectedSet: skip });
     console.log(
       `[${sensor.name}] enqueued ${queueItems.length} items` +
       (skippedCount ? ` (${skippedCount} skipped by do_not_touch)` : "")

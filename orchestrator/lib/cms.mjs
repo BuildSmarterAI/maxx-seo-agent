@@ -4,6 +4,7 @@
 // the I/O (read/write/verify) and the small per-platform audit labels (narrate).
 import { db } from "./client.mjs";
 import { logDecision, doNotTouch } from "./supabase.mjs";
+import { isProtected } from "./url.mjs";
 import { scanPlaceholders } from "../../scripts/validators/content-guards.mjs";
 
 export async function approvedRows(platform, limit = 200) {
@@ -55,6 +56,7 @@ export async function latestAppliedRow(platform, page_id, field) {
 const DRIFT_REASON = "drift: live value changed since generation";
 const PROTECTED_REASON = "do_not_touch: URL is protected — apply blocked at boundary";
 const NO_URL_REASON = "do_not_touch: row has no url — cannot verify protection, blocked at boundary";
+const RISK_CLASS_REASON = "risk_class: row is not safe-class — apply blocked at boundary";
 
 // Persistence the apply/rollback loops touch. Injectable so they're testable without a DB.
 const defaultStore = { snapshot, setStatus, logDecision, latestSnapshot, latestAppliedRow, doNotTouch };
@@ -79,9 +81,19 @@ export async function applyRow(row, adapter, store = defaultStore, opts = {}) {
     // protectedUrls is fetched once by applyRows and threaded in; a direct caller falls back
     // to a per-row store lookup.
     const protectedUrls = opts.protectedUrls ?? await store.doNotTouch();
-    if (protectedUrls.has(row.url)) {
+    if (isProtected(protectedUrls, row.url)) {
       await store.setStatus(row.id, "escalated");
       await store.logDecision({ url: row.url, action: "escalate", risk_class: "gated", change_type: row.change_type ?? null, reason: PROTECTED_REASON });
+      return "escalated";
+    }
+
+    // risk_class apply-boundary gate (A8): the safe/gated classification was previously
+    // enforced only in prose (prompts + human review). Fail-closed here too — anything
+    // other than exactly "safe" (including missing/null, e.g. a pre-A8 row) escalates
+    // rather than writes, mirroring the do_not_touch/no-url gates above.
+    if (row.risk_class !== "safe") {
+      await store.setStatus(row.id, "escalated");
+      await store.logDecision({ url: row.url, action: "escalate", risk_class: "gated", change_type: row.change_type ?? null, reason: RISK_CLASS_REASON });
       return "escalated";
     }
 
@@ -166,9 +178,13 @@ export async function rollbackRow(adapter, { page_id, field, collection_id }, st
   const matched = await store.latestAppliedRow(adapter.platform, page_id, field);
   if (matched) await store.setStatus(matched.id, "rolledback");
 
+  // change_type: null, not `field` — a rollback isn't a kit task, and "title"/"description"
+  // are CMS field names, not KIT_TASKS members. Logging the field name here would let it
+  // join the learning loop's byType aggregation as a fake task (the orphan-leak class
+  // already fixed for narrate.applied(); see A11).
   await store.logDecision({
     url: null, action: "rolledback", risk_class: "safe",
-    change_type: field, reason: `${adapter.platform} rollback ${field} on ${page_id}`,
+    change_type: null, reason: `${adapter.platform} rollback ${field} on ${page_id}`,
   });
   return { restored: old, rowId: matched?.id ?? null };
 }

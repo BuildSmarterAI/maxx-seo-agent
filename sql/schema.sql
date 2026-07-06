@@ -18,7 +18,7 @@ create table if not exists work_queue (
   task        text,                         -- which kit skill to run
   risk_class  text default 'safe',          -- safe | gated
   priority    int  default 0,
-  status      text default 'pending',       -- pending | in_progress | done | escalated
+  status      text default 'pending',       -- pending | in_progress | done | escalated | skipped-dnt
   source      text,                         -- gsc | sitemap | deploy | citation | manual
   created_at  timestamptz default now(),
   unique (url, task, status)
@@ -173,3 +173,34 @@ create table if not exists judge_calibration (
   status        text default 'shadow',       -- shadow | champion | retired
   evaluated_at  timestamptz default now()
 );
+
+-- ---- A8: risk_class enforcement at the write boundary (change_set) ----
+-- Previously risk_class was enforced only in prose (goal.mjs prompts, subagent markdown,
+-- human approval). change_set had no risk_class column at all; work_queue/decision_log had
+-- plain text columns with no CHECK. This adds the missing column + CHECK constraints so the
+-- classification is structurally guaranteed, backing orchestrator/lib/cms.mjs applyRow()'s
+-- risk_class gate. Idempotent (IF NOT EXISTS / duplicate_object guard) — safe to re-run.
+-- Default is the FAIL-CLOSED value 'gated', not 'safe': a row (existing or future) that
+-- never went through explicit classification must escalate for human review, not silently
+-- auto-apply. Matches the same fail-closed default in orchestrator/lib/payload.mjs.
+alter table change_set add column if not exists risk_class text default 'gated';
+
+-- "is not null and ... in (...)" — a plain IN check evaluates to NULL (not FALSE) for a
+-- NULL risk_class, so an unqualified check would silently accept nulls despite the intent.
+do $$ begin
+  alter table work_queue add constraint work_queue_risk_class_check
+    check (risk_class is not null and risk_class in ('safe', 'gated'));
+exception when duplicate_object then null;
+end $$;
+
+do $$ begin
+  alter table decision_log add constraint decision_log_risk_class_check
+    check (risk_class is not null and risk_class in ('safe', 'gated'));
+exception when duplicate_object then null;
+end $$;
+
+do $$ begin
+  alter table change_set add constraint change_set_risk_class_check
+    check (risk_class is not null and risk_class in ('safe', 'gated'));
+exception when duplicate_object then null;
+end $$;
