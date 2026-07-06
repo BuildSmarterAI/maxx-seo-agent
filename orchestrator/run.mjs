@@ -5,6 +5,7 @@
 //
 // Thin coordinator: the run/skip decision lives in lib/preflight.mjs, the goal
 // prompts in goal.mjs, and repo-mode git delivery in lib/git-delivery.mjs.
+import { fileURLToPath } from "node:url";
 import { query } from "@anthropic-ai/claude-agent-sdk";
 import { addSpend } from "./lib/supabase.mjs";
 import { check } from "./lib/preflight.mjs";
@@ -21,13 +22,23 @@ const IS_CMS = PLATFORM === "wordpress" || PLATFORM === "webflow";
 // set this, so a developer's own session stays unrestricted.
 process.env.SEO_AGENT_GUARDED = "1";
 
-async function runRepo(queue) {
-  const branch = startBranch();
+export async function runRepo(queue, deps = {}) {
+  const {
+    query: runQuery = query,
+    addSpend: recordSpend = addSpend,
+    startBranch: beginBranch = startBranch,
+    openPR: deliver = openPR,
+    rollback: revert = rollback,
+    exit = process.exit,
+  } = deps;
+
+  const branch = beginBranch();
   let costUsd = 0;
+  let agentFailed = false;
 
   // Agent failure: roll back the branch and bail — nothing useful was produced.
   try {
-    for await (const msg of query({
+    for await (const msg of runQuery({
       prompt: GOAL_REPO,
       options: {
         model: process.env.ORCHESTRATOR_MODEL || "claude-sonnet-4-6",
@@ -50,11 +61,16 @@ async function runRepo(queue) {
     }
   } catch (err) {
     console.error("orchestrator failed, rolling back:", err?.message || err);
-    rollback(branch);
-    process.exit(1);
+    revert(branch);
+    agentFailed = true;
+  } finally {
+    // Record spend on EVERY terminal path (success AND crash): the tokens were billed
+    // regardless of whether the output was kept, and MONTHLY_BUDGET_USD must see them or a
+    // crash-looping run spends unbounded. One call site (this finally) also preserves the
+    // no-double-count invariant a second success/failure billing would break.
+    if (costUsd) await recordSpend(costUsd);
   }
-
-  if (costUsd) await addSpend(costUsd);
+  if (agentFailed) { exit(1); return; }
 
   // Delivery failure (commit/push/PR) is handled separately from agent failure.
   try {
@@ -62,7 +78,7 @@ async function runRepo(queue) {
     // .claude/rules/workflow.md content changes MUST trigger the eval-gate. A [skip ci]
     // token here suppresses the eval-gate AND the auto-merge workflow (both on:
     // pull_request), dead-locking delivery on the required check that never reports.
-    const { empty, prUrl } = openPR(branch, "seo: automated safe-class fixes", "seo-auto");
+    const { empty, prUrl } = deliver(branch, "seo: automated safe-class fixes", "seo-auto");
     if (empty) { console.log("no changes produced → cleaning up."); return; }
     console.log(`PR opened: ${prUrl}  (cost ≈ $${costUsd.toFixed(2)})`);
   } catch (err) {
@@ -70,16 +86,24 @@ async function runRepo(queue) {
     // committed locally on `branch` — keep it for hand-inspection/retry rather than
     // discarding it (and the spend) with a hard reset.
     console.error(`delivery failed; changes are committed locally on ${branch}:`, err?.message || err);
-    process.exit(1);
+    exit(1);
+    return;
   }
 }
 
-async function runCms(queue) {
+export async function runCms(queue, deps = {}) {
+  const {
+    query: runQuery = query,
+    addSpend: recordSpend = addSpend,
+    exit = process.exit,
+  } = deps;
+
   let costUsd = 0;
+  let failed = false;
   console.log(`CMS mode (${PLATFORM}): writing change_set rows for ${queue.length} pending items.`);
 
   try {
-    for await (const msg of query({
+    for await (const msg of runQuery({
       prompt: goalCms(PLATFORM),
       options: {
         model: process.env.ORCHESTRATOR_MODEL || "claude-sonnet-4-6",
@@ -131,17 +155,20 @@ Never write to the CMS directly. Never create git branches.`,
   } catch (err) {
     // The Agent SDK emits "Claude Code process exited with code 1" as a normal
     // shutdown signal after the query loop completes — not a real failure. Any
-    // OTHER error is a real failure: bail without recording spend.
+    // OTHER error is a real failure: flag it to exit non-zero below (after the finally
+    // still records the spend already incurred).
     if (!/process exited with code 1/i.test(err?.message || "")) {
       console.error("orchestrator (CMS) failed:", err?.message || err);
-      process.exit(1);
+      failed = true;
     }
+  } finally {
+    // Single accounting point on EVERY path (success, the SDK's exit-code-1 shutdown, AND a
+    // real failure): spent tokens must always count against the budget, even on a crash. One
+    // call site (this finally) removes the double-count that occurred when both the try-tail
+    // and the catch billed the same cost.
+    if (costUsd) await recordSpend(costUsd);
   }
-
-  // Single accounting point: reached on normal completion AND on the SDK's exit-code-1
-  // shutdown, but NOT on a real failure (that exits above). One call site removes the
-  // double-count that occurred when both the try-tail and the catch billed the same cost.
-  if (costUsd) await addSpend(costUsd);
+  if (failed) { exit(1); return; }
   console.log(`CMS run complete — check change_set table for pending rows. (cost ≈ $${costUsd.toFixed(2)})`);
 }
 
@@ -156,4 +183,8 @@ async function main() {
   }
 }
 
-main();
+// Only run when invoked directly (node run.mjs), not when imported by a test that
+// exercises runRepo/runCms with injected deps.
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  main();
+}
