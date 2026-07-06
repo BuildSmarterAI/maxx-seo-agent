@@ -14,6 +14,7 @@ import { resolve } from "node:path";
 import { query } from "@anthropic-ai/claude-agent-sdk";
 import { db } from "../lib/db.mjs";
 import { enqueue, doNotTouch, clicksAround, logDecision } from "../orchestrator/lib/supabase.mjs";
+import { isProtected } from "../orchestrator/lib/url.mjs";
 import {
   candidateWindow, selfInflictedCandidates, algoUpdatesInWindow,
   buildAnalystPrompt, parseVerdict, validateVerdict, groundVerdict, verdictAction, citationActionRow,
@@ -102,10 +103,10 @@ async function run() {
     let status = action.action;
     if (!row) {
       logged++; status = "log";
-    } else if (!ev.target_url || skip.has(ev.target_url)) {
+    } else if (!ev.target_url || isProtected(skip, ev.target_url)) {
       skipped++; status = "skip(no-url/dnt)"; // actionable but no writable / protected target
     } else {
-      await enqueue([row]);
+      await enqueue([row], { protectedSet: skip });
       if (action.action === "escalate") {
         // Audit trail (matches the escalation convention in orchestrator/lib/cms.mjs): the verdict
         // rationale must survive somewhere a human sees it, not just on the citation_events row.
