@@ -56,6 +56,7 @@ export async function latestAppliedRow(platform, page_id, field) {
 const DRIFT_REASON = "drift: live value changed since generation";
 const PROTECTED_REASON = "do_not_touch: URL is protected — apply blocked at boundary";
 const NO_URL_REASON = "do_not_touch: row has no url — cannot verify protection, blocked at boundary";
+const RISK_CLASS_REASON = "risk_class: row is not safe-class — apply blocked at boundary";
 
 // Persistence the apply/rollback loops touch. Injectable so they're testable without a DB.
 const defaultStore = { snapshot, setStatus, logDecision, latestSnapshot, latestAppliedRow, doNotTouch };
@@ -83,6 +84,16 @@ export async function applyRow(row, adapter, store = defaultStore, opts = {}) {
     if (isProtected(protectedUrls, row.url)) {
       await store.setStatus(row.id, "escalated");
       await store.logDecision({ url: row.url, action: "escalate", risk_class: "gated", change_type: row.change_type ?? null, reason: PROTECTED_REASON });
+      return "escalated";
+    }
+
+    // risk_class apply-boundary gate (A8): the safe/gated classification was previously
+    // enforced only in prose (prompts + human review). Fail-closed here too — anything
+    // other than exactly "safe" (including missing/null, e.g. a pre-A8 row) escalates
+    // rather than writes, mirroring the do_not_touch/no-url gates above.
+    if (row.risk_class !== "safe") {
+      await store.setStatus(row.id, "escalated");
+      await store.logDecision({ url: row.url, action: "escalate", risk_class: "gated", change_type: row.change_type ?? null, reason: RISK_CLASS_REASON });
       return "escalated";
     }
 
