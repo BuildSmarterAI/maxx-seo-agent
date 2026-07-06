@@ -338,6 +338,31 @@ test("insertChangeset rejects a non-task change_type before any db write", async
   );
 });
 
+// ---- learning-loop orphan-leak backstop (A11) ----
+// logDecision (unlike insertChangeset) has no assertTaskType gate at write time, so a
+// stray non-task change_type (a CMS field name, a legacy literal like "metadata") can land
+// in decision_log. filterKitTaskDecisions is the read-side backstop every consumer of
+// appliedDecisions() gets for free, mirroring the precedent already established in
+// scripts/attribute-citations.mjs's own KIT_TASKS filter for the GEO learning path.
+test("filterKitTaskDecisions keeps only rows whose change_type is a real kit task", async () => {
+  const { filterKitTaskDecisions } = await import("../orchestrator/lib/supabase.mjs");
+  const rows = [
+    { url: "/a", change_type: "blog-write" },
+    { url: "/b", change_type: "title" },      // a CMS field name — the rollback leak
+    { url: "/c", change_type: "metadata" },   // a legacy generic label — the pack leak
+    { url: "/d", change_type: "schema-generate" },
+  ];
+  assert.deepEqual(filterKitTaskDecisions(rows), [
+    { url: "/a", change_type: "blog-write" },
+    { url: "/d", change_type: "schema-generate" },
+  ]);
+});
+
+test("filterKitTaskDecisions drops a null/undefined change_type too (appliedDecisions already excludes null, but the filter must not crash on it)", async () => {
+  const { filterKitTaskDecisions } = await import("../orchestrator/lib/supabase.mjs");
+  assert.deepEqual(filterKitTaskDecisions([{ url: "/a", change_type: null }]), []);
+});
+
 // ---- applyRows (the per-pack loop, hoisted into cms.mjs) ----
 test("applyRows tallies applied / escalated / failed across injected rows", async () => {
   const store = fakeStore();
@@ -389,6 +414,17 @@ test("rollbackRow restores the snapshot value via the adapter and marks the row 
   assert.equal(store.calls.snapshots.at(-1).current, "CURRENT-LIVE");   // snapshotted current first
   assert.deepEqual(store.calls.status.at(-1), { id: 99, status: "rolledback" });
   assert.equal(store.calls.log.at(-1).action, "rolledback");
+});
+
+test("rollbackRow logs change_type null, not the field name (orphan-leak fix, A11)", async () => {
+  // A rollback isn't a kit task — logging change_type: field (e.g. "title") would let a
+  // CMS field name join the learning loop's byType aggregation as if it were a real task,
+  // the same class of leak already fixed for narrate.applied().
+  const store = fakeStore();
+  store.latestSnapshot = async () => "OLD";
+  const a = fakeAdapter({ read: async () => "old" });
+  await rollbackRow(a, { page_id: "p1", field: "title" }, store);
+  assert.equal(store.calls.log.at(-1).change_type, null);
 });
 
 test("rollbackRow does NOT drift-gate: restores even when live differs from the snapshot", async () => {
