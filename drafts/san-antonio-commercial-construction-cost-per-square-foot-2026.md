@@ -10,7 +10,7 @@ schema: "schema/san-antonio-commercial-construction-cost-per-square-foot-2026.js
 
 # San Antonio Commercial Construction Cost Per Square Foot (2026)
 
-*By Harris Khan, Co-Founder, Maxx Builders · Last updated June 25, 2026*
+*By [Harris Khan, Founder — Maxx Builders](https://www.linkedin.com/in/maxxbuildersharris/) · Last updated July 7, 2026*
 
 **Commercial construction in San Antonio costs roughly $135–$430 per square foot in 2026** — typically about 5% below the Dallas–Fort Worth (DFW) baseline, making it one of the more cost-favorable major Texas metros to build in. Warehouse and light-industrial shells anchor the low end; restaurants, medical offices, and high-finish retail and office push toward the top. San Antonio's softer labor market relative to Austin and DFW is the primary reason its per-square-foot pricing runs slightly lower than the other big-four Texas markets.
 
@@ -30,7 +30,7 @@ schema: "schema/san-antonio-commercial-construction-cost-per-square-foot-2026.js
 
 **Most commercial projects in San Antonio fall between $135 and $430 per square foot in 2026.** Building type is the dominant variable — a warehouse and a full-service restaurant are fundamentally different products with different mechanical and finish demands, even on identical sites.
 
-The table below shows typical 2026 ranges by building type for the San Antonio market. Figures are for ground-up shell-to-finished construction in normal site conditions and exclude land, FF&E, and major off-site work.
+The table below shows typical 2026 ranges by building type for the San Antonio market. Figures are for ground-up shell-to-finished construction in normal site conditions and exclude land, FF&E, and major off-site work. These are planning-level **market-estimate ranges** based on current Texas-market benchmarks and Maxx Builders' market experience — not a project-specific quote. A firm number requires design documents and a site review.
 
 | Building Type | Low ($/sq ft) | Mid ($/sq ft) | High ($/sq ft) | Primary Driver of Range |
 |---|---|---|---|---|
