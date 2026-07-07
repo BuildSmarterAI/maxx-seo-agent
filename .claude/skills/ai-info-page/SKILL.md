@@ -29,7 +29,8 @@ named entities, real figures, state/region specifics, and question-shaped headin
 - Every claim must be grounded in the site's real data; if a figure isn't known, omit the Q
   rather than fabricate.
 - One canonical AI info page — do not spawn duplicates.
-- Schema must validate (the post-validate hook checks JSON-LD).
+- Schema must validate — enforced automatically by `.claude/hooks/post-validate.sh` before the
+  `change_set` row is accepted.
 
 ## Output contract
 `change_set` row(s) for the page body + schema, `status='pending'`.

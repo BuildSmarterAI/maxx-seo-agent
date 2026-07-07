@@ -1,0 +1,203 @@
+{
+  "generated_at": "2026-07-07",
+  "status": "gated-recommendation",
+  "scope_note": "Reconciliation of published cluster ranges to explicit scope; planning benchmarks, not primary research.",
+  "sources_cited_by_pages": [
+    "RSMeans Building Construction Cost Data 2025",
+    "Gordian Q1 2025 Construction Cost Report",
+    "Turner Cost Index"
+  ],
+  "hard_cost_base_statewide": {
+    "Industrial / Warehouse": [
+      130,
+      250
+    ],
+    "Office / Corporate": [
+      190,
+      330
+    ],
+    "Retail / Restaurant": [
+      210,
+      370
+    ],
+    "Multifamily / Mixed-Use": [
+      200,
+      350
+    ],
+    "Medical / Healthcare": [
+      270,
+      440
+    ],
+    "Hospitality / Hotel": [
+      260,
+      450
+    ]
+  },
+  "metro_factors": {
+    "Houston": 0.97,
+    "Dallas": 1.01,
+    "Fort Worth": 0.99,
+    "Austin": 1.12,
+    "San Antonio": 0.9
+  },
+  "hard_cost_city_by_type": {
+    "Industrial / Warehouse": {
+      "Houston": [
+        125,
+        245
+      ],
+      "Dallas": [
+        130,
+        255
+      ],
+      "Fort Worth": [
+        130,
+        250
+      ],
+      "Austin": [
+        145,
+        280
+      ],
+      "San Antonio": [
+        115,
+        225
+      ]
+    },
+    "Office / Corporate": {
+      "Houston": [
+        185,
+        320
+      ],
+      "Dallas": [
+        190,
+        335
+      ],
+      "Fort Worth": [
+        190,
+        325
+      ],
+      "Austin": [
+        215,
+        370
+      ],
+      "San Antonio": [
+        170,
+        295
+      ]
+    },
+    "Retail / Restaurant": {
+      "Houston": [
+        205,
+        360
+      ],
+      "Dallas": [
+        210,
+        375
+      ],
+      "Fort Worth": [
+        210,
+        365
+      ],
+      "Austin": [
+        235,
+        415
+      ],
+      "San Antonio": [
+        190,
+        335
+      ]
+    },
+    "Multifamily / Mixed-Use": {
+      "Houston": [
+        195,
+        340
+      ],
+      "Dallas": [
+        200,
+        355
+      ],
+      "Fort Worth": [
+        200,
+        345
+      ],
+      "Austin": [
+        225,
+        390
+      ],
+      "San Antonio": [
+        180,
+        315
+      ]
+    },
+    "Medical / Healthcare": {
+      "Houston": [
+        260,
+        425
+      ],
+      "Dallas": [
+        275,
+        445
+      ],
+      "Fort Worth": [
+        265,
+        435
+      ],
+      "Austin": [
+        300,
+        495
+      ],
+      "San Antonio": [
+        245,
+        395
+      ]
+    },
+    "Hospitality / Hotel": {
+      "Houston": [
+        250,
+        435
+      ],
+      "Dallas": [
+        265,
+        455
+      ],
+      "Fort Worth": [
+        255,
+        445
+      ],
+      "Austin": [
+        290,
+        505
+      ],
+      "San Antonio": [
+        235,
+        405
+      ]
+    }
+  },
+  "all_in_delivered_statewide": {
+    "Tenant improvement / build-out": [
+      50,
+      200
+    ],
+    "Warehouse / industrial": [
+      115,
+      335
+    ],
+    "Retail / strip center": [
+      250,
+      380
+    ],
+    "Single-story office": [
+      305,
+      445
+    ],
+    "Medical / dental facility": [
+      350,
+      800
+    ],
+    "Hotel": [
+      500,
+      930
+    ]
+  }
+}

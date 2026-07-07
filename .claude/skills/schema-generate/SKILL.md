@@ -29,3 +29,4 @@ Load CLAUDE.md. Generates JSON-LD files; the platform pack injects them.
 
 - Server-render where possible; JS-injected JSON-LD is less reliable for crawlers.
 - One canonical schema graph per page; no conflicting duplicate types. Validate against Rich Results Test expectations.
+- Before generating `schema/{slug}.jsonld` for a page, check `change_set` for an existing pending row of the same schema type from `faq-schema` or `entity-authority` — merge into it instead of staging a duplicate.
