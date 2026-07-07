@@ -28,5 +28,7 @@ The `link_graph` table: `inbound`, `outbound`, `is_orphan`, `is_pillar` per URL.
 
 ## Output contract
 `change_set` rows (`field='content'`) for each source page receiving a link, `status='pending'`.
+Content changes are validated automatically by `.claude/hooks/post-validate.sh` before the
+`change_set` row is accepted.
 Recompute affected `link_graph` rows after apply.
 `decision_log` entries with `change_type='internal-link-graph'`.

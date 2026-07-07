@@ -10,7 +10,7 @@ schema: "schema/fort-worth-commercial-construction-cost-per-square-foot-2026.jso
 
 # Fort Worth Commercial Construction Cost Per Square Foot (2026)
 
-*By Harris Khan, Co-Founder, Maxx Builders · Last updated June 25, 2026*
+*By [Harris Khan, Founder — Maxx Builders](https://www.linkedin.com/in/maxxbuildersharris/) · Last updated July 7, 2026*
 
 **Commercial construction in Fort Worth costs roughly $140–$450 per square foot in 2026**, depending on building type, finish level, and site conditions. Tilt-up warehouse and light-industrial shells anchor the low end; restaurants, medical offices, and high-finish retail push toward the top. Because Fort Worth sits inside the Dallas–Fort Worth (DFW) metroplex, its pricing tracks the DFW baseline closely — typically within a few points of Dallas proper, with sub-market swings driven by the Alliance/north Fort Worth industrial corridor.
 
@@ -30,7 +30,7 @@ schema: "schema/fort-worth-commercial-construction-cost-per-square-foot-2026.jso
 
 **Most commercial projects in Fort Worth fall between $140 and $450 per square foot in 2026.** The single biggest variable is building type: a code-minimum warehouse and a full-service restaurant are different products with different systems, even on the same plot of land.
 
-The table below breaks down typical 2026 ranges by building type for the Fort Worth / DFW market. Figures are for ground-up shell-to-finished construction in normal site conditions and exclude land, FF&E, and major off-site work.
+The table below breaks down typical 2026 ranges by building type for the Fort Worth / DFW market. Figures are for ground-up shell-to-finished construction in normal site conditions and exclude land, FF&E, and major off-site work. These are planning-level **market-estimate ranges** based on current DFW-region benchmarks and Maxx Builders' market experience — not a project-specific quote. A firm number requires design documents and a site review.
 
 | Building Type | Low ($/sq ft) | Mid ($/sq ft) | High ($/sq ft) | Primary Driver of Range |
 |---|---|---|---|---|

@@ -20,7 +20,7 @@ questions are mined for a page's topic.
 
 ## Hard rules
 - Visible content must match the schema (no schema-only FAQs — that risks a manual action).
-- Don't duplicate an existing FAQ block; merge into it if one exists.
+- Don't duplicate an existing FAQ block; merge into it if one exists — check both a pending `change_set` FAQPage row from a prior run and any `schema/{slug}.jsonld` FAQPage output from `schema-generate` for this page.
 - Answers grounded in real data; skip questions the page can't truthfully answer.
 - Validate JSON-LD before emitting (post-validate hook enforces this).
 
