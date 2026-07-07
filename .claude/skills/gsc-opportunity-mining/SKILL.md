@@ -3,9 +3,9 @@ name: gsc-opportunity-mining
 description: Mine Google Search Console for striking-distance pages, CTR gaps, cannibalization, and refresh candidates. Use for GSC analysis, quick wins, or "what should we optimize next".
 ---
 
-# Search Console Opportunity Mining
+# Search Console Opportunity Mining (read-only)
 
-Read-only — pulls GSC data and produces `gsc-opportunities.md`; changes nothing.
+Pulls GSC data and produces `gsc-opportunities.md`; changes nothing.
 
 Load CLAUDE.md. Requires the Google Search Console MCP (or a GSC export CSV).
 
