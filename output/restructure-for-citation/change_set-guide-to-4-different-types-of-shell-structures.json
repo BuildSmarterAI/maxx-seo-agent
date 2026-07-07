@@ -1,0 +1,17 @@
+{
+  "skill": "restructure-for-citation",
+  "generated_at": "2026-07-06",
+  "query": "What are the different types of commercial shell structures? (building shells / warm shell vs cold shell)",
+  "platform": "wordpress",
+  "page_id": null,
+  "url": "https://www.maxxbuilders.com/guide-to-4-different-types-of-shell-structures/",
+  "status": "pending",
+  "field": "content",
+  "change_type": "restructure-for-citation",
+  "base_value": null,
+  "answer_block": "<div class=\"tldr\">\n<p><strong>What are the types of commercial shell structures?</strong> A shell structure is a building's basic framework, delivered without internal finishes or functional features (interior walls, fixtures, HVAC) so a tenant can customize the build-out. The four common shell types are <strong>cold/dark, warm, bare, and vanilla</strong>, and the choice affects both lease rate and how long the build-out takes.</p>\n<p><strong>Cold shell vs. warm shell:</strong> a cold (dark) shell is delivered bare &mdash; unconditioned, often without a ceiling grid, distributed HVAC, or interior lighting. A warm shell is partially finished, typically with HVAC, lighting, restrooms, and finished perimeter walls already in place. A warm shell costs more to lease, but it cuts weeks off the tenant-improvement schedule and lowers the tenant's upfront build-out spend.</p>\n<p>See each type &mdash; cold/dark, warm, bare, and vanilla &mdash; and how to pick the right one below.</p>\n</div>",
+  "gsc_opportunity": "Striking distance: 'building shells' 3,681 imp pos 10 / 1 click; 'shell building' 180 imp pos 6.4 / 0 clicks; 'warm shell vs cold shell' 154 imp pos 8.2 / 0 clicks. Ranks well, near-zero CTR — answer-first gap.",
+  "new_value_description": "Prepend answer_block immediately after the H1, before the existing intro. Preserve all body content below. page_id + base_value resolved at apply time via WP REST read.",
+  "verification": "Adversarially verified: every claim grounded in the page's own intro + cold-vs-warm FAQ (verbatim). Cost figures deliberately omitted (page's per-SF numbers not used to avoid YMYL risk). Softened 'four types' to 'four common types' to mirror source's open-list framing.",
+  "notes": "Page already received a meta description in metadata-changes-e-tail-2026-07-06.csv; this adds the on-page answer-first block. H1/URL unchanged."
+}

@@ -1,0 +1,38 @@
+{
+  "@context": "https://schema.org",
+  "@type": "GeneralContractor",
+  "@id": "https://www.maxxbuilders.com/locations/san-antonio-commercial-contractors/#localbusiness",
+  "name": "Maxx Builders",
+  "url": "https://www.maxxbuilders.com/locations/san-antonio-commercial-contractors/",
+  "telephone": "+1-832-871-4166",
+  "priceRange": "$$",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "4150 Bluebonnet Dr. Suite 102",
+    "addressLocality": "Stafford",
+    "addressRegion": "TX",
+    "postalCode": "77477",
+    "addressCountry": "US"
+  },
+  "geo": {
+    "@type": "GeoCoordinates",
+    "latitude": "29.6249",
+    "longitude": "-95.5570"
+  },
+  "areaServed": [
+    "Houston, TX",
+    "Austin, TX",
+    "Dallas, TX",
+    "Fort Worth, TX",
+    "San Antonio, TX",
+    "Stafford, TX"
+  ],
+  "sameAs": [
+    "https://www.facebook.com/maxxbuildersco",
+    "https://x.com/maxxbuilders",
+    "https://www.instagram.com/maxxbuilders/",
+    "https://www.youtube.com/@buildsmarttv",
+    "http://www.linkedin.com/company/maxxbuilders",
+    "https://goo.gl/maps/CK4gqaWr1LaQtr1d6"
+  ]
+}

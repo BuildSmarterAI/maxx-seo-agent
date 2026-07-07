@@ -1,0 +1,33 @@
+{
+  "skill": "restructure-for-citation",
+  "generated_at": "2026-07-06",
+  "query": "How much does commercial construction cost per square foot in Houston in 2026?",
+  "platform": "wordpress",
+  "page_id": null,
+  "url": "https://www.maxxbuilders.com/commercial-construction-cost-houston-tx/",
+  "status": "pending",
+  "field": "content",
+  "change_type": "restructure-for-citation",
+  "base_value": null,
+  "answer_block": "<div class=\"tldr\">\n<p><strong>How much does commercial construction cost per square foot in Houston in 2026?</strong> Houston commercial construction runs <strong>$190–$330+ per square foot in 2026</strong>, up from $185–$325/SF in 2025. The rate depends on building type: industrial/warehouse is the lowest at $130–$220/SF, while medical/healthcare ($250–$420/SF) and hospitality/hotel ($260–$420+/SF) sit at the top end. Use the ranges below for feasibility, ROI, and financing models.</p>\n<table>\n<thead><tr><th>Project Type</th><th>Cost per SF ($)</th></tr></thead>\n<tbody>\n<tr><td>Industrial / Warehouse</td><td>$130 – $220</td></tr>\n<tr><td>Office / Corporate</td><td>$180 – $300</td></tr>\n<tr><td>Multifamily / Mixed Use</td><td>$190 – $320</td></tr>\n<tr><td>Retail / Restaurant</td><td>$200 – $350</td></tr>\n<tr><td>Medical / Healthcare</td><td>$250 – $420</td></tr>\n<tr><td>Hospitality / Hotel</td><td>$260 – $420+</td></tr>\n</tbody>\n</table>\n</div>",
+  "answer_block_plain": "How much does commercial construction cost per square foot in Houston in 2026? Houston commercial construction runs $190–$330+ per square foot in 2026, up from $185–$325/SF in 2025. The rate depends on building type: industrial/warehouse is the lowest at $130–$220/SF, while medical/healthcare ($250–$420/SF) and hospitality/hotel ($260–$420+/SF) sit at the top end. Use the ranges below for feasibility, ROI, and financing models.\n\nCost per SF by project type:\n- Industrial / Warehouse: $130 – $220\n- Office / Corporate: $180 – $300\n- Multifamily / Mixed Use: $190 – $320\n- Retail / Restaurant: $200 – $350\n- Medical / Healthcare: $250 – $420\n- Hospitality / Hotel: $260 – $420+",
+  "new_value_description": "Prepend answer_block immediately after the H1, before existing intro. Preserve all original body content below. page_id + base_value (current post_content) resolved at apply time via WP REST read.",
+  "claims_used": [
+    "2026 | $190 – $330+",
+    "2025 | $185 – $325",
+    "Industrial / Warehouse | $130 | $220",
+    "Office / Corporate | $180 | $300",
+    "Multifamily / Mixed Use | $190 | $320",
+    "Retail / Restaurant | $200 | $350",
+    "Medical / Healthcare | $250 | $420",
+    "Hospitality / Hotel | $260 | $420+"
+  ],
+  "verification": {
+    "verdict": "pass",
+    "grounded": true,
+    "titleLen": 55,
+    "descLen": 145,
+    "notes": "All dollar figures are grounded: 2026 $190-$330+ and 2025 $185-$325 match table 1; all six building-type ranges (industrial $130-$220, office $180-$300, multifamily $190-$320, retail $200-$350, medical $250-$420, hospitality $260-$420+) match table 2 exactly. Title 55 chars, description 145 chars — both within limits. Block leads with a direct 2-4 sentence answer to the monitored query plus a compact cost table. No fabricated numbers, no keyword stuffing. Pass."
+  },
+  "notes": "Answer block grounded strictly in the page's own cost figures (adversarially verified). H1/URL unchanged. No body content deleted."
+}

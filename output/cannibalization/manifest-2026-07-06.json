@@ -1,0 +1,311 @@
+{
+  "generatedAt": "2026-07-06",
+  "finding": "F-3",
+  "status": "prepare-only-gated",
+  "gate": "All merges/redirects require human approval and are executed OUTSIDE the agent (guard-publish blocks redirects from agent sessions). This artifact executes nothing.",
+  "totals": {
+    "clusters": 5,
+    "survivors": 5,
+    "merge_redirects": 8,
+    "differentiate": 2,
+    "keep_distinct": 0
+  },
+  "backlinkCheckClusters": [
+    "tenant-improvement",
+    "dental-office",
+    "texas-cost",
+    "financing",
+    "restaurant"
+  ],
+  "clusters": [
+    {
+      "cluster": "tenant-improvement",
+      "survivor": "/understanding-commercial-build-outs-guide/",
+      "survivorRationale": "Wins on every evidence axis by a wide margin: 35 clicks (vs 0/1/0/2 for peers), avgPos 8.3 (vs 21.2/31.8/40.6/61.3), 29,765 impressions (>10x any peer), and joint-highest topical completeness at 2,181 words with 12 substantive H2s spanning shell conditions, the full build-out process, delivery models, 2025 cost breakdown, TIA, lease clauses, and financing. Critically, it already outranks every other cluster member on the shared cannibalized head terms (\"commercial tenant improvements\" pos31.4 vs 80.4/88; \"commercial tenant improvement\" pos43.5 vs 75.1/75.5/71.6), so folding the TI-construction/TI-contractor pages into it consolidates authority onto the page Google already prefers. Build-out and tenant-improvement-construction are functionally the same searcher intent (customizing leased commercial space), which is why these pages cannibalize. Keeps its URL.",
+      "actions": [
+        {
+          "slug": "/understanding-commercial-build-outs-guide/",
+          "disposition": "keep-survivor",
+          "redirectTarget": "",
+          "contentToPreserve": [
+            "Receives ported blocks from the three merged pages (see their contentToPreserve): TI-contractor selection framework, Texas-metro TIA $/sq ft table, and unique TI project examples.",
+            "Existing H2 'Tenant Improvement Allowance (TIA): How Landlords Contribute' should be expanded (not duplicated) when absorbing the per-metro TIA data from the mastering-TI page."
+          ],
+          "differentiateTo": "",
+          "gscEvidence": "35 clicks (prev 40), 29,765 imp, avgPos 8.3, 2,181 words. Leads shared queries: 'commercial tenant improvements' pos31.4/205imp and 'commercial tenant improvement' pos43.5/157imp — beating all other cluster members on both.",
+          "rationale": "Highest clicks, best position, largest impression base, and joint-deepest coverage. Already the winner on the cannibalized head terms, so it is the natural consolidation target. No action beyond absorbing ported content.",
+          "rollback": "N/A — survivor is not redirected."
+        },
+        {
+          "slug": "/mastering-tenant-improvement-construction-a-comprehensive-guide/",
+          "disposition": "merge-301",
+          "redirectTarget": "/understanding-commercial-build-outs-guide/",
+          "contentToPreserve": [
+            "'Tenant Improvement Allowance per Square Foot in Major Texas Cities' — the per-metro TIA $/sq ft data; highest-value unique block, port into the survivor's existing TIA section.",
+            "'Strategic Planning for Tenant Improvement Projects' — any planning steps not already covered by survivor's build-out process section.",
+            "'Design Considerations for Effective Spaces' — design/space-fit guidance.",
+            "'Frequently Asked Questions About Tenant Improvement Construction' — merge non-duplicate Q&As into survivor FAQ / add FAQ schema."
+          ],
+          "differentiateTo": "",
+          "gscEvidence": "1 click (prev 2), 1,634 imp, avgPos 40.6, 1,729 words. Direct duplicate of survivor's core intent: loses head-to-head on 'tenant improvement construction' (pos54.7/375imp vs survivor's dominance) and 'tenant improvement' (pos36.1/276imp).",
+          "rationale": "Most direct semantic duplicate of the survivor ('TI construction' = 'commercial build-out'). Underperforms at pos40.6 with ~1 click. Its only genuinely unique asset is the Texas-metro TIA $/sq ft table, which strengthens the survivor. Merge and 301.",
+          "rollback": "Remove the 301 and restore this post from export within 30 days if the survivor loses >20% of the two pages' combined pre-merge clicks at the 6-week check."
+        },
+        {
+          "slug": "/tenant-improvement-contractors-guide/",
+          "disposition": "merge-301",
+          "redirectTarget": "/understanding-commercial-build-outs-guide/",
+          "contentToPreserve": [
+            "'How to Choose the Right Tenant Improvement Contractor' — contractor-selection framework.",
+            "'Questions to Ask Before Starting Tenant Improvements' — buyer checklist; port as a distinct section/callout in survivor.",
+            "'Benefits of Hiring a Tenant Improvement Contractor' — condense into survivor where not redundant.",
+            "'FAQs About Tenant Improvement Contractors' — merge non-duplicate Q&As into survivor FAQ."
+          ],
+          "differentiateTo": "",
+          "gscEvidence": "0 clicks (prev 0), 2,136 imp, avgPos 31.8, 949 words (thinnest in cluster). Cannibalizes survivor on 'tenant improvement construction' (pos30.8/541imp), 'tenant improvement' (pos63.8/138imp), and 'commercial tenant improvements' (pos88/47imp).",
+          "rationale": "Zero clicks despite 2,136 impressions and a mediocre pos31.8; thinnest page in the cluster (949 words). Competes head-on with the survivor across three shared queries. The contractor-hire angle is real but too thin to sustain a distinct page and heavily overlaps the survivor's audience — fold the selection/vetting blocks into the survivor and 301.",
+          "rollback": "Remove the 301 and restore this post from export within 30 days if the survivor loses >20% of the two pages' combined pre-merge clicks at the 6-week check. (Baseline clicks here are 0, so watch impressions/position on the ported contractor queries instead.)"
+        },
+        {
+          "slug": "/enhancing-commercial-spaces-tenant-improvements-guide/",
+          "disposition": "merge-301",
+          "redirectTarget": "/understanding-commercial-build-outs-guide/",
+          "contentToPreserve": [
+            "'Navigating Tenant Improvement Allowances' — any TIA nuance not covered by survivor or the ported mastering-TI TIA table.",
+            "'Common Tenant Improvement Projects' — concrete project-type examples (office/retail/medical fit-outs).",
+            "'Challenges in Tenant Improvements' — risk/pitfall content.",
+            "'Maxx Builders' Tenant Improvement Approach' — any operator-specific proof/project detail worth preserving for E-E-A-T."
+          ],
+          "differentiateTo": "",
+          "gscEvidence": "0 clicks (prev 0), 673 imp, avgPos 61.3 (weakest position in cluster), 1,047 words. Cannibalizes survivor on 'commercial tenant improvements' (pos80.4/110imp) and 'commercial tenant improvement' (pos75.5/31imp).",
+          "rationale": "Weakest performer in the cluster (pos61.3, 0 clicks, only 673 imp) and largely a lower-ranked restatement of the survivor's intent. Little unique value beyond a few project examples; port those and 301.",
+          "rollback": "Remove the 301 and restore this post from export within 30 days if the survivor loses >20% of the two pages' combined pre-merge clicks at the 6-week check. (Baseline clicks 0; monitor position recovery on the two shared queries.)"
+        },
+        {
+          "slug": "/the-complete-guide-to-tenant-improvement-allowance-for-commercial-leases/",
+          "disposition": "differentiate",
+          "redirectTarget": "",
+          "contentToPreserve": [
+            "Keep the page live. It already holds the cluster's second-best position (21.2) and its title/intro target a genuinely distinct intent: Tenant Improvement Allowance (TIA) as a lease-finance mechanism, not the build-out process.",
+            "Fix the intent/structure mismatch: the current H2s ('How Maxx Builders Approaches Commercial Construction in Texas', 'Texas Commercial Construction Decision Framework', 'Cost Variance Across Texas Metros', 'Long-Lead Material Coordination', 'Insurance, Bonding, and Risk Allocation') do NOT match the TIA-allowance title/intro and drift into the survivor's build-out/cost territory — rewrite them to own the TIA/lease-negotiation angle (how TIA is calculated, amortized, negotiated, landlord vs tenant obligations, unused-allowance treatment, TIA vs turnkey)."
+          ],
+          "differentiateTo": "Retarget cleanly to 'tenant improvement allowance' / 'TI allowance for commercial leases' — the financial/lease-negotiation intent (how TIA works, is calculated, amortized, and negotiated). Point its build-out/process references at the survivor via internal link so the survivor owns 'build-out' and this page owns 'TIA'.",
+          "gscEvidence": "2 clicks (prev 5), 1,843 imp, avgPos 21.2, 2,200 words. Barely cannibalizes — appears only once in shared queries ('commercial tenant improvement' pos75.1/30imp, negligible). Distinct query footprint centered on TIA/allowance terms.",
+          "rationale": "This is a distinct, defensible intent (lease-finance TIA) with the cluster's second-best position and a healthy word count — worth keeping and sharpening rather than merging. Its current H2s wrongly overlap the survivor's build-out/cost content and must be rewritten to the TIA/negotiation angle to eliminate residual overlap. No redirect; keep live and differentiate.",
+          "rollback": "N/A — no redirect. If the retarget underperforms (position on TIA queries drops materially at 6 weeks), revert the H2 rewrite from export; the URL and page stay live throughout."
+        }
+      ],
+      "internalLinkChanges": [
+        "Repoint every internal link currently targeting /mastering-tenant-improvement-construction-a-comprehensive-guide/ to /understanding-commercial-build-outs-guide/.",
+        "Repoint every internal link currently targeting /tenant-improvement-contractors-guide/ to /understanding-commercial-build-outs-guide/.",
+        "Repoint every internal link currently targeting /enhancing-commercial-spaces-tenant-improvements-guide/ to /understanding-commercial-build-outs-guide/.",
+        "Crawl the site (nav, in-body links, related-posts modules, and any TI/build-out hub pages) for anchors to the three redirected slugs and update them before the 301s go live to avoid redirect-hop chains.",
+        "Add a reciprocal internal link between the survivor (/understanding-commercial-build-outs-guide/) and the differentiated TIA page (/the-complete-guide-to-tenant-improvement-allowance-for-commercial-leases/): survivor's TIA section links to the TIA page for depth; TIA page links to survivor for the build-out process. This enforces the one-intent-per-page boundary.",
+        "Update the keyword/intent map in root CLAUDE.md if this cluster is added there, so the survivor and the differentiated TIA page are the two canonical TI pages."
+      ],
+      "backlinkCheckNeeded": true,
+      "clusterRisk": "Medium. All three merge-301 targets are older (2024-vintage) pages with meaningful impression histories (2,136 / 1,634 / 673 imp), so external backlinks cannot be ruled out without a backlink tool — a manual backlink check on all three dying URLs is required before executing any 301, and equity-bearing pages should still 301 to the survivor (not be deleted). The 301s are GATED and must not be executed from this manifest. Residual cannibalization risk after consolidation is low but nonzero: the differentiated TIA page still shares the 'tenant improvement' token with the survivor, so its H2s must be rewritten to the lease-finance/allowance angle before it is considered clean, otherwise it will re-compete on 'commercial tenant improvement'. Consolidation is directionally strong because the survivor already outranks every merged page on the shared head terms, so folding equity inward should raise, not risk, the survivor's position. Monitor combined clicks at 6 weeks; the per-redirect rollback (remove 301 + restore from export within 30 days if survivor loses >20% of combined clicks) is the safety net."
+    },
+    {
+      "cluster": "dental-office",
+      "survivor": "/dental-office-construction-guide/",
+      "survivorRationale": "Wins every selection criterion. Clicks: 8 (up from 5) vs 2 and 0. Avg position: 15.6 vs 36.8 and 56.3. Impressions: 3925 vs 528 and 433. Topical completeness: 3997 words with the broadest scope (costs + design + build-out, Texas-localized, city cost breakdowns, MEP, Heartland Dental case). Head-to-head on both cannibalized queries it is the clear winner: 'dental office construction' pos11.4/541imp (vs 74.7 and 83.8) and 'dental clinic construction' pos16/176imp (vs 56). Title already leads with the primary entity and targets the cost/build-out commercial intent. Keeps its URL.",
+      "actions": [
+        {
+          "slug": "/dental-office-construction-guide/",
+          "disposition": "keep-survivor",
+          "redirectTarget": "",
+          "contentToPreserve": [],
+          "differentiateTo": "",
+          "gscEvidence": "8 clicks (up from 5), 3925 impressions, avgPos 15.6 — best in cluster. Wins shared query 'dental office construction' at pos11.4/541imp and 'dental clinic construction' at pos16/176imp. 3997 words, broadest H2/topic coverage.",
+          "rationale": "Highest clicks + best average position + strongest topical completeness. Designated survivor; absorbs unique blocks from the two merged pages and keeps its URL.",
+          "rollback": "n/a — survivor is not being redirected."
+        },
+        {
+          "slug": "/building-the-perfect-smile-a-guide-to-dental-office-construction-and-design/",
+          "disposition": "merge-301",
+          "redirectTarget": "/dental-office-construction-guide/",
+          "contentToPreserve": [
+            "Interior design aesthetics section: Lighting and Color Scheme (patient-comfort palette guidance)",
+            "Flooring and Walls material/finish selection guidance for dental environments",
+            "Layout and Functionality + Technology operatory-flow guidance not already in survivor",
+            "Specialty MEP & Code Coordination for dental construction (dedicated H2s: 'Dental Office Construction: Specialty MEP & Code', 'Specialty MEP & Code Coordination for Specialized Construction', 'Code Coordination Practices')",
+            "Compliance with Regulations section (dental-specific code/ADA/OSHA framing)",
+            "The page's Frequently Asked Questions block (dedupe against survivor FAQs before porting)",
+            "Heartland Dental Kyle TX project reference — dental practice interior build-out / construction management (operator-confirmed real project)"
+          ],
+          "differentiateTo": "",
+          "gscEvidence": "2 clicks (flat, prev 2), 528 impressions, avgPos 36.8. Directly cannibalizes survivor on 'dental office construction' at pos74.7/149imp while survivor sits at pos11.4/541imp on the same query. 1713 words — a subset of the survivor's scope with a design/MEP emphasis.",
+          "rationale": "Same core intent (dental office construction + design) as the survivor and actively competing on the identical primary query at a far worse position. Design and specialty-MEP/code angles are the only genuinely additive material; fold them into the survivor rather than keep a second competing URL. Not a differentiate candidate — the design intent is already covered by the survivor's build-out guide and would keep cannibalizing.",
+          "rollback": "If survivor drops >20% of the combined cluster click baseline (~10 clicks/28d) at 6 weeks post-redirect: remove the 301, restore this post from content export, and re-add to sitemap — all within a 30-day window."
+        },
+        {
+          "slug": "/build-your-dream-dental-clinic-step-by-step-guide/",
+          "disposition": "merge-301",
+          "redirectTarget": "/dental-office-construction-guide/",
+          "contentToPreserve": [
+            "Strategic Planning: Laying the Foundation — pre-construction/planning framing that reinforces the survivor's planning section",
+            "Execution: Bringing Your Vision to Life — construction-phase step sequencing, if it adds detail the survivor lacks",
+            "Patient-Centered Design section (dedupe against the design content already being ported from building-the-perfect-smile)",
+            "Heartland Dental Kyle TX project reference (dedupe — shared with the other merged page)",
+            "DO NOT PORT: 'Savvy Marketing: Attracting Patients' — practice-marketing/patient-acquisition content is off-intent for a commercial GC construction guide and off-brand for Maxx Builders."
+          ],
+          "differentiateTo": "",
+          "gscEvidence": "0 clicks (prev 0), 433 impressions, avgPos 56.3 — weakest page in the cluster. Cannibalizes survivor on 'dental office construction' at pos83.8/80imp and on 'dental clinic construction' at pos56/76imp. Thin at 891 words.",
+          "rationale": "Thin (891 words), zero clicks, worst positions, and competing on both cluster queries. No meaningful unique construction value beyond generic planning framing; the one distinct angle (patient-attraction marketing) is off-intent for a GC and should not be ported. Merge-301 to consolidate the last competing URL onto the survivor. Redirect risk is negligible (0 clicks).",
+          "rollback": "If survivor drops >20% of the combined cluster click baseline (~10 clicks/28d) at 6 weeks post-redirect: remove the 301, restore this post from content export, and re-add to sitemap — all within a 30-day window. Risk is minimal since this page contributes 0 clicks."
+        }
+      ],
+      "internalLinkChanges": [
+        "Crawl the site for internal links pointing at /building-the-perfect-smile-a-guide-to-dental-office-construction-and-design/ and repoint them to /dental-office-construction-guide/ (avoid inheriting a redirect hop; max one hop policy).",
+        "Crawl for internal links pointing at /build-your-dream-dental-clinic-step-by-step-guide/ and repoint them to /dental-office-construction-guide/.",
+        "Update any nav/related-posts/blog-index modules and in-body contextual links in other posts (e.g. medical-office, warehouse, commercial-cost guides) that reference either redirected URL.",
+        "Remove both redirected URLs from the XML sitemap so only the 200/canonical survivor remains; confirm the survivor is present and self-canonical.",
+        "After redirects go live, re-crawl to confirm zero internal links still resolve through a 301 and no soft-404s were introduced."
+      ],
+      "backlinkCheckNeeded": true,
+      "clusterRisk": "Low-to-medium. Consolidation risk is low: both non-survivors carry minimal equity (2 clicks flat and 0 clicks), so folding them onto the survivor should concentrate rather than lose ranking signal, and 301s are recommendation-only here (gated — not executed). The residual risk is (1) unverified external authority on the two older 2023-vintage pages — we lack a backlink tool, so backlinkCheckNeeded=true and a manual check must clear before any 301 is executed; and (2) temporary ranking flux on the survivor during redirect settling. Mitigated by per-redirect rollback (restore from export within 30 days if the survivor loses >20% of the ~10-click combined baseline at 6 weeks). Execution is gated pending human approval and the backlink check."
+    },
+    {
+      "cluster": "texas-cost",
+      "survivor": "/texas-commercial-construction-cost-2025-2026/",
+      "survivorRationale": "Wins on every evidence axis: highest clicks (52 vs 29), best average position (6.1 vs 10.6), most impressions (45,956 vs 18,748), and greatest topical completeness by word count (3,859 vs 2,180). Decisively, it outranks the other page on all five shared cannibalized queries — pos 36.4 vs 71.7 on \"commercial construction cost\" and pos 10.9 vs 55.1 on \"commercial construction cost per square foot\" — and holds pos-1 on the city-modified queries (Frisco, Plano, Midland). The comprehensive-guide page never wins a single head-to-head query. Survivor keeps its URL.",
+      "actions": [
+        {
+          "slug": "/comprehensive-guide-to-commercial-construction-costs-per-square-foot-in-texas-2025/",
+          "disposition": "merge-301",
+          "redirectTarget": "/texas-commercial-construction-cost-2025-2026/",
+          "contentToPreserve": [
+            "Hard Costs vs Soft Costs vs Hidden Costs section — cost-composition framing the survivor lacks (survivor covers cost-per-SF by type but not the hard/soft/hidden breakdown)",
+            "Economic & Market Factors Affecting Construction Costs in Texas section — corporate relocation / industrial expansion / healthcare demand drivers, adds depth to survivor's escalation narrative",
+            "Education & Institutional Construction Costs data point — building type not present in survivor's per-type table; port as a single row/paragraph, not a full section",
+            "Building-type cost rows for warehouse/industrial, medical, hotel, retail/restaurant/mixed-use — port ONLY as a summary snapshot table with outbound links to the dedicated cluster guides (hotel, medical-office, warehouse) to avoid re-creating cross-cluster cannibalization",
+            "Any unique 2026 per-SF figures or ranges in the comprehensive-guide snapshot that differ from or extend the survivor's $190–$340/SF ranges — reconcile and keep the more granular numbers"
+          ],
+          "differentiateTo": "",
+          "gscEvidence": "Same statewide intent, direct cannibalization. Dying page loses every shared query head-to-head: pos 71.7 vs survivor 36.4 on 'commercial construction cost' (558 imp), pos 55.1 vs survivor 10.9 on 'commercial construction cost per square foot' (192 imp). Dying page has zero winning shared queries, lower avg position (10.6 vs 6.1), and is declining faster in clicks (40→29, -27.5% vs survivor 62→52, -16%). It is an older (Nov 2024) duplicate suppressing the stronger page.",
+          "rationale": "Pure duplicate of the survivor's intent with no distinct keyword to retarget toward — city-level and per-building-type intents already resolve to the survivor and the dedicated cluster guides respectively. Folding its unique cost-composition and market-factor content into the survivor consolidates authority onto one canonical statewide page and removes the internal competition depressing both URLs.",
+          "rollback": "Combined baseline = 81 clicks/28d (survivor 52 + dying 29). If the survivor drops below ~65 clicks/28d (>20% loss of combined) at the 6-week mark, remove the 301 and restore /comprehensive-guide-to-commercial-construction-costs-per-square-foot-in-texas-2025/ from the pre-redirect content+meta export (captured before apply) within 30 days, re-add it to the sitemap, and revert internal links."
+        }
+      ],
+      "internalLinkChanges": [
+        "Repoint every internal link currently targeting /comprehensive-guide-to-commercial-construction-costs-per-square-foot-in-texas-2025/ to the survivor /texas-commercial-construction-cost-2025-2026/ BEFORE the 301 is applied, so no internal link relies on the redirect hop",
+        "Audit the dedicated cluster guides (hotel, medical-office, warehouse, Houston, Dallas cost pages) for links pointing at the dying page and repoint them to the survivor",
+        "After merge, ensure the survivor links OUT to the per-building-type guides (hotel, medical-office, warehouse) so the ported summary snapshot funnels intent rather than competing with them",
+        "Remove the dying URL from the sitemap once the 301 is live (sitemap must contain only 200-status canonical URLs)"
+      ],
+      "backlinkCheckNeeded": true,
+      "clusterRisk": "Medium. Both pages are declining in clicks (survivor 62→52, dying 40→29), consistent with mutual cannibalization suppressing the whole cluster — consolidation should recover impressions onto the survivor but monitor at 6 weeks. Secondary risk: the dying page's per-building-type sections (warehouse/medical/hotel) overlap the dedicated cluster guides; port them only as a linked summary snapshot, never as full sections, to avoid creating a new cannibalization loop against those guides. Backlink check required — the dying page is the older URL (Nov 2024) with 18,748 impressions and may carry external authority; flag for manual backlink review before executing the GATED 301 since no backlink tool is available here. The 301 is a recommendation only and must NOT be executed in this pass."
+    },
+    {
+      "cluster": "financing",
+      "survivor": "/financing-options-for-commercial-construction-projects/",
+      "survivorRationale": "Wins on every primary evidence axis: 5 clicks (prev 2) vs 2 (prev 1), avg position 15.1 vs 35.5 (~20 positions stronger), and 5,563 impressions vs 2,912 (nearly 2x). It also outranks B by position on 2 of the 3 shared cannibalized queries and ties intent completeness (11 H2s vs 12; 1,826 vs 2,069 words is a negligible gap). B's slight word-count lead does not offset A's decisive click, position, and impression advantage. A keeps its URL.",
+      "actions": [
+        {
+          "slug": "/financing-options-for-commercial-construction-projects/",
+          "disposition": "keep-survivor",
+          "redirectTarget": "",
+          "contentToPreserve": [
+            "Absorb the unique blocks ported from the dying Texas page (banks-vs-SBA-vs-private comparison table, fast-qualification eligibility checklist, Houston/Dallas/Austin metro lending snapshot) into the matching existing H2s"
+          ],
+          "differentiateTo": "",
+          "gscEvidence": "clicks=5 (prev 2), impressions=5563, avgPos=15.1, words=1826, inSitemap=true. Outranks the merged page on the shared queries 'commercial construction financing' (pos47.4 vs 70.8) and 'commercial construction loan' (pos57 vs 75.5).",
+          "rationale": "Best-performing page in the cluster by clicks, position, and impressions; already covers the qualify-fast, Texas-lending, and loan-comparison sub-intents the dying page targeted. Consolidating link equity and query coverage here removes the cannibalization split.",
+          "rollback": ""
+        },
+        {
+          "slug": "/commercial-property-construction-loans-in-texas-2026-how-to-qualify-fast/",
+          "disposition": "merge-301",
+          "redirectTarget": "/financing-options-for-commercial-construction-projects/",
+          "contentToPreserve": [
+            "'Comparing Loan Options – Banks vs. SBA vs. Private Lenders' — port the explicit banks/SBA/private lender comparison table into the survivor's 'Major Financing Options for 2026 Projects' section",
+            "'Eligibility Criteria – How to Qualify Fast in 2025' — port the fast-qualification eligibility checklist into the survivor's 'How to Qualify for a Commercial Construction Loan in 2026' section (update 2025->2026 framing)",
+            "'Regional Snapshot – Construction Lending in Texas Metros' — port the Houston/Dallas/Austin metro-level lending detail into the survivor's 'Local Perspective – Construction Lending in Texas' section",
+            "'AI Summary (150 words)' — port the answer-first AI summary block if the survivor lacks an equivalent TL;DR, to reinforce AI-search citation structure"
+          ],
+          "differentiateTo": "",
+          "gscEvidence": "clicks=2 (prev 1), impressions=2912, avgPos=35.5, words=2069, inSitemap=true. Directly cannibalizes the survivor on three shared queries — 'commercial construction financing' (410 imp: this page pos70.8/131imp vs survivor pos47.4/279imp), 'commercial construction loan' (352 imp: pos75.5/235imp vs survivor pos57/117imp), 'commercial construction loans' (171 imp: pos66.4/147imp vs survivor pos73.8/24imp). Competes for the same intent and loses on position on the two highest-impression queries.",
+          "rationale": "Not a distinct intent: every differentiator (Texas focus, qualify-fast eligibility, loan-type comparison, Texas metro lending) is already a dedicated H2 on the survivor, so differentiate has no unheld keyword to retarget to and keep-distinct is ruled out by confirmed same-query competition. Title is stale ('Texas 2025') while the survivor is 2026-current. Folding its unique table/checklist/metro detail into the survivor and redirecting removes the split and consolidates equity toward the stronger-ranking page. 301 is GATED — recommendation only, do not execute now.",
+          "rollback": "Before executing, export full post content + SEO meta for this URL. If applied, remove the 301 and restore the post from that export within 30 days if the survivor's clicks fall >20% below the combined baseline (7 clicks: 5 survivor + 2 dying) measured at 6 weeks post-redirect."
+        }
+      ],
+      "internalLinkChanges": [
+        "Repoint any internal links currently targeting /commercial-property-construction-loans-in-texas-2026-how-to-qualify-fast/ to the survivor /financing-options-for-commercial-construction-projects/ BEFORE the 301 is applied, so no internal link resolves through a redirect hop (max one hop rule).",
+        "Audit anchor text on repointed links: convert any 'commercial construction loans Texas' / 'qualify fast' anchors to point at the survivor, and confirm the survivor's own body does not self-link to the redirected URL after the merge."
+      ],
+      "backlinkCheckNeeded": true,
+      "clusterRisk": "Low-to-moderate. Cannibalization is confirmed (both pages compete on 3 shared queries), and the survivor already holds every sub-intent the dying page targets, so consolidation should be additive rather than lossy. Residual risk: the dying Texas page has 2,912 impressions and ranks (pos 35-75) for real queries, so it may hold external backlinks — we have no backlink tool here, so backlinkCheckNeeded is flagged true for manual review before the 301 is executed. Do NOT run the 301 now (gated); ship as a recommendation manifest, verify a restorable production backup + content export exist, complete the manual backlink check, then apply as a small approved batch with the 6-week/>20%-combined-clicks rollback armed."
+    },
+    {
+      "cluster": "restaurant",
+      "survivor": "/restaurant-construction-cost-per-square-foot-guide-2024/",
+      "survivorRationale": "Dominant on every ranking signal in the 28d window: clicks=8 (vs 5 and 0), avgPos=7.7 (best by 5.6 positions), impressions=7074 (9.1x the next page's 774 and ~20x the weakest). Word count is effectively tied across all three pages (1699 vs 1795 vs 1780), so topical completeness does not offset the traffic and position gap. It already carries Texas-city cost H2s (\"Restaurant Construction Cost by Texas City (2026)\", \"What Drives Restaurant Construction Cost\", FAQ), making it the natural consolidation target for all cost-intent queries. It keeps its URL.",
+      "actions": [
+        {
+          "slug": "/restaurant-construction-cost-per-square-foot-guide-2024/",
+          "disposition": "keep-survivor",
+          "redirectTarget": "",
+          "contentToPreserve": [
+            "Existing cost-per-sqft body and FAQ",
+            "Restaurant Construction Cost by Texas City (2026)",
+            "What Drives Restaurant Construction Cost",
+            "Restaurant Construction Cost FAQ"
+          ],
+          "differentiateTo": "",
+          "gscEvidence": "clicks=8 (prev 11), impressions=7074, avgPos=7.7 — highest clicks, best average position, and 9.1x the impressions of the next-best cluster page.",
+          "rationale": "Strongest performer across clicks, position, and impressions; already the canonical cost page with Texas-city cost sections. Receives ported cost-strategy blocks from the merged page. Keeps its URL.",
+          "rollback": ""
+        },
+        {
+          "slug": "/cost-efficient-strategies-restaurant-construction/",
+          "disposition": "merge-301",
+          "redirectTarget": "/restaurant-construction-cost-per-square-foot-guide-2024/",
+          "contentToPreserve": [
+            "Cost-Planning and Budget Management",
+            "Design and Architecture: Balancing Aesthetics and Functionality",
+            "Strategic Contractor Partnerships",
+            "Efficient Use of Space",
+            "Navigating Zoning Laws and Regulations",
+            "Innovative Construction Methods",
+            "Build-Out Phasing",
+            "Any unique dollar figures, examples, or budget tactics in body not already covered by survivor's 'What Drives Restaurant Construction Cost' section"
+          ],
+          "differentiateTo": "",
+          "gscEvidence": "clicks=5 (prev 0), impressions=774, avgPos=13.3 — same restaurant-construction-cost intent as the survivor but 9x fewer impressions and 5.6 positions worse. Two cost pages are splitting equity for the same query set (no shared-query rows surfaced this period, but H2 and title overlap on 'cost' is direct).",
+          "rationale": "Duplicate cost intent competing with the survivor at a materially worse position. Fold its strategy/zoning/phasing blocks (which the survivor lacks) into the survivor as a 'cost-efficient strategies' section, then 301 to consolidate ranking signals into one cost page. GATED — recommendation only, do not execute the 301 now.",
+          "rollback": "Within 30 days: if the survivor's combined clicks fall >20% below the pre-merge combined baseline (survivor 8 + this page 5 = 13) measured at 6 weeks post-redirect, remove the 301 and restore this post from the pre-redirect export, reverting to two live URLs."
+        },
+        {
+          "slug": "/8-key-considerations-for-building-a-restaurant/",
+          "disposition": "differentiate",
+          "redirectTarget": "",
+          "contentToPreserve": [
+            "1. Choosing the right contractor",
+            "2. Location as a revenue factor",
+            "3. New Construction vs Remodel",
+            "4. Building codes",
+            "5. Functional Layout",
+            "6. Establish a realistic budget",
+            "7. Select a Design that Complements Your Menu",
+            "8. Construction During the Slow Season",
+            "Trustworthy Team for Restaurant Construction"
+          ],
+          "differentiateTo": "Retarget to a non-cost planning/process intent — 'how to build a restaurant in Texas: planning checklist / key considerations' (pre-construction decision guide), distinct from the survivor's cost-per-square-foot intent. Update title, H1, intro, and meta to lead with planning/considerations language and strip cost-guide phrasing; add an internal link to the survivor for the cost question. Remove the appended cost-oriented Texas sections that overlap the survivor.",
+          "gscEvidence": "clicks=0 (prev 2), impressions=361, avgPos=27.5 — weakest page in the cluster, but its content is process/planning tips (contractor selection, layout, codes, slow-season timing), not cost-per-sqft, so it does not directly cannibalize the survivor's cost queries. Distinct enough to retarget rather than fold in.",
+          "rationale": "Genuinely distinct informational intent (planning checklist vs cost). Folding generic build tips into the cost survivor would add no cost-query value and dilute focus. Poor current performance calls for an active retarget to a planning keyword, keeping the page live and repointing its cost angle to the survivor via internal link. No redirect.",
+          "rollback": "No redirect involved. If the retarget drops average position further or loses the residual planning impressions after 6 weeks, revert title/H1/intro to the prior version from export."
+        }
+      ],
+      "internalLinkChanges": [
+        "Repoint every internal link currently targeting /cost-efficient-strategies-restaurant-construction/ to the survivor /restaurant-construction-cost-per-square-foot-guide-2024/ BEFORE the 301 is applied (avoid redirect hops).",
+        "Audit the shared related-links sections (the 'Restaurant Construction in Texas: Specialty Considerations | Texas Retail & Restaurant Construction Playbook | Texas Retail Submarkets in 2026' blocks appearing on both dying pages) and update any that link to the redirected URL.",
+        "On the differentiated /8-key-considerations-for-building-a-restaurant/ page, add a contextual internal link to the survivor for the cost question so cost intent flows to the money page.",
+        "On the survivor, add an internal link to the differentiated planning page so the two distinct intents cross-reference without competing.",
+        "Verify the XML sitemap drops /cost-efficient-strategies-restaurant-construction/ once redirected (only 200 canonical URLs in sitemap) and retains the survivor and the differentiated page."
+      ],
+      "backlinkCheckNeeded": true,
+      "clusterRisk": "Medium. The clean win is consolidating two overlapping cost pages (#2 → survivor) — that reduces cannibalization with low downside since the survivor already outranks #2 by 5.6 positions. Primary risk is on the merge-301: #2 is a 2023 post that climbed from 0 to 5 clicks at position 13.3, so it may hold external links; because no backlink tool is available here, a manual backlink check is REQUIRED before executing the 301, and the 301 stays GATED/human-executed. Secondary risk is the differentiate call on #1 — if the retarget is done half-heartedly it could still overlap the survivor on 'restaurant construction' head terms; enforce a strictly non-cost planning angle. CLAUDE.md flags this cluster ('watch cannibalization' pairing #1 and #2), so re-audit shared queries after the changes settle (6 weeks) before creating any new restaurant content."
+    }
+  ]
+}

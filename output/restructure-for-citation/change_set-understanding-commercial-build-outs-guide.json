@@ -1,0 +1,36 @@
+{
+  "skill": "restructure-for-citation",
+  "generated_at": "2026-07-06",
+  "query": "What does a commercial build-out cost and involve?",
+  "platform": "wordpress",
+  "page_id": null,
+  "url": "https://www.maxxbuilders.com/understanding-commercial-build-outs-guide/",
+  "status": "pending",
+  "field": "content",
+  "change_type": "restructure-for-citation",
+  "base_value": null,
+  "answer_block": "<div class=\"answer-first\">\n<h2>TL;DR: What a commercial build-out costs and involves</h2>\n<p>Across the major Texas metros, commercial build-outs run roughly <strong>$50 to $310 per sq ft</strong>, depending on city and finish level. Basic build-outs sit at the low end, mid-range projects in the middle, and high-end or specialized work at the top. What it involves is a step-by-step process: initial consultation, design and architectural planning, permitting and approvals, demolition, the construction phase, and a final punch list with inspections before handover.</p>\n<table>\n<thead>\n<tr><th>City</th><th>Basic build-out</th><th>Mid-range</th><th>High-end / specialized</th></tr>\n</thead>\n<tbody>\n<tr><td>Houston</td><td>$55-$95 per sq ft</td><td>$95-$160 per sq ft</td><td>$160-$280 per sq ft</td></tr>\n<tr><td>Dallas</td><td>$55-$95 per sq ft</td><td>$95-$155 per sq ft</td><td>$155-$270 per sq ft</td></tr>\n<tr><td>Fort Worth</td><td>$52-$88 per sq ft</td><td>$88-$145 per sq ft</td><td>$145-$250 per sq ft</td></tr>\n<tr><td>Austin</td><td>$65-$110 per sq ft</td><td>$110-$180 per sq ft</td><td>$180-$310 per sq ft</td></tr>\n<tr><td>San Antonio</td><td>$50-$85 per sq ft</td><td>$85-$140 per sq ft</td><td>$140-$240 per sq ft</td></tr>\n</tbody>\n</table>\n</div>",
+  "answer_block_plain": "TL;DR: What a commercial build-out costs and involves. Across the major Texas metros, commercial build-outs run roughly $50 to $310 per sq ft, depending on city and finish level. Basic build-outs sit at the low end, mid-range projects in the middle, and high-end or specialized work at the top. What it involves is a step-by-step process: initial consultation, design and architectural planning, permitting and approvals, demolition, the construction phase, and a final punch list with inspections before handover.\n\nTexas commercial build-out cost by city (per sq ft):\n- Houston: Basic $55-$95 | Mid-range $95-$160 | High-end $160-$280\n- Dallas: Basic $55-$95 | Mid-range $95-$155 | High-end $155-$270\n- Fort Worth: Basic $52-$88 | Mid-range $88-$145 | High-end $145-$250\n- Austin: Basic $65-$110 | Mid-range $110-$180 | High-end $180-$310\n- San Antonio: Basic $50-$85 | Mid-range $85-$140 | High-end $140-$240",
+  "new_value_description": "Prepend answer_block immediately after the H1, before existing intro. Preserve all original body content below. page_id + base_value (current post_content) resolved at apply time via WP REST read.",
+  "claims_used": [
+    "Houston | $55-$95 per sq ft | $95-$160 per sq ft | $160-$280 per sq ft",
+    "Dallas | $55-$95 per sq ft | $95-$155 per sq ft | $155-$270 per sq ft",
+    "Fort Worth | $52-$88 per sq ft | $88-$145 per sq ft | $145-$250 per sq ft",
+    "Austin | $65-$110 per sq ft | $110-$180 per sq ft | $180-$310 per sq ft",
+    "San Antonio | $50-$85 per sq ft | $85-$140 per sq ft | $140-$240 per sq ft",
+    "### Step 1: Initial Consultation",
+    "### Step 2: Design & Architectural Planning",
+    "### Step 3: Permitting & Approvals",
+    "### Step 4: Demolition",
+    "### Step 5: Construction Phase",
+    "### Step 6: Punch List & Final Inspections"
+  ],
+  "verification": {
+    "verdict": "revise",
+    "grounded": true,
+    "titleLen": 53,
+    "descLen": 157,
+    "notes": "Fully grounded: the $50-$310 headline range and all five city rows (Houston/Dallas/Fort Worth/Austin/San Antonio, basic/mid/high tiers) match source table 1 byte-for-byte, and process steps 1-6 match the source heading outline. Title 53 chars, well within 60. Only defect: ctrDescription is 157 chars, 2 over the 155 cap. correctedDescription trims \"demolition\" to \"demo\" -> 151 chars, preserving grounding. Answers the monitored query (cost + what it involves) directly; no keyword stuffing. Verdict revise (fixable), not reject — no fabricated numbers."
+  },
+  "notes": "Answer block grounded strictly in the page's own cost figures (adversarially verified). H1/URL unchanged. No body content deleted."
+}
