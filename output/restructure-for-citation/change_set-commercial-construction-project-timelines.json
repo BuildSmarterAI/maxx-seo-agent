@@ -1,0 +1,39 @@
+{
+  "skill": "restructure-for-citation",
+  "generated_at": "2026-07-06",
+  "query": "How long does a commercial construction project take?",
+  "platform": "wordpress",
+  "page_id": null,
+  "url": "https://www.maxxbuilders.com/commercial-construction-project-timelines/",
+  "status": "pending",
+  "field": "content",
+  "change_type": "restructure-for-citation",
+  "base_value": null,
+  "answer_block": "<div class=\"tldr\">\n<h2>How long does a commercial construction project take?</h2>\n<p>A commercial construction project in Texas typically runs from <strong>3-6 months</strong> for a tenant improvement / build-out up to <strong>14-22 months</strong> for a hotel, depending on project type. A warehouse / industrial shell takes 6-10 months, a retail shell / strip center 7-11 months, a single-story office 9-13 months, and a medical or dental facility 12-18 months. Duration breaks across four phases — design and planning, pre-construction, construction, and completion and handover — with permitting, material lead times, labor availability, and weather the main drivers of schedule variance.</p>\n<table>\n<thead>\n<tr><th>Project type</th><th>Typical duration</th><th>Cost per sq ft</th></tr>\n</thead>\n<tbody>\n<tr><td>Tenant improvement / build-out</td><td>3-6 months</td><td>$50-$200 per sq ft</td></tr>\n<tr><td>Warehouse / industrial shell</td><td>6-10 months</td><td>$115-$335 per sq ft</td></tr>\n<tr><td>Retail shell / strip center</td><td>7-11 months</td><td>$250-$380 per sq ft</td></tr>\n<tr><td>Single-story office</td><td>9-13 months</td><td>$305-$445 per sq ft</td></tr>\n<tr><td>Medical or dental facility</td><td>12-18 months</td><td>$350-$800 per sq ft</td></tr>\n<tr><td>Hotel</td><td>14-22 months</td><td>$500-$930 per sq ft</td></tr>\n</tbody>\n</table>\n</div>",
+  "answer_block_plain": "How long does a commercial construction project take? A commercial construction project in Texas typically runs from 3-6 months for a tenant improvement / build-out up to 14-22 months for a hotel, depending on project type. A warehouse / industrial shell takes 6-10 months, a retail shell / strip center 7-11 months, a single-story office 9-13 months, and a medical or dental facility 12-18 months. Duration breaks across four phases — design and planning, pre-construction, construction, and completion and handover — with permitting, material lead times, labor availability, and weather the main drivers of schedule variance.\n\nCommercial construction timeline by project type (Texas 2026):\n- Tenant improvement / build-out: 3-6 months | $50-$200 per sq ft\n- Warehouse / industrial shell: 6-10 months | $115-$335 per sq ft\n- Retail shell / strip center: 7-11 months | $250-$380 per sq ft\n- Single-story office: 9-13 months | $305-$445 per sq ft\n- Medical or dental facility: 12-18 months | $350-$800 per sq ft\n- Hotel: 14-22 months | $500-$930 per sq ft",
+  "new_value_description": "Prepend answer_block immediately after the H1, before existing intro. Preserve all original body content below. page_id + base_value (current post_content) resolved at apply time via WP REST read.",
+  "claims_used": [
+    "Warehouse / industrial shell | 6-10 months | $115-$335 per sq ft",
+    "Retail shell / strip center | 7-11 months | $250-$380 per sq ft",
+    "Single-story office | 9-13 months | $305-$445 per sq ft",
+    "Tenant improvement / build-out | 3-6 months | $50-$200 per sq ft",
+    "Medical or dental facility | 12-18 months | $350-$800 per sq ft",
+    "Hotel | 14-22 months | $500-$930 per sq ft",
+    "The Initial Phase: Design and Planning",
+    "The Pre-Construction Phase",
+    "The Construction Phase",
+    "The Final Phase: Completion and Handover",
+    "Permitting Timelines by City",
+    "Material and Equipment Lead Times",
+    "Labor Availability",
+    "Weather and Site Conditions"
+  ],
+  "verification": {
+    "verdict": "pass",
+    "grounded": true,
+    "titleLen": 56,
+    "descLen": 149,
+    "notes": "All six project-type rows (durations + cost-per-sqft ranges) match source table 1 exactly: TI/build-out 3-6mo $50-$200, warehouse/industrial 6-10mo $115-$335, retail 7-11mo $250-$380, office 9-13mo $305-$445, medical/dental 12-18mo $350-$800, hotel 14-22mo $500-$930. All dollar hits ($115/$335, $250/$380, $305/$445, $50/$200, $350/$800, $500/$930) present in source figure list. Four phases (design/planning, pre-construction, construction, completion/handover) match heading outline. Four schedule drivers (permitting, material lead times, labor availability, weather) match H3 headings. Title 56 chars, desc 149 chars — both within limits. Block directly answers the monitored query with an answer-first sentence plus compact cost/duration table. No fabricated numbers, no invented citations, no keyword stuffing."
+  },
+  "notes": "Answer block grounded strictly in the page's own cost figures (adversarially verified). H1/URL unchanged. No body content deleted."
+}

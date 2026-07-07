@@ -1,0 +1,32 @@
+{
+  "skill": "restructure-for-citation",
+  "generated_at": "2026-07-06",
+  "query": "What are the most common obstacles in commercial construction projects?",
+  "platform": "wordpress",
+  "page_id": null,
+  "url": "https://www.maxxbuilders.com/3-most-common-obstacles-in-commercial-construction-projects/",
+  "status": "pending",
+  "field": "content",
+  "change_type": "restructure-for-citation",
+  "base_value": null,
+  "answer_block": "<div class=\"tldr\">\n<p><strong>Short answer:</strong> The most common obstacles in commercial construction projects are construction delays, outdated blueprints (old drawings that won't go away), unforeseen expenses, and construction errors by well-intentioned workers. Each is preventable or manageable when you identify it early and pair with the right delivery team. Choosing a design-build partner is the single biggest lever for progressing smoothly and hitting the deadline.</p>\n<ul>\n<li><strong>Construction delays</strong> — challenges that push schedule; the right team increases your chances of hitting the deadline.</li>\n<li><strong>Old blueprints that won't go away</strong> — outdated drawings that no longer match the intended build.</li>\n<li><strong>Unforeseen expenses</strong> — cost surprises that emerge mid-project.</li>\n<li><strong>Construction errors by workers with the best of intentions</strong> — field coordination and execution mistakes.</li>\n</ul>\n</div>",
+  "answer_block_plain": "Short answer: The most common obstacles in commercial construction projects are construction delays, outdated blueprints (old drawings that won't go away), unforeseen expenses, and construction errors by well-intentioned workers. Each is preventable or manageable when identified early and paired with the right delivery team. Choosing a design-build partner is the biggest lever for progressing smoothly and hitting the deadline. The four obstacles: (1) Construction delays — the right team increases your chances of hitting the deadline; (2) Old blueprints that won't go away — outdated drawings; (3) Unforeseen expenses — cost surprises; (4) Construction errors by workers with the best of intentions — field execution mistakes.",
+  "new_value_description": "Prepend answer_block immediately after the H1, before existing intro. Preserve all original body content below. page_id + base_value (current post_content) resolved at apply time via WP REST read.",
+  "claims_used": [
+    "Construction Delays for Your Commercial Construction Project",
+    "Old Blueprints of Your Commercial Construction That Won’t Go Away",
+    "Unforeseen Expenses in Your Commercial Construction",
+    "Construction Errors by Workers with the Best of Intentions",
+    "we’ve pulled together a list of the most common obstacles encountered in commercial construction as well as suggestions for how to avoid them completely or deal with them strategically when they crop up",
+    "by selecting the right team, you’ll increase your chances of hitting that all-important deadline",
+    "When you select a design-build construction team as your partner in commercial construction, you’ll notice a difference in how smoothly projects progress"
+  ],
+  "verification": {
+    "verdict": "pass",
+    "grounded": true,
+    "titleLen": 55,
+    "descLen": 149,
+    "notes": "All four obstacles match the source H2 headings verbatim (delays, old blueprints, unforeseen expenses, construction errors). The \"right team increases chances of hitting the deadline\" and design-build framing both trace to source opening text. No dollar figures used — source's $20/$250/$650/$1.5 are neither cited nor invented, so no numeric grounding risk. Title 55 chars, description 149 chars, both within limits; block answers the monitored query directly; no keyword stuffing. Minor: \"single biggest lever\" is a mild superlative — the source supports design-build/right-team as the central preventive move but doesn't rank it explicitly. Since the intro frames the entire piece around choosing the right team to prevent obstacles, this is a defensible paraphrase, not a fabricated claim. Optional softening to \"a major lever\" would tighten grounding. Note the title says \"Top 4\" while the H1/slug say \"3\" — accurate to the four obstacle sections on the page, but worth flagging as an intentional count mismatch."
+  },
+  "notes": "Answer block grounded strictly in the page's own cost figures (adversarially verified). H1/URL unchanged. No body content deleted."
+}

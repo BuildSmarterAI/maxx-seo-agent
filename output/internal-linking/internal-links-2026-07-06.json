@@ -1,0 +1,266 @@
+{
+  "generatedAt": "2026-07-06",
+  "skill": "internal-linking",
+  "findings": [
+    "F-5",
+    "F-7",
+    "F-10",
+    "F-15"
+  ],
+  "status": "pending-approval",
+  "platform": "wordpress",
+  "apply_notes": "Production WordPress, no staging. Each change = a targeted edit inside the source page's post_content (repoint href, remove dead <a>, or insert a new contextual <a>). Apply in small batches (<=5 pages), backup + export each source page first, verify rendered output after each batch. The WP pack applies full post_content replacements, so the apply step must fetch each source page's current body, make the single edit, and write it back. Restaurant orphan /8-key-considerations-for-building-a-restaurant/ is HELD pending Workstream D. Homepage block is PREPARE-ONLY (do_not_touch override required).",
+  "verification": {
+    "proposed": 21,
+    "kept": 21,
+    "rejected": 0,
+    "verifier": "adversarial single-pass, high effort"
+  },
+  "changes": [
+    {
+      "findingId": "F-7",
+      "action": "repoint",
+      "sourceUrl": "https://www.maxxbuilders.com/comprehensive-guide-to-commercial-construction-costs-per-square-foot-in-texas-2025/",
+      "oldTarget": "https://www.maxxbuilders.com/preconstruction-services/",
+      "newTarget": "https://www.maxxbuilders.com/services/preconstruction/",
+      "anchorText": "preconstruction planning services",
+      "intentMismatchFixed": false,
+      "rationale": "Dead /preconstruction-services/ maps 1:1 to the live /services/preconstruction/ page (inbound 49). Same intent, just relocated. Deduped from two identical links on this source to one fix."
+    },
+    {
+      "findingId": "F-7",
+      "action": "repoint",
+      "sourceUrl": "https://www.maxxbuilders.com/the-ultimate-2026-hotel-construction-cost-guide-texas-edition/",
+      "oldTarget": "https://www.maxxbuilders.com/preconstruction-services/",
+      "newTarget": "https://www.maxxbuilders.com/services/preconstruction/",
+      "anchorText": "preconstruction services",
+      "intentMismatchFixed": false,
+      "rationale": "Dead /preconstruction-services/ maps 1:1 to the live /services/preconstruction/ service page. Preconstruction is directly relevant to a reader budgeting a hotel build."
+    },
+    {
+      "findingId": "F-7",
+      "action": "repoint",
+      "sourceUrl": "https://www.maxxbuilders.com/the-ultimate-2026-hotel-construction-cost-guide-texas-edition/",
+      "oldTarget": "https://www.maxxbuilders.com/design-build-services/",
+      "newTarget": "https://www.maxxbuilders.com/services/design-and-build/",
+      "anchorText": "design-build delivery",
+      "intentMismatchFixed": false,
+      "rationale": "Chose the /services/design-and-build/ service page over the Houston money page /design-build-construction-houston-2/. The hotel guide is the statewide Texas Edition, so the generic design-build delivery-method intent of the anchor is served better by the statewide service page (inbound 15) than a Houston-geo-specific money page (inbound 3), which would be a geo-intent mismatch on a Texas-wide guide."
+    },
+    {
+      "findingId": "F-7",
+      "action": "remove",
+      "sourceUrl": "https://www.maxxbuilders.com/following-franchise-design-guidelines/",
+      "oldTarget": "https://www.maxxbuilders.com/tag/franchise-design/",
+      "newTarget": null,
+      "anchorText": null,
+      "intentMismatchFixed": false,
+      "rationale": "Dead /tag/ taxonomy archive with no live equivalent in allLivePages. Remove the broken link."
+    },
+    {
+      "findingId": "F-7",
+      "action": "remove",
+      "sourceUrl": "https://www.maxxbuilders.com/financing-options-for-shopping-center-projects-ultimate-guide/",
+      "oldTarget": "https://www.maxxbuilders.com/tag/shopping-center-financing/",
+      "newTarget": null,
+      "anchorText": null,
+      "intentMismatchFixed": false,
+      "rationale": "Dead /tag/ taxonomy archive with no live equivalent in allLivePages. Remove the broken link."
+    },
+    {
+      "findingId": "F-7",
+      "action": "remove",
+      "sourceUrl": "https://www.maxxbuilders.com/selecting-prime-spots-for-shopping-centers/",
+      "oldTarget": "https://www.maxxbuilders.com/tag/shopping-center-construction/",
+      "newTarget": null,
+      "anchorText": null,
+      "intentMismatchFixed": false,
+      "rationale": "Dead /tag/ taxonomy archive with no live equivalent in allLivePages. Remove the broken link."
+    },
+    {
+      "findingId": "F-7",
+      "action": "remove",
+      "sourceUrl": "https://www.maxxbuilders.com/picking-profitable-locations-warehouse-development/",
+      "oldTarget": "https://www.maxxbuilders.com/tag/warehouse-development/",
+      "newTarget": null,
+      "anchorText": null,
+      "intentMismatchFixed": false,
+      "rationale": "Dead /tag/ taxonomy archive with no live equivalent in allLivePages. Remove the broken link."
+    },
+    {
+      "findingId": "F-15",
+      "action": "repoint",
+      "sourceUrl": "https://www.maxxbuilders.com/navigating-aia-construction-contracts/",
+      "oldTarget": "https://www.maxxbuilders.com/choose-a-commercial-contractor/",
+      "newTarget": "https://www.maxxbuilders.com/services/general-contracting/",
+      "anchorText": "choosing a commercial general contractor",
+      "intentMismatchFixed": true,
+      "rationale": "Content link currently 301s to /choose-a-commercial-contractor/, which resolves to /services/architectural-design-and-engineering/ — the wrong intent. The anchor is about selecting/hiring a general contractor, so repoint straight to the live 200 /services/general-contracting/ service page (inbound 48), the strongest contractor-selection-intent target in allLivePages. Eliminates the redirect hop and fixes intent."
+    },
+    {
+      "findingId": "F-15",
+      "action": "repoint",
+      "sourceUrl": "https://www.maxxbuilders.com/choosing-commercial-general-contractor-guide/",
+      "oldTarget": "https://www.maxxbuilders.com/choose-a-commercial-contractor/",
+      "newTarget": "https://www.maxxbuilders.com/services/general-contracting/",
+      "anchorText": "our commercial general contracting services",
+      "intentMismatchFixed": true,
+      "rationale": "Link 301s through /choose-a-commercial-contractor/ to architectural-design (wrong intent). This page is a GC-selection guide; repoint directly to the live /services/general-contracting/ money page (inbound 48), which matches the choose-a-contractor intent and routes equity to a conversion path with no redirect hop."
+    },
+    {
+      "findingId": "F-15",
+      "action": "repoint",
+      "sourceUrl": "https://www.maxxbuilders.com/how-to-choose-the-right-commercial-general-contractor-for-your-project/",
+      "oldTarget": "https://www.maxxbuilders.com/choose-a-commercial-contractor/",
+      "newTarget": "https://www.maxxbuilders.com/services/general-contracting/",
+      "anchorText": "hiring the right general contractor for your project",
+      "intentMismatchFixed": true,
+      "rationale": "Current 301 lands on architectural-design, mismatched against the anchor's contractor-selection intent. Repoint to the live 200 /services/general-contracting/ (highest-authority GC service page, inbound 48) — the correct intent and a single-hop, direct link."
+    },
+    {
+      "findingId": "F-15",
+      "action": "repoint",
+      "sourceUrl": "https://www.maxxbuilders.com/comprehensive-guide-to-houstons-premier-commercial-contractors/",
+      "oldTarget": "https://www.maxxbuilders.com/choose-a-commercial-contractor/",
+      "newTarget": "https://www.maxxbuilders.com/services/general-contracting/",
+      "anchorText": "commercial general contracting services",
+      "intentMismatchFixed": true,
+      "rationale": "Link 301s to architectural-design (wrong intent for a contractor-selection anchor). Repoint directly to the live /services/general-contracting/ service page (inbound 48), the strongest contractor-selection-intent live target; removes redirect hop and aligns intent. Note target /services/architectural-design-and-engineering/ would be off-intent here."
+    },
+    {
+      "findingId": "F-15",
+      "action": "repoint",
+      "sourceUrl": "https://www.maxxbuilders.com/build-your-dream-dental-clinic-step-by-step-guide/",
+      "oldTarget": "https://www.maxxbuilders.com/dental-office-construction-cost-guide/",
+      "newTarget": "https://www.maxxbuilders.com/dental-office-construction-guide/",
+      "anchorText": "dental office construction cost and build-out guide",
+      "intentMismatchFixed": false,
+      "rationale": "Content link currently 301s from /dental-office-construction-cost-guide/ to its final live destination /dental-office-construction-guide/ (live 200). Intent is correct (dental construction cost/build-out); repoint straight to the resolved URL to remove the redirect hop."
+    },
+    {
+      "findingId": "F-15",
+      "action": "repoint",
+      "sourceUrl": "https://www.maxxbuilders.com/building-the-perfect-smile-a-guide-to-dental-office-construction-and-design/",
+      "oldTarget": "https://www.maxxbuilders.com/dental-office-construction-cost-guide/",
+      "newTarget": "https://www.maxxbuilders.com/dental-office-construction-guide/",
+      "anchorText": "guide to dental office construction costs",
+      "intentMismatchFixed": false,
+      "rationale": "Link 301s from /dental-office-construction-cost-guide/ to the live 200 /dental-office-construction-guide/. Intent matches (dental office construction/cost); repoint directly to the final destination to collapse the redirect hop."
+    },
+    {
+      "findingId": "F-5",
+      "action": "add",
+      "sourceUrl": "https://www.maxxbuilders.com/complete-guide-commercial-building-planning-execution/",
+      "targetUrl": "https://www.maxxbuilders.com/3-most-common-obstacles-in-commercial-construction-projects/",
+      "placementHint": "In the risk/challenges portion of the planning-and-execution guide, where it discusses what can go wrong once a project moves from planning into execution.",
+      "anchorText": "common obstacles that derail commercial construction projects",
+      "intentMismatchFixed": false,
+      "rationale": "Highest-authority planning hub in the cluster (inbound 21, clicks 4). Planning-execution content is the natural parent for an 'obstacles' explainer, so this passes real topical equity to the 0-inbound orphan from a page many others already link to."
+    },
+    {
+      "findingId": "F-5",
+      "action": "add",
+      "sourceUrl": "https://www.maxxbuilders.com/10-key-steps-to-a-successful-commercial-construction-project/",
+      "targetUrl": "https://www.maxxbuilders.com/3-most-common-obstacles-in-commercial-construction-projects/",
+      "placementHint": "Near the step covering risk anticipation / problem management, where the article tells owners to plan for things that go wrong.",
+      "anchorText": "the most common obstacles in commercial construction",
+      "intentMismatchFixed": false,
+      "rationale": "One of the strongest internal-link magnets on the site (inbound 22). A step-by-step success guide is a coherent host for a link to the obstacles page, and it routes authority from a well-referenced project-management page into the orphan."
+    },
+    {
+      "findingId": "F-5",
+      "action": "add",
+      "sourceUrl": "https://www.maxxbuilders.com/commercial-construction-project-timelines/",
+      "targetUrl": "https://www.maxxbuilders.com/3-most-common-obstacles-in-commercial-construction-projects/",
+      "placementHint": "In the section explaining causes of schedule slippage / why timelines stretch.",
+      "anchorText": "obstacles that commonly delay commercial projects",
+      "intentMismatchFixed": false,
+      "rationale": "Timeline delays are a direct subset of project obstacles, giving tight topical fit; the page also pulls real traffic (clicks 10), so the contextual link is both relevant and useful to readers landing on timeline queries."
+    },
+    {
+      "findingId": "F-5",
+      "action": "add",
+      "sourceUrl": "https://www.maxxbuilders.com/5-methods-to-accelerate-your-project-schedule/",
+      "targetUrl": "https://www.maxxbuilders.com/3-most-common-obstacles-in-commercial-construction-projects/",
+      "placementHint": "In the intro or problem-framing paragraph that explains why schedules fall behind before presenting acceleration methods.",
+      "anchorText": "obstacles that stall project schedules",
+      "intentMismatchFixed": false,
+      "rationale": "Cost/overrun-and-delay theme is a precise match for the obstacles page, and this source earns solid engagement (clicks 8) despite low inbound, so the link is topically coherent and reader-relevant while adding a durable 4th inbound for the de-orphan."
+    },
+    {
+      "findingId": "F-10",
+      "action": "add",
+      "sourceUrl": "https://www.maxxbuilders.com/texas-commercial-construction-cost-2025-2026/",
+      "targetUrl": "https://www.maxxbuilders.com/the-ultimate-2026-hotel-construction-cost-guide-texas-edition/",
+      "placementHint": "In the building-type / vertical cost-breakdown section where hospitality or hotel per-square-foot figures are mentioned.",
+      "anchorText": "hotel construction costs in Texas",
+      "intentMismatchFixed": false,
+      "rationale": "Highest-traffic cost guide on the site (inbound 9, clicks 52) and the canonical TX cost-per-sqft page; linking its hospitality cost mention to the flagship hotel guide routes significant equity to a money page that only has 2 inbound."
+    },
+    {
+      "findingId": "F-10",
+      "action": "add",
+      "sourceUrl": "https://www.maxxbuilders.com/top-commercial-building-types-in-demand-across-texas-2025-2027/",
+      "targetUrl": "https://www.maxxbuilders.com/the-ultimate-2026-hotel-construction-cost-guide-texas-edition/",
+      "placementHint": "At the hospitality/hotel building-type entry where hotel demand across Texas is discussed.",
+      "anchorText": "what it costs to build a hotel in Texas",
+      "intentMismatchFixed": false,
+      "rationale": "Highest inbound count in the dataset (inbound 31), making it a strong equity source; the hospitality building-type entry is a topically exact hand-off to the hotel cost guide."
+    },
+    {
+      "findingId": "F-10",
+      "action": "add",
+      "sourceUrl": "https://www.maxxbuilders.com/importance-of-mock-up-rooms-in-the-hospitality-industry/",
+      "targetUrl": "https://www.maxxbuilders.com/the-ultimate-2026-hotel-construction-cost-guide-texas-edition/",
+      "placementHint": "In the intro or planning section that frames mock-up rooms as part of overall hotel project cost and planning.",
+      "anchorText": "budgeting a Texas hotel build",
+      "intentMismatchFixed": false,
+      "rationale": "Hospitality-specific page with genuine engagement (clicks 8); mock-up rooms are a hotel-construction cost driver, so a link to the full hotel cost guide is a natural, non-forced contextual fit."
+    },
+    {
+      "findingId": "F-10",
+      "action": "add",
+      "sourceUrl": "https://www.maxxbuilders.com/how-to-keep-your-hotel-rooms-quiet-part-1-stc-rating/",
+      "targetUrl": "https://www.maxxbuilders.com/the-ultimate-2026-hotel-construction-cost-guide-texas-edition/",
+      "placementHint": "In the intro paragraph that connects acoustic/STC upgrades to the broader cost of building a hotel.",
+      "anchorText": "the overall hotel construction budget",
+      "intentMismatchFixed": false,
+      "rationale": "Hotel-specific source (clicks 3) whose acoustic-upgrade topic ties directly to total hotel build cost; adds a 4th topically-coherent inbound to reach the +3 goal with room to spare."
+    }
+  ],
+  "homepage_prepare_only": {
+    "override_required": "do_not_touch",
+    "rationale": "F-6 PREPARE-ONLY recommendation (homepage is do_not_touch — requires explicit operator override before any apply; this artifact applies nothing). The homepage is the highest-authority node on the site (inbound 11, clicks 141) yet routes internal equity to only one priority money page (/design-build-construction-houston-2/, the sole entry in homepageOutbound). That strands the six cost-guide money pages — several of which are the site's top organic earners (warehouse 42 clicks, Dallas 23, car wash 22, Houston 21, medical 16, hotel 13) but sit on thin inbound counts (hotel 2, car wash 2, medical 6). A single 'Guides & Services' navigational block on the homepage would pass first-hop equity from the strongest source page directly into all six money guides plus the design-build service page, tightening the money-page cluster and giving crawlers a canonical hub path to the highest-intent commercial pages. All seven targets are verified live 200s in allLivePages; none is a self-link (source is '/'); none links into the held /8-key-considerations-for-building-a-restaurant/ page. Anchors are descriptive and specific (no exact-match stuffing, no generic 'click here'). URL note: the live warehouse guide is /cost-per-square-foot-build-warehouse-texas/ (the CLAUDE.md keyword-map slug /warehouse-construction-cost-per-square-foot-a-comprehensive-guide/ is not in allLivePages), and the live design-build page is /design-build-construction-houston-2/ (already homepage-linked; retained in the block to keep one consolidated hub). Because the homepage is protected, do NOT apply — escalate for operator sign-off, confirm a restorable production backup, apply as one small batch, and verify rendered output before proceeding.",
+    "links": [
+      {
+        "targetUrl": "https://www.maxxbuilders.com/the-ultimate-2026-hotel-construction-cost-guide-texas-edition/",
+        "anchorText": "2026 Texas hotel construction cost guide"
+      },
+      {
+        "targetUrl": "https://www.maxxbuilders.com/medical-office-construction-costs-texas-2026-comprehensive-guide/",
+        "anchorText": "Texas medical office construction costs (2026)"
+      },
+      {
+        "targetUrl": "https://www.maxxbuilders.com/cost-per-square-foot-build-warehouse-texas/",
+        "anchorText": "Texas warehouse cost per square foot"
+      },
+      {
+        "targetUrl": "https://www.maxxbuilders.com/commercial-construction-cost-houston-tx/",
+        "anchorText": "Houston commercial construction costs"
+      },
+      {
+        "targetUrl": "https://www.maxxbuilders.com/dallas-commercial-construction-costs-2025-2026/",
+        "anchorText": "Dallas commercial construction costs"
+      },
+      {
+        "targetUrl": "https://www.maxxbuilders.com/cost-to-build-a-car-wash-in-texas/",
+        "anchorText": "cost to build a car wash in Texas"
+      },
+      {
+        "targetUrl": "https://www.maxxbuilders.com/design-build-construction-houston-2/",
+        "anchorText": "design-build construction in Houston"
+      }
+    ]
+  },
+  "rejected": []
+}

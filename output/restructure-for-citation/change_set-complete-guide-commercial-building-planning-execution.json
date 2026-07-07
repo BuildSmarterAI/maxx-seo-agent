@@ -1,0 +1,33 @@
+{
+  "skill": "restructure-for-citation",
+  "generated_at": "2026-07-06",
+  "query": "How do you plan and execute a commercial building project?",
+  "platform": "wordpress",
+  "page_id": null,
+  "url": "https://www.maxxbuilders.com/complete-guide-commercial-building-planning-execution/",
+  "status": "pending",
+  "field": "content",
+  "change_type": "restructure-for-citation",
+  "base_value": null,
+  "answer_block": "<div class=\"tldr\">\n<p><strong>Answer:</strong> You plan and execute a commercial building project by moving through six sequential phases, then managing post-construction. Because early decisions carry the most weight — programming and concept lock in 60-80% of total cost — the sequence front-loads the highest-leverage work before crews mobilize.</p>\n<ol>\n<li><strong>Project Feasibility and Site Selection</strong></li>\n<li><strong>Design and Planning</strong></li>\n<li><strong>Budgeting and Financing</strong></li>\n<li><strong>Permitting and Legal Compliance</strong></li>\n<li><strong>Construction Management</strong></li>\n<li><strong>Final Inspection and Handover</strong></li>\n</ol>\n<p>After handover, Post-Construction Considerations (operations, warranty, and closeout) complete the project.</p>\n</div>",
+  "answer_block_plain": "Answer: You plan and execute a commercial building project by moving through six sequential phases, then managing post-construction. Because early decisions carry the most weight — programming and concept lock in 60-80% of total cost — the sequence front-loads the highest-leverage work before crews mobilize.\n\n1. Project Feasibility and Site Selection\n2. Design and Planning\n3. Budgeting and Financing\n4. Permitting and Legal Compliance\n5. Construction Management\n6. Final Inspection and Handover\n\nAfter handover, Post-Construction Considerations (operations, warranty, and closeout) complete the project.",
+  "new_value_description": "Prepend answer_block immediately after the H1, before existing intro. Preserve all original body content below. page_id + base_value (current post_content) resolved at apply time via WP REST read.",
+  "claims_used": [
+    "2.1 Project Feasibility and Site Selection",
+    "2.2 Design and Planning",
+    "2.3 Budgeting and Financing",
+    "2.4 Permitting and Legal Compliance",
+    "2.5 Construction Management",
+    "2.6 Final Inspection and Handover",
+    "Programming & Concept: Locking 60-80% of Total Cost",
+    "3. Post-Construction Considerations"
+  ],
+  "verification": {
+    "verdict": "pass",
+    "grounded": true,
+    "titleLen": 53,
+    "descLen": 154,
+    "notes": "The only quantitative claim in the answer block — \"programming and concept lock in 60-80% of total cost\" — is directly grounded in the source heading \"Programming & Concept: Locking 60-80% of Total Cost\". The six sequential phases map verbatim to source headings 2.1-2.6, and \"Post-Construction Considerations\" maps to heading 3. The block does not use any of the page's stray dollar figures ($20/$250/$650/$1.5), so no fabrication risk. Title 53 chars, description 154 chars, both within limits. Block directly answers the monitored query with the phase sequence. Language is natural, not keyword-stuffed."
+  },
+  "notes": "Answer block grounded strictly in the page's own cost figures (adversarially verified). H1/URL unchanged. No body content deleted."
+}

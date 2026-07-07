@@ -1,0 +1,164 @@
+{
+  "generatedAt": "2026-07-06",
+  "finding": "F-9",
+  "status": "pending-approval",
+  "applyMethod": "Yoast sitemap settings + per-post/taxonomy noindex (no content edits). Re-submit sitemap in GSC after.",
+  "excludeFromSitemap": {
+    "redirecting301": [
+      {
+        "url": "https://www.maxxbuilders.com/texas-commercial-building-costs-guide/",
+        "reason": "301s to /comprehensive-guide-to-commercial-construction-costs-per-square-foot-in-texas-2025/ — a redirecting URL must not be in the sitemap",
+        "action": "exclude"
+      },
+      {
+        "url": "https://www.maxxbuilders.com/dental-office-construction-cost-guide/",
+        "reason": "301s to /dental-office-construction-guide/ — a redirecting URL must not be in the sitemap",
+        "action": "exclude"
+      },
+      {
+        "url": "https://www.maxxbuilders.com/choose-a-commercial-contractor/",
+        "reason": "301s to /services/architectural-design-and-engineering/ — a redirecting URL must not be in the sitemap",
+        "action": "exclude"
+      },
+      {
+        "url": "https://www.maxxbuilders.com/the-cost-of-a-tenant-build-out-per-square-foot/",
+        "reason": "301s to /understanding-commercial-build-outs-guide/ — a redirecting URL must not be in the sitemap",
+        "action": "exclude"
+      }
+    ],
+    "utility": [
+      {
+        "url": "https://www.maxxbuilders.com/opt-out-from-email-and-sms/",
+        "reason": "utility/thank-you/orphan page — no search value",
+        "action": "noindex + exclude"
+      },
+      {
+        "url": "https://www.maxxbuilders.com/single-page/",
+        "reason": "utility/thank-you/orphan page — no search value",
+        "action": "noindex + exclude"
+      },
+      {
+        "url": "https://www.maxxbuilders.com/thank-you/",
+        "reason": "utility/thank-you/orphan page — no search value",
+        "action": "noindex + exclude"
+      },
+      {
+        "url": "https://www.maxxbuilders.com/locations.kml/",
+        "reason": "utility/thank-you/orphan page — no search value",
+        "action": "noindex + exclude"
+      }
+    ],
+    "taxonomyArchives": [
+      {
+        "url": "https://www.maxxbuilders.com/project-type/fuel-stations/",
+        "reason": "thin custom-taxonomy archive (~280–307w template chrome, orphaned, self-canonical, indexable)",
+        "action": "noindex + exclude"
+      },
+      {
+        "url": "https://www.maxxbuilders.com/project-type/fitness/",
+        "reason": "thin custom-taxonomy archive (~280–307w template chrome, orphaned, self-canonical, indexable)",
+        "action": "noindex + exclude"
+      },
+      {
+        "url": "https://www.maxxbuilders.com/project-type/corporate-interiors/",
+        "reason": "thin custom-taxonomy archive (~280–307w template chrome, orphaned, self-canonical, indexable)",
+        "action": "noindex + exclude"
+      },
+      {
+        "url": "https://www.maxxbuilders.com/project-type/multi-family-mixed-use/",
+        "reason": "thin custom-taxonomy archive (~280–307w template chrome, orphaned, self-canonical, indexable)",
+        "action": "noindex + exclude"
+      },
+      {
+        "url": "https://www.maxxbuilders.com/project-type/industrial-warehouse/",
+        "reason": "thin custom-taxonomy archive (~280–307w template chrome, orphaned, self-canonical, indexable)",
+        "action": "noindex + exclude"
+      },
+      {
+        "url": "https://www.maxxbuilders.com/project-type/hospitality-entertainment/",
+        "reason": "thin custom-taxonomy archive (~280–307w template chrome, orphaned, self-canonical, indexable)",
+        "action": "noindex + exclude"
+      },
+      {
+        "url": "https://www.maxxbuilders.com/project-type/tenant-improvements/",
+        "reason": "thin custom-taxonomy archive (~280–307w template chrome, orphaned, self-canonical, indexable)",
+        "action": "noindex + exclude"
+      },
+      {
+        "url": "https://www.maxxbuilders.com/project-type/retail-shopping-centers/",
+        "reason": "thin custom-taxonomy archive (~280–307w template chrome, orphaned, self-canonical, indexable)",
+        "action": "noindex + exclude"
+      },
+      {
+        "url": "https://www.maxxbuilders.com/project-type/healthcare-facilities/",
+        "reason": "thin custom-taxonomy archive (~280–307w template chrome, orphaned, self-canonical, indexable)",
+        "action": "noindex + exclude"
+      },
+      {
+        "url": "https://www.maxxbuilders.com/project-type/restaurants/",
+        "reason": "thin custom-taxonomy archive (~280–307w template chrome, orphaned, self-canonical, indexable)",
+        "action": "noindex + exclude"
+      },
+      {
+        "url": "https://www.maxxbuilders.com/project-attributes/houston/",
+        "reason": "thin custom-taxonomy archive (~280–307w template chrome, orphaned, self-canonical, indexable)",
+        "action": "noindex + exclude"
+      },
+      {
+        "url": "https://www.maxxbuilders.com/project-attributes/pflugerville/",
+        "reason": "thin custom-taxonomy archive (~280–307w template chrome, orphaned, self-canonical, indexable)",
+        "action": "noindex + exclude"
+      },
+      {
+        "url": "https://www.maxxbuilders.com/project-attributes/sugarland/",
+        "reason": "thin custom-taxonomy archive (~280–307w template chrome, orphaned, self-canonical, indexable)",
+        "action": "noindex + exclude"
+      },
+      {
+        "url": "https://www.maxxbuilders.com/project-attributes/pearland/",
+        "reason": "thin custom-taxonomy archive (~280–307w template chrome, orphaned, self-canonical, indexable)",
+        "action": "noindex + exclude"
+      },
+      {
+        "url": "https://www.maxxbuilders.com/project-attributes/rosenberg/",
+        "reason": "thin custom-taxonomy archive (~280–307w template chrome, orphaned, self-canonical, indexable)",
+        "action": "noindex + exclude"
+      },
+      {
+        "url": "https://www.maxxbuilders.com/project-attributes/pasadena/",
+        "reason": "thin custom-taxonomy archive (~280–307w template chrome, orphaned, self-canonical, indexable)",
+        "action": "noindex + exclude"
+      },
+      {
+        "url": "https://www.maxxbuilders.com/project-attributes/richmond/",
+        "reason": "thin custom-taxonomy archive (~280–307w template chrome, orphaned, self-canonical, indexable)",
+        "action": "noindex + exclude"
+      },
+      {
+        "url": "https://www.maxxbuilders.com/project-attributes/league-city/",
+        "reason": "thin custom-taxonomy archive (~280–307w template chrome, orphaned, self-canonical, indexable)",
+        "action": "noindex + exclude"
+      },
+      {
+        "url": "https://www.maxxbuilders.com/project-attributes/rd-katy/",
+        "reason": "thin custom-taxonomy archive (~280–307w template chrome, orphaned, self-canonical, indexable)",
+        "action": "noindex + exclude"
+      }
+    ]
+  },
+  "keepInSitemap_doNotExclude": {
+    "note": "These read as thin ONLY because entry-content extraction under-reads Elementor builds. Body-text spot-checks confirm real content. Do NOT exclude.",
+    "examples": [
+      "/locations/* (San Antonio = 2,133 words)",
+      "/industries/* (hotel-hospitality = 1,176 words)",
+      "/projects/* section landing pages (~305 words, legitimate)",
+      "/blog/ (thin index — fix via F-17 category hubs, not exclusion)"
+    ]
+  },
+  "totals": {
+    "redirecting": 4,
+    "utility": 4,
+    "taxonomyArchives": 19,
+    "totalExclusions": 27
+  }
+}

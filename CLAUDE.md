@@ -33,10 +33,11 @@ Top clusters (one page per cluster — do not cannibalize across clusters):
 | --- | --- | --- |
 | Hotel construction cost Texas | `/the-ultimate-2026-hotel-construction-cost-guide-texas-edition/` | Commercial info |
 | Medical office construction cost Texas | `/medical-office-construction-costs-texas-2026-comprehensive-guide/` | Commercial info |
-| Warehouse construction cost TX | `/warehouse-construction-cost-per-square-foot-a-comprehensive-guide/` | Commercial info |
+| Warehouse construction cost TX | `/cost-per-square-foot-build-warehouse-texas/` | Commercial info |
+| Texas commercial construction cost (statewide) | `/texas-commercial-construction-cost-2025-2026/` | Commercial info — keep distinct from Houston/Dallas city pages |
 | Commercial construction cost Houston | `/commercial-construction-cost-houston-tx/` | Local commercial |
 | Commercial construction cost Dallas | `/dallas-commercial-construction-costs-2025-2026/` | Local commercial |
-| Design-build Houston | `/design-build-construction-houston/` | Service/transactional |
+| Design-build Houston | `/design-build-construction-houston-2/` | Service/transactional |
 | Restaurant construction tips/cost | `/8-key-considerations-for-building-a-restaurant/` + `/cost-efficient-strategies-restaurant-construction/` | Commercial info — watch cannibalization |
 | Car wash construction cost TX | `/cost-to-build-a-car-wash-in-texas/` | Commercial info |
 | Retail contractor rankings Houston | `/best-retail-construction-contractors-in-houston-2026-rankings/` | Commercial info |
@@ -58,7 +59,7 @@ Known cannibalization risk: restaurant cluster has two pages targeting overlappi
 
 **Doorway guardrail:** warn at 30 generated location pages, hard-stop at 50 pending human review.
 
-**AI-search:** answer-first blocks, TL;DR, comparison tables; cover full query intent. Do NOT generate llms.txt for AI citations (engines crawl it but do not cite from it — Google "mythbusted" it May 2026), content chunking, or keyword-variation rewriting. Answer-first structure + valid schema are what earn citations.
+**AI-search:** answer-first blocks, TL;DR, comparison tables; cover full query intent. Do NOT invest in content chunking or keyword-variation rewriting. llms.txt: keep the existing `/llms.txt` live as a zero-cost agent-routing hedge (operator decision 2026-07-06) — expect no SEO or citation value (Google Search ignores it per June 2026 guidance; AI retrieval bots rarely fetch it); keep it accurate when brand facts change and noindex it. Answer-first structure + valid schema are what earn citations.
 
 ## Workflow rules
 

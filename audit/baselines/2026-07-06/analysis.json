@@ -1,0 +1,3545 @@
+{
+ "totals": {
+  "sitemap": 237,
+  "fetched": 239,
+  "ok200": 238
+ },
+ "specials": {
+  "/llms.txt": 200,
+  "/indexnow.txt": 404,
+  "/ai.txt": 404
+ },
+ "robotsTxt": "# START YOAST BLOCK\n# ---------------------------\nUser-agent: *\nDisallow:\n\nSitemap: https://www.maxxbuilders.com/sitemap_index.xml\n# ---------------------------\n# END YOAST BLOCK",
+ "sitemapRedirects": [
+  {
+   "url": "/texas-commercial-building-costs-guide/",
+   "to": "/comprehensive-guide-to-commercial-construction-costs-per-square-foot-in-texas-2025/",
+   "hops": 1
+  },
+  {
+   "url": "/dental-office-construction-cost-guide/",
+   "to": "/dental-office-construction-guide/",
+   "hops": 1
+  },
+  {
+   "url": "/choose-a-commercial-contractor/",
+   "to": "/services/architectural-design-and-engineering/",
+   "hops": 1
+  },
+  {
+   "url": "/the-cost-of-a-tenant-build-out-per-square-foot/",
+   "to": "/understanding-commercial-build-outs-guide/",
+   "hops": 1
+  }
+ ],
+ "multiHop": [],
+ "noindexed": [],
+ "canonicalAway": [],
+ "missingCanonical": [
+  "/blog/",
+  "/commercial-property-construction-loans-in-texas-2026-how-to-qualify-fast/",
+  "/financing-options-for-commercial-construction-projects/",
+  "/top-commercial-building-types-in-demand-across-texas-2025-2027/",
+  "/the-complete-guide-to-tenant-improvement-allowance-for-commercial-leases/",
+  "/tenant-improvement-contractors-guide/",
+  "/the-ultimate-checklist-for-project-owners-starting-a-commercial-construction-project/",
+  "/comprehensive-guide-to-commercial-construction-costs-per-square-foot-in-texas-2025/",
+  "/why-75-of-commercial-construction-projects-miss-deadlines/",
+  "/mastering-tenant-improvement-construction-a-comprehensive-guide/",
+  "/enhancing-commercial-spaces-tenant-improvements-guide/",
+  "/value-engineering-guide-commercial-construction/",
+  "/leading-construction-companies-houston-texas/",
+  "/maxx-builders-houston-commercial-construction-guide/",
+  "/cost-effective-commercial-construction-strategies/",
+  "/texas-commercial-building-costs-guide/",
+  "/selecting-perfect-site-commercial-location/",
+  "/navigating-aia-construction-contracts/",
+  "/building-healthcare-facilities-guide/",
+  "/guide-commercial-construction-bids/",
+  "/harnessing-ai-construction-maxx-builders/",
+  "/culinary-constructions-designing-the-perfect-restaurant-space/",
+  "/choosing-commercial-general-contractor-guide/",
+  "/preparing-for-a-commercial-construction-project-a-clients-guide/",
+  "/challenges-and-considerations-when-planning-mixed-use-developments/",
+  "/how-to-choose-the-right-commercial-general-contractor-for-your-project/",
+  "/new-construction-permit-process-guide/",
+  "/comprehensive-guide-to-houstons-premier-commercial-contractors/",
+  "/successful-construction-project-guide/",
+  "/office-construction-trends-to-watch-in-2024/"
+ ],
+ "soft404": [
+  {
+   "url": "/blog/",
+   "words": 58,
+   "title": "Blog | Maxx Builders"
+  },
+  {
+   "url": "/projects/multi-family-and-mixed-use/",
+   "words": 2,
+   "title": "Multi-family + Mixed Use | Maxx Builders"
+  },
+  {
+   "url": "/projects/fuel-stations/",
+   "words": 4,
+   "title": "Fuel Stations | Maxx Builders"
+  },
+  {
+   "url": "/projects/healthcare-facilities/",
+   "words": 2,
+   "title": "Healthcare Facilities | Maxx Builders"
+  },
+  {
+   "url": "/projects/corporate-interiors/",
+   "words": 1,
+   "title": "Corporate Interiors | Maxx Builders"
+  },
+  {
+   "url": "/projects/hospitality-entertainment/",
+   "words": 3,
+   "title": "Hospitality + Entertainment | Maxx Builders"
+  },
+  {
+   "url": "/projects/",
+   "words": 3,
+   "title": "Commercial Construction Projects | Maxx Builders"
+  },
+  {
+   "url": "/projects/restaurants/",
+   "words": 3,
+   "title": "Restaurants | Maxx Builders"
+  },
+  {
+   "url": "/projects/tenant-improvements/",
+   "words": 2,
+   "title": "Tenant Improvements | Maxx Builders"
+  },
+  {
+   "url": "/projects/retail-shopping-centers/",
+   "words": 3,
+   "title": "Retail Shopping Centers | Maxx Builders"
+  },
+  {
+   "url": "/projects/industrial-and-warehouse/",
+   "words": 3,
+   "title": "Industrial + Warehouse | Maxx Builders"
+  },
+  {
+   "url": "/industries/retail-construction-texas/",
+   "words": 3,
+   "title": "Retail Construction Services in Texas | Maxx Builders"
+  },
+  {
+   "url": "/industries/healthcare-medical-construction-texas/",
+   "words": 2,
+   "title": "Healthcare & Medical Construction Texas | Maxx Builders"
+  },
+  {
+   "url": "/industries/fitness-gym-construction-texas/",
+   "words": 2,
+   "title": "Fitness & Gym Construction Texas | Maxx Builders"
+  },
+  {
+   "url": "/industries/industrial-warehouse-construction-texas/",
+   "words": 3,
+   "title": "Industrial & Warehouse Construction Texas | Maxx Builders"
+  },
+  {
+   "url": "/industries/hotel-hospitality-construction-texas/",
+   "words": 3,
+   "title": "Hotel & Hospitality Construction Texas | Maxx Builders"
+  },
+  {
+   "url": "/locations/arlington-commercial-construction-companies/",
+   "words": 0,
+   "title": "Commercial General Contractors in Arlington, TX | Maxx Builders"
+  },
+  {
+   "url": "/locations/irving-premier-commercial-contractors/",
+   "words": 0,
+   "title": "Commercial General Contractors in Irving, TX | Maxx Builders"
+  },
+  {
+   "url": "/locations/the-woodlands-commercial-contractors/",
+   "words": 0,
+   "title": "Premier Commercial General Contractors in The Woodlands, TX | Maxx Builders"
+  },
+  {
+   "url": "/locations/san-antonio-commercial-contractors/",
+   "words": 0,
+   "title": "Commercial General Contractors in San Antonio, TX | Maxx Builders"
+  }
+ ],
+ "invalidJsonld": [],
+ "titleMissing": [],
+ "titleLong": [
+  {
+   "url": "/commercial-property-construction-loans-in-texas-2026-how-to-qualify-fast/",
+   "len": 64,
+   "title": "Commercial Property Construction Loans Texas 2025 | Qualify Fast"
+  },
+  {
+   "url": "/the-ultimate-checklist-for-project-owners-starting-a-commercial-construction-project/",
+   "len": 62,
+   "title": "Essential Commercial Construction Checklist for Project Owners"
+  },
+  {
+   "url": "/why-75-of-commercial-construction-projects-miss-deadlines/",
+   "len": 63,
+   "title": "Why 75% of Construction Projects Miss Deadlines | KPMG Research"
+  },
+  {
+   "url": "/mastering-tenant-improvement-construction-a-comprehensive-guide/",
+   "len": 63,
+   "title": "Tenant Improvement Construction Guide-Maxx Builders Expert Tips"
+  },
+  {
+   "url": "/value-engineering-guide-commercial-construction/",
+   "len": 63,
+   "title": "Strategic Guide to Value Engineering in Commercial Construction"
+  },
+  {
+   "url": "/selecting-perfect-site-commercial-location/",
+   "len": 67,
+   "title": "Selecting the Perfect Site: Ultimate Guide for Commercial Locations"
+  },
+  {
+   "url": "/navigating-aia-construction-contracts/",
+   "len": 72,
+   "title": "Navigating AIA Construction Contracts - Essential Guide by Maxx Builders"
+  },
+  {
+   "url": "/dental-office-construction-cost-guide/",
+   "len": 61,
+   "title": "Dental Office Construction Texas: 2026 Cost & Build-Out Guide"
+  },
+  {
+   "url": "/culinary-constructions-designing-the-perfect-restaurant-space/",
+   "len": 62,
+   "title": "Culinary Constructions: Designing the Perfect Restaurant Space"
+  },
+  {
+   "url": "/choosing-commercial-general-contractor-guide/",
+   "len": 61,
+   "title": "Choosing a Commercial General Contractor: Your Ultimate Guide"
+  },
+  {
+   "url": "/preparing-for-a-commercial-construction-project-a-clients-guide/",
+   "len": 74,
+   "title": "Preparing for a Commercial Construction Project: The Ultimate Client Guide"
+  },
+  {
+   "url": "/how-to-choose-the-right-commercial-general-contractor-for-your-project/",
+   "len": 64,
+   "title": "Selecting the Right Commercial General Contractor In-Depth Guide"
+  },
+  {
+   "url": "/new-construction-permit-process-guide/",
+   "len": 63,
+   "title": "Ultimate Guide to Permit Process in New Commercial Construction"
+  },
+  {
+   "url": "/office-construction-how-to-meet-deadlines-without-sacrificing-quality/",
+   "len": 70,
+   "title": "Office Construction: How to Meet Deadlines Without Sacrificing Quality"
+  },
+  {
+   "url": "/the-role-of-technology-in-modern-office-construction/",
+   "len": 68,
+   "title": "The Role of Technology in Modern Office Construction | Maxx Builders"
+  },
+  {
+   "url": "/5-tips-for-streamlining-your-office-construction-project/",
+   "len": 72,
+   "title": "5 Tips for Streamlining Your Office Construction Project | Maxx Builders"
+  },
+  {
+   "url": "/key-considerations-for-franchise-renovations/",
+   "len": 74,
+   "title": "Revamp Right: Key Considerations for Franchise Renovations | Maxx Builders"
+  },
+  {
+   "url": "/permits-zoning-compliance-shopping-center-developers/",
+   "len": 79,
+   "title": "Permits & Zoning 101: Compliance for Shopping Center Developers | Maxx Builders"
+  },
+  {
+   "url": "/efficient-floor-plans-for-franchise-success/",
+   "len": 74,
+   "title": "Space Mastery: Efficient Floor Plans for Franchise Success | Maxx Builders"
+  },
+  {
+   "url": "/guide-shopping-center-construction-costs/",
+   "len": 84,
+   "title": "Crunching the Numbers: A Guide to Shopping Center Construction Costs | Maxx Builders"
+  },
+  {
+   "url": "/mitigating-construction-risks-in-shopping-centers-2/",
+   "len": 83,
+   "title": "Risk-Free Retail: Mitigating Construction Risks in Shopping Centers | Maxx Builders"
+  },
+  {
+   "url": "/financing-options-for-shopping-center-projects-ultimate-guide/",
+   "len": 64,
+   "title": "Ultimate Guide to Financing Options for Shopping Center Projects"
+  },
+  {
+   "url": "/navigating-franchise-build-out-costs/",
+   "len": 76,
+   "title": "Crunching Numbers: Navigating Your Franchise Build-Out Costs | Maxx Builders"
+  },
+  {
+   "url": "/effective-layouts-for-shopping-centers/",
+   "len": 77,
+   "title": "Designing for Success: Effective Layouts for Shopping Centers | Maxx Builders"
+  },
+  {
+   "url": "/mitigating-risks-smooth-construction-development/",
+   "len": 90,
+   "title": "Mitigating Risks: Proactive Strategies for Smooth Construction Development | Maxx Builders"
+  },
+  {
+   "url": "/smooth-sailing-zoning-permitting-restaurant-build/",
+   "len": 61,
+   "title": "Guide to Navigating Zoning and Permitting for Your Restaurant"
+  },
+  {
+   "url": "/guide-funding-building-project-successfully/",
+   "len": 91,
+   "title": "Construction Capital: A Guide to Funding Your Building Project Successfully | Maxx Builders"
+  },
+  {
+   "url": "/the-top-10-factors-to-consider-when-choosing-a-car-wash-site/",
+   "len": 76,
+   "title": "The Top 10 Factors to Consider When Choosing a Car Wash Site | Maxx Builders"
+  },
+  {
+   "url": "/selecting-prime-spots-for-shopping-centers/",
+   "len": 88,
+   "title": "Location, Location, Location: Selecting Prime Spots for Shopping Centers | Maxx Builders"
+  },
+  {
+   "url": "/picking-profitable-locations-warehouse-development/",
+   "len": 94,
+   "title": "Site Selection Mastery: Picking Profitable Locations for Warehouse Development | Maxx Builders"
+  },
+  {
+   "url": "/optimizing-warehouse-space-design-strategies/",
+   "len": 90,
+   "title": "Optimizing Warehouse Space: Design Strategies for Efficiency & Flexibility | Maxx Builders"
+  },
+  {
+   "url": "/design-build-commercial-contractors-streamlining-the-construction-process/",
+   "len": 90,
+   "title": "Design-Build Commercial Contractors: Streamlining the Construction Process | Maxx Builders"
+  },
+  {
+   "url": "/securing-key-tenants-for-shopping-center/",
+   "len": 86,
+   "title": "Attracting Anchors: How to Secure Key Tenants for Your Shopping Center | Maxx Builders"
+  },
+  {
+   "url": "/building-the-perfect-smile-a-guide-to-dental-office-construction-and-design/",
+   "len": 92,
+   "title": "Building the Perfect Smile: A Guide to Dental Office Construction and Design | Maxx Builders"
+  },
+  {
+   "url": "/understanding-costs-commercial-real-estate-construction/",
+   "len": 89,
+   "title": "Understanding the Variables: Costs in Commercial Real Estate Construction | Maxx Builders"
+  },
+  {
+   "url": "/7-key-steps-in-creating-and-managing-a-commercial-construction-schedule/",
+   "len": 87,
+   "title": "7 Key Steps in Creating and Managing a Commercial Construction Schedule | Maxx Builders"
+  },
+  {
+   "url": "/what-does-it-cost-to-build-an-industrial-warehouse/",
+   "len": 67,
+   "title": "What Does it Cost to Build an Industrial Warehouse? | Maxx Builders"
+  },
+  {
+   "url": "/lien-waivers-on-commercial-construction-projects-what-you-need-to-know/",
+   "len": 87,
+   "title": "Lien Waivers on Commercial Construction Projects: What You Need to Know | Maxx Builders"
+  },
+  {
+   "url": "/commercial-real-estate-development-step-by-step-process-start-to-finish/",
+   "len": 88,
+   "title": "Commercial Real Estate Development Step-by-step Process: Start to Finish | Maxx Builders"
+  },
+  {
+   "url": "/top-5-factors-that-influence-the-cost-of-office-remodel-or-build-out-of-your-space/",
+   "len": 98,
+   "title": "Top 5 Factors That Influence the Cost of Office Remodel or Build-Out of your Space | Maxx Builders"
+  },
+  {
+   "url": "/key-responsibilities-of-a-commercial-general-contractor/",
+   "len": 71,
+   "title": "Key Responsibilities of a Commercial General Contractor | Maxx Builders"
+  },
+  {
+   "url": "/top-5-questions-to-ask-before-purchasing-commercial-property-part-3-site-infrastructure/",
+   "len": 106,
+   "title": "Top 5 Questions to Ask Before Purchasing Commercial Property (Part 3: Site Infrastructure) | Maxx Builders"
+  },
+  {
+   "url": "/7-tips-for-evaluating-a-commercial-construction-bid/",
+   "len": 67,
+   "title": "7 Tips for Evaluating a Commercial Construction Bid | Maxx Builders"
+  },
+  {
+   "url": "/7-factors-that-affect-the-construction-cost-of-a-commercial-construction-project/",
+   "len": 96,
+   "title": "7 Factors that Affect the Construction Cost of a Commercial Construction Project | Maxx Builders"
+  },
+  {
+   "url": "/importance-of-quality-control-processes-of-commercial-contractors-inspect-it-now-or-fix-it-later/",
+   "len": 113,
+   "title": "Importance of Quality Control Processes of Commercial Contractors: Inspect it Now or Fix it Later | Maxx Builders"
+  },
+  {
+   "url": "/how-to-maximize-roi-with-smarter-design-construction-on-the-warehouse-distribution-center/",
+   "len": 107,
+   "title": "How to Maximize ROI with Smarter Design + Construction on the Warehouse Distribution Center | Maxx Builders"
+  },
+  {
+   "url": "/what-is-the-cost-of-construction-for-a-self-storage-facility/",
+   "len": 77,
+   "title": "What is the Cost of Construction for a Self-Storage Facility? | Maxx Builders"
+  },
+  {
+   "url": "/10-factors-that-affect-quality-on-commercial-construction-projects/",
+   "len": 86,
+   "title": "10 Factors that Affect the Quality of Commercial Construction Projects | Maxx Builders"
+  },
+  {
+   "url": "/top-10-questions-to-ask-before-selecting-your-commercial-contractor/",
+   "len": 84,
+   "title": "Top 10 Questions to Ask Before Selecting your Commercial Contractor? | Maxx Builders"
+  },
+  {
+   "url": "/top-5-tips-for-your-next-commercial-construction-project/",
+   "len": 72,
+   "title": "Top 5 Tips For Your Next Commercial Construction Project | Maxx Builders"
+  },
+  {
+   "url": "/benefits-of-lessons-learned-in-construction-management/",
+   "len": 70,
+   "title": "Benefits of Lessons Learned in Construction Management | Maxx Builders"
+  },
+  {
+   "url": "/top-practices-for-a-zero-punchlist-commercial-construction-project/",
+   "len": 82,
+   "title": "Top Practices for a Zero Punchlist Commercial Construction Project | Maxx Builders"
+  },
+  {
+   "url": "/why-logistic-planning-are-critical-to-the-success-of-any-construction-project/",
+   "len": 93,
+   "title": "Why Logistic Planning are critical to the success of any construction project | Maxx Builders"
+  },
+  {
+   "url": "/5-methods-to-accelerate-your-project-schedule/",
+   "len": 61,
+   "title": "5 Methods to Accelerate Your Project Schedule | Maxx Builders"
+  },
+  {
+   "url": "/10-reasons-construction-project-falls-behind-schedule/",
+   "len": 69,
+   "title": "10 Reasons Construction Project falls behind Schedule | Maxx Builders"
+  },
+  {
+   "url": "/top-10-questions-to-ask-before-purchasing-your-commercial-property-part-2-zoning/",
+   "len": 99,
+   "title": "Top 10 Questions to Ask Before Purchasing Your Commercial Property (Part 2: Zoning) | Maxx Builders"
+  },
+  {
+   "url": "/design-build-construction-houston-2/",
+   "len": 65,
+   "title": "Design-Build Construction Houston | Maxx Builders | Maxx Builders"
+  },
+  {
+   "url": "/7-critical-steps-for-a-successful-commercial-construction-project-closeouts/",
+   "len": 91,
+   "title": "7 Critical Steps for a Successful Commercial Construction Project Closeouts | Maxx Builders"
+  },
+  {
+   "url": "/concrete-tilt-up-vs-masonry-buildings-comparison/",
+   "len": 62,
+   "title": "Concrete Tilt-up vs. Masonry Buildings: An In-Depth Comparison"
+  },
+  {
+   "url": "/4-major-strategies-in-commercial-real-estate-investing-explained/",
+   "len": 80,
+   "title": "4 Major Strategies in Commercial Real Estate Investing Explained | Maxx Builders"
+  },
+  {
+   "url": "/5-best-types-of-commercial-real-estate-loans-to-consider-for-your-business-expansion-or-cre-project/",
+   "len": 115,
+   "title": "5 Best Types of Commercial Real Estate Loans To Consider For Your Business Expansion or CRE Project | Maxx Builders"
+  },
+  {
+   "url": "/inc-magazine-unveils-its-37th-annual-list-of-americas-fastest-growing-private-companies-the-inc-5/",
+   "len": 116,
+   "title": "Inc. Magazine Unveils its 37th Annual List of America’s Fastest-Growing Private Companies—the Inc. 5 | Maxx Builders"
+  },
+  {
+   "url": "/5-key-insights-trends-in-retail-from-icsc-recon-2019/",
+   "len": 70,
+   "title": "5 Key Insights & Trends in Retail from ICSC RECon 2019 | Maxx Builders"
+  },
+  {
+   "url": "/what-is-constructability-review-the-benefits-for-your-next-project/",
+   "len": 84,
+   "title": "What is Constructability Review & the Benefits for Your Next Project | Maxx Builders"
+  },
+  {
+   "url": "/how-to-keep-your-hotel-rooms-quiet-part-1-stc-rating/",
+   "len": 72,
+   "title": "How to Keep Your Hotel Rooms Quiet! | Part 1: STC Rating | Maxx Builders"
+  },
+  {
+   "url": "/construction-cost-per-square-foot-for-apartments-in-austin-texas/",
+   "len": 80,
+   "title": "Construction Cost per Square Foot for Apartments in Austin Texas | Maxx Builders"
+  },
+  {
+   "url": "/top-5-investments-for-commercial-real-estate-property-investors/",
+   "len": 79,
+   "title": "Top 5 Investments for Commercial Real Estate Property Investors | Maxx Builders"
+  },
+  {
+   "url": "/dental-office-construction-guide/",
+   "len": 61,
+   "title": "Dental Office Construction Texas: 2026 Cost & Build-Out Guide"
+  },
+  {
+   "url": "/7-advantages-of-podium-slab-in-hotels-multi-family-construction/",
+   "len": 81,
+   "title": "7 Advantages of Podium Slab in Hotels & Multi-family Construction | Maxx Builders"
+  },
+  {
+   "url": "/importance-of-mock-up-rooms-in-the-hospitality-industry/",
+   "len": 71,
+   "title": "importance-of-mock-up-rooms-in-the-hospitality-industry | Maxx Builders"
+  },
+  {
+   "url": "/",
+   "len": 61,
+   "title": "Maxx Builders | Texas' Premier Commercial General Contractors"
+  },
+  {
+   "url": "/fort-worth-tx/",
+   "len": 63,
+   "title": "Fort Worth's Top Commercial General Contractors | Maxx Builders"
+  },
+  {
+   "url": "/austin-tx/",
+   "len": 62,
+   "title": "Maxx Builders: Top-Rated Commercial Construction in Austin, TX"
+  },
+  {
+   "url": "/locations/arlington-commercial-construction-companies/",
+   "len": 63,
+   "title": "Commercial General Contractors in Arlington, TX | Maxx Builders"
+  },
+  {
+   "url": "/locations/the-woodlands-commercial-contractors/",
+   "len": 75,
+   "title": "Premier Commercial General Contractors in The Woodlands, TX | Maxx Builders"
+  },
+  {
+   "url": "/locations/san-antonio-commercial-contractors/",
+   "len": 65,
+   "title": "Commercial General Contractors in San Antonio, TX | Maxx Builders"
+  },
+  {
+   "url": "/design-build-construction-houston/",
+   "len": 65,
+   "title": "Design-Build Construction Houston | Maxx Builders | Maxx Builders"
+  }
+ ],
+ "descMissing": [
+  "/blog/",
+  "/commercial-property-construction-loans-in-texas-2026-how-to-qualify-fast/",
+  "/financing-options-for-commercial-construction-projects/",
+  "/top-commercial-building-types-in-demand-across-texas-2025-2027/",
+  "/the-complete-guide-to-tenant-improvement-allowance-for-commercial-leases/",
+  "/tenant-improvement-contractors-guide/",
+  "/the-ultimate-checklist-for-project-owners-starting-a-commercial-construction-project/",
+  "/comprehensive-guide-to-commercial-construction-costs-per-square-foot-in-texas-2025/",
+  "/why-75-of-commercial-construction-projects-miss-deadlines/",
+  "/mastering-tenant-improvement-construction-a-comprehensive-guide/",
+  "/enhancing-commercial-spaces-tenant-improvements-guide/",
+  "/value-engineering-guide-commercial-construction/",
+  "/leading-construction-companies-houston-texas/",
+  "/maxx-builders-houston-commercial-construction-guide/",
+  "/cost-effective-commercial-construction-strategies/",
+  "/texas-commercial-building-costs-guide/",
+  "/selecting-perfect-site-commercial-location/",
+  "/navigating-aia-construction-contracts/",
+  "/building-healthcare-facilities-guide/",
+  "/guide-commercial-construction-bids/",
+  "/harnessing-ai-construction-maxx-builders/",
+  "/culinary-constructions-designing-the-perfect-restaurant-space/",
+  "/choosing-commercial-general-contractor-guide/",
+  "/preparing-for-a-commercial-construction-project-a-clients-guide/",
+  "/challenges-and-considerations-when-planning-mixed-use-developments/",
+  "/how-to-choose-the-right-commercial-general-contractor-for-your-project/",
+  "/new-construction-permit-process-guide/",
+  "/comprehensive-guide-to-houstons-premier-commercial-contractors/",
+  "/successful-construction-project-guide/",
+  "/office-construction-trends-to-watch-in-2024/",
+  "/restaurant-construction-cost-per-square-foot-guide-2024/",
+  "/office-construction-how-to-meet-deadlines-without-sacrificing-quality/",
+  "/the-role-of-technology-in-modern-office-construction/",
+  "/5-tips-for-streamlining-your-office-construction-project/",
+  "/guide-to-franchise-build-out-process/",
+  "/key-considerations-for-franchise-renovations/",
+  "/efficient-floor-plans-for-franchise-success/",
+  "/guide-shopping-center-construction-costs/",
+  "/mitigating-construction-risks-in-shopping-centers-2/",
+  "/following-franchise-design-guidelines/",
+  "/financing-options-for-shopping-center-projects-ultimate-guide/",
+  "/navigating-franchise-build-out-costs/",
+  "/effective-layouts-for-shopping-centers/",
+  "/mitigating-risks-smooth-construction-development/",
+  "/smooth-sailing-zoning-permitting-restaurant-build/",
+  "/guide-funding-building-project-successfully/",
+  "/the-top-10-factors-to-consider-when-choosing-a-car-wash-site/",
+  "/selecting-prime-spots-for-shopping-centers/",
+  "/picking-profitable-locations-warehouse-development/",
+  "/optimizing-warehouse-space-design-strategies/",
+  "/commercial-construction-costs-101/",
+  "/design-build-commercial-contractors-streamlining-the-construction-process/",
+  "/securing-key-tenants-for-shopping-center/",
+  "/building-the-perfect-smile-a-guide-to-dental-office-construction-and-design/",
+  "/understanding-costs-commercial-real-estate-construction/",
+  "/7-key-steps-in-creating-and-managing-a-commercial-construction-schedule/",
+  "/what-does-it-cost-to-build-an-industrial-warehouse/",
+  "/lien-waivers-on-commercial-construction-projects-what-you-need-to-know/",
+  "/commercial-real-estate-development-step-by-step-process-start-to-finish/",
+  "/top-5-factors-that-influence-the-cost-of-office-remodel-or-build-out-of-your-space/",
+  "/texas-commercial-real-estate-trends-in-2023/",
+  "/choose-a-commercial-contractor/",
+  "/key-responsibilities-of-a-commercial-general-contractor/",
+  "/top-5-questions-to-ask-before-purchasing-commercial-property-part-3-site-infrastructure/",
+  "/7-tips-for-evaluating-a-commercial-construction-bid/",
+  "/7-factors-that-affect-the-construction-cost-of-a-commercial-construction-project/",
+  "/importance-of-quality-control-processes-of-commercial-contractors-inspect-it-now-or-fix-it-later/",
+  "/how-to-maximize-roi-with-smarter-design-construction-on-the-warehouse-distribution-center/",
+  "/what-is-the-cost-of-construction-for-a-self-storage-facility/",
+  "/10-factors-that-affect-quality-on-commercial-construction-projects/",
+  "/top-10-questions-to-ask-before-selecting-your-commercial-contractor/",
+  "/top-5-tips-for-your-next-commercial-construction-project/",
+  "/benefits-of-lessons-learned-in-construction-management/",
+  "/office-build-out-cost-per-sf/",
+  "/top-practices-for-a-zero-punchlist-commercial-construction-project/",
+  "/why-logistic-planning-are-critical-to-the-success-of-any-construction-project/",
+  "/5-methods-to-accelerate-your-project-schedule/",
+  "/10-reasons-construction-project-falls-behind-schedule/",
+  "/austin-commercial-construction-cost-per-square-foot-2026/",
+  "/top-10-questions-to-ask-before-purchasing-your-commercial-property-part-2-zoning/",
+  "/design-build-construction-houston-2/",
+  "/7-critical-steps-for-a-successful-commercial-construction-project-closeouts/",
+  "/concrete-tilt-up-vs-masonry-buildings-comparison/",
+  "/4-major-strategies-in-commercial-real-estate-investing-explained/",
+  "/5-best-types-of-commercial-real-estate-loans-to-consider-for-your-business-expansion-or-cre-project/",
+  "/inc-magazine-unveils-its-37th-annual-list-of-americas-fastest-growing-private-companies-the-inc-5/",
+  "/5-key-insights-trends-in-retail-from-icsc-recon-2019/",
+  "/what-is-constructability-review-the-benefits-for-your-next-project/",
+  "/how-to-keep-your-hotel-rooms-quiet-part-1-stc-rating/",
+  "/construction-cost-per-square-foot-for-apartments-in-austin-texas/",
+  "/top-5-investments-for-commercial-real-estate-property-investors/",
+  "/guide-to-4-different-types-of-shell-structures/",
+  "/commercial-construction-companies-texas-2026/",
+  "/7-advantages-of-podium-slab-in-hotels-multi-family-construction/",
+  "/join-our-team/",
+  "/6-tips-to-avoid-common-construction-delays/",
+  "/about/group-of-companies/",
+  "/opt-out-from-email-and-sms/",
+  "/projects/multi-family-and-mixed-use/",
+  "/projects/fuel-stations/",
+  "/single-page/",
+  "/about/mission-values/",
+  "/importance-of-mock-up-rooms-in-the-hospitality-industry/",
+  "/client-resources/faq/",
+  "/client-resources/construction-terminology/",
+  "/projects/healthcare-facilities/",
+  "/projects/corporate-interiors/",
+  "/join-our-team/vendors/",
+  "/projects/hospitality-entertainment/",
+  "/projects/",
+  "/projects/restaurants/",
+  "/client-resources/project-planning-guide/",
+  "/projects/tenant-improvements/",
+  "/projects/retail-shopping-centers/",
+  "/join-our-team/careers/",
+  "/projects/car-wash/",
+  "/contact/contact-information/",
+  "/projects/industrial-and-warehouse/",
+  "/thank-you/",
+  "/services/general-contracting/",
+  "/client-resources/",
+  "/industries/retail-construction-texas/",
+  "/client-resources/industry-news-and-trends/",
+  "/services/architectural-design-and-engineering/",
+  "/fort-worth-tx/",
+  "/dallas-tx/",
+  "/latest-news-updates/",
+  "/join-our-team/subcontractors/",
+  "/services/",
+  "/services/preconstruction/",
+  "/services/tenant-improvement/",
+  "/industries/healthcare-medical-construction-texas/",
+  "/services/design-and-build/",
+  "/houston-commercial-contractors/",
+  "/austin-tx/",
+  "/privacy-policy/",
+  "/industries/fitness-gym-construction-texas/",
+  "/client-resources/clients-guide/",
+  "/industries/industrial-warehouse-construction-texas/",
+  "/about/",
+  "/industries/hotel-hospitality-construction-texas/",
+  "/commercial-construction-project-inquiry/",
+  "/terms-and-conditions/",
+  "/about/awards-and-recognition/",
+  "/portfolio/king-spa/",
+  "/industry-trends/",
+  "/portfolio/sterline-banquet-hall/",
+  "/portfolio/pearl-apartment/",
+  "/press-release/",
+  "/portfolio/grand-mission/",
+  "/portfolio/lus-barbershop/",
+  "/portfolio/heartland-dental/",
+  "/portfolio/holiday-inn-express/",
+  "/expert-tips-insights/",
+  "/portfolio/home2suites-by-hilton/",
+  "/portfolio/j-d-byriders/",
+  "/portfolio/middle-spoon/",
+  "/portfolio/vivaldi-music-academy/",
+  "/portfolio/glazed-doughnut-cafe/",
+  "/portfolio/y-shops-parkwest/",
+  "/portfolio/throwback-bar-grill/",
+  "/portfolio/kool-korner-mart/",
+  "/portfolio/award-warehouse/",
+  "/portfolio/fresh-fast/",
+  "/portfolio/24-seven-cullen/",
+  "/portfolio/comfort-suites/",
+  "/portfolio/y-shops-morton/",
+  "/portfolio/express-mart/",
+  "/portfolio/24-7-gas-station-airtex/",
+  "/portfolio/shoe-palace/",
+  "/portfolio/agas-banquet-hall/",
+  "/portfolio/minnonite-retail/",
+  "/portfolio/flash-fuel-station/",
+  "/portfolio/y-shops-sam-houston/",
+  "/portfolio/riverpointe-retail/",
+  "/portfolio/wonderland-retail/",
+  "/portfolio/sarai-properties/",
+  "/portfolio/ace-steel-supply/",
+  "/portfolio/anytime-fitness/",
+  "/locations/arlington-commercial-construction-companies/",
+  "/portfolio/calder-plaza/",
+  "/portfolio/pinnacle-retail/",
+  "/portfolio/24-7-gas-station-sam-houston/",
+  "/locations/irving-premier-commercial-contractors/",
+  "/locations/the-woodlands-commercial-contractors/",
+  "/project-type/fuel-stations/",
+  "/project-type/fitness/",
+  "/portfolio/y-shops-long-meadows/",
+  "/project-type/corporate-interiors/",
+  "/project-type/multi-family-mixed-use/",
+  "/project-type/industrial-warehouse/",
+  "/portfolio/y-shops-greenhouse/",
+  "/portfolio/altus-healthcare/",
+  "/project-type/hospitality-entertainment/",
+  "/project-attributes/houston/",
+  "/project-attributes/pflugerville/",
+  "/project-attributes/sugarland/",
+  "/project-type/tenant-improvements/",
+  "/project-type/retail-shopping-centers/",
+  "/locations/",
+  "/locations/san-antonio-commercial-contractors/",
+  "/project-type/healthcare-facilities/",
+  "/project-type/restaurants/",
+  "/project-attributes/pearland/",
+  "/project-attributes/rosenberg/",
+  "/project-attributes/pasadena/",
+  "/project-attributes/richmond/",
+  "/design-build-construction-houston/",
+  "/project-attributes/league-city/",
+  "/project-attributes/rd-katy/"
+ ],
+ "descLong": [
+  {
+   "url": "/build-your-dream-dental-clinic-step-by-step-guide/",
+   "len": 188
+  },
+  {
+   "url": "/texas-commercial-construction-cost-2025-2026/",
+   "len": 160
+  }
+ ],
+ "descShort": [],
+ "dupTitles": [
+  {
+   "value": "2025 commercial construction costs per square foot explained",
+   "urls": [
+    "/comprehensive-guide-to-commercial-construction-costs-per-square-foot-in-texas-2025/",
+    "/texas-commercial-building-costs-guide/"
+   ]
+  },
+  {
+   "value": "dental office construction texas: 2026 cost & build-out guide",
+   "urls": [
+    "/dental-office-construction-cost-guide/",
+    "/dental-office-construction-guide/"
+   ]
+  },
+  {
+   "value": "architectural design + engineering | maxx builders",
+   "urls": [
+    "/choose-a-commercial-contractor/",
+    "/services/architectural-design-and-engineering/"
+   ]
+  },
+  {
+   "value": "maxx builders | commercial build-out guide",
+   "urls": [
+    "/the-cost-of-a-tenant-build-out-per-square-foot/",
+    "/understanding-commercial-build-outs-guide/"
+   ]
+  },
+  {
+   "value": "design-build construction houston | maxx builders | maxx builders",
+   "urls": [
+    "/design-build-construction-houston-2/",
+    "/design-build-construction-houston/"
+   ]
+  },
+  {
+   "value": "texas warehouse cost per sq ft (2026 guide)",
+   "urls": [
+    "/cost-per-square-foot-build-warehouse-texas/",
+    "/warehouse-construction-cost-per-square-foot-a-comprehensive-guide/"
+   ]
+  }
+ ],
+ "dupDescs": [
+  {
+   "value": "complete guide to dental construction in texas. costs by city, build-out specs, mep, permi",
+   "urls": [
+    "/dental-office-construction-cost-guide/",
+    "/dental-office-construction-guide/"
+   ]
+  },
+  {
+   "value": "maxx builders explains every phase of a commercial build-out: space planning, permits, con",
+   "urls": [
+    "/the-cost-of-a-tenant-build-out-per-square-foot/",
+    "/understanding-commercial-build-outs-guide/"
+   ]
+  },
+  {
+   "value": "texas warehouse construction costs $45–$150+ per sq ft in 2026. full breakdowns by size, c",
+   "urls": [
+    "/cost-per-square-foot-build-warehouse-texas/",
+    "/warehouse-construction-cost-per-square-foot-a-comprehensive-guide/"
+   ]
+  }
+ ],
+ "h1Bad": [
+  {
+   "url": "/guide-commercial-construction-bids/",
+   "count": 2,
+   "h1s": [
+    "The Essential Guide to Understanding Commercial Construction Bids",
+    "A Deep Dive into Commercial Construction Bids: An Essential Guide"
+   ]
+  },
+  {
+   "url": "/10-steps-to-build-an-apartment-complex/",
+   "count": 2,
+   "h1s": [
+    "10 Steps to Build an Apartment Complex",
+    "10 Steps to Build an Apartment Complex in Texas"
+   ]
+  },
+  {
+   "url": "/medical-office-construction-costs-texas-2026-comprehensive-guide/",
+   "count": 2,
+   "h1s": [
+    "medical-office-construction-costs-texas-2026-comprehensive-guide",
+    "Medical Office Construction Costs Texas 2026"
+   ]
+  },
+  {
+   "url": "/cost-per-square-foot-build-warehouse-texas/",
+   "count": 2,
+   "h1s": [
+    "Texas Warehouse Cost Per Sq Ft (2026 Guide)",
+    "Texas Warehouse Cost Per Sq Ft (2026 Guide)"
+   ]
+  },
+  {
+   "url": "/importance-of-mock-up-rooms-in-the-hospitality-industry/",
+   "count": 2,
+   "h1s": [
+    "importance-of-mock-up-rooms-in-the-hospitality-industry",
+    "Mock-Up Rooms in Hotel Construction: Why They Matter"
+   ]
+  },
+  {
+   "url": "/locations/arlington-commercial-construction-companies/",
+   "count": 2,
+   "h1s": [
+    "Commercial General Contractors in Arlington, TX",
+    "AWARDS & RECOGNITION"
+   ]
+  },
+  {
+   "url": "/locations/irving-premier-commercial-contractors/",
+   "count": 2,
+   "h1s": [
+    "Commercial General Contractors in Irving, TX",
+    "AWARDS & RECOGNITION"
+   ]
+  },
+  {
+   "url": "/locations/the-woodlands-commercial-contractors/",
+   "count": 2,
+   "h1s": [
+    "Premier Commercial General Contractors in The Woodlands, TX",
+    "AWARDS & RECOGNITION"
+   ]
+  },
+  {
+   "url": "/locations/san-antonio-commercial-contractors/",
+   "count": 2,
+   "h1s": [
+    "Commercial General Contractors in San Antonio, TX",
+    "AWARDS & RECOGNITION"
+   ]
+  },
+  {
+   "url": "/warehouse-construction-cost-per-square-foot-a-comprehensive-guide/",
+   "count": 2,
+   "h1s": [
+    "Texas Warehouse Cost Per Sq Ft (2026 Guide)",
+    "Texas Warehouse Cost Per Sq Ft (2026 Guide)"
+   ]
+  }
+ ],
+ "slugH1": [
+  {
+   "url": "/medical-office-construction-costs-texas-2026-comprehensive-guide/",
+   "h1s": [
+    "medical-office-construction-costs-texas-2026-comprehensive-guide",
+    "Medical Office Construction Costs Texas 2026"
+   ]
+  },
+  {
+   "url": "/importance-of-mock-up-rooms-in-the-hospitality-industry/",
+   "h1s": [
+    "importance-of-mock-up-rooms-in-the-hospitality-industry",
+    "Mock-Up Rooms in Hotel Construction: Why They Matter"
+   ]
+  }
+ ],
+ "authorCounts": {
+  "Maxx Builders": 114,
+  "Harris Khan": 4
+ },
+ "genericAuthorPages": 114,
+ "orgOffHome": [
+  {
+   "url": "/blog/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/commercial-property-construction-loans-in-texas-2026-how-to-qualify-fast/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/financing-options-for-commercial-construction-projects/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/top-commercial-building-types-in-demand-across-texas-2025-2027/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/the-complete-guide-to-tenant-improvement-allowance-for-commercial-leases/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/tenant-improvement-contractors-guide/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/the-ultimate-checklist-for-project-owners-starting-a-commercial-construction-project/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/comprehensive-guide-to-commercial-construction-costs-per-square-foot-in-texas-2025/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/why-75-of-commercial-construction-projects-miss-deadlines/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/mastering-tenant-improvement-construction-a-comprehensive-guide/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/enhancing-commercial-spaces-tenant-improvements-guide/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/value-engineering-guide-commercial-construction/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/leading-construction-companies-houston-texas/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/maxx-builders-houston-commercial-construction-guide/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/cost-effective-commercial-construction-strategies/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/texas-commercial-building-costs-guide/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/selecting-perfect-site-commercial-location/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/navigating-aia-construction-contracts/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/building-healthcare-facilities-guide/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/dental-office-construction-cost-guide/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/guide-commercial-construction-bids/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/harnessing-ai-construction-maxx-builders/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/culinary-constructions-designing-the-perfect-restaurant-space/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/choosing-commercial-general-contractor-guide/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/preparing-for-a-commercial-construction-project-a-clients-guide/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/challenges-and-considerations-when-planning-mixed-use-developments/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/how-to-choose-the-right-commercial-general-contractor-for-your-project/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/new-construction-permit-process-guide/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/comprehensive-guide-to-houstons-premier-commercial-contractors/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/successful-construction-project-guide/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/office-construction-trends-to-watch-in-2024/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/restaurant-construction-cost-per-square-foot-guide-2024/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/office-construction-how-to-meet-deadlines-without-sacrificing-quality/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/the-role-of-technology-in-modern-office-construction/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/5-tips-for-streamlining-your-office-construction-project/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/guide-to-franchise-build-out-process/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/key-considerations-for-franchise-renovations/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/permits-zoning-compliance-shopping-center-developers/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/efficient-floor-plans-for-franchise-success/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/guide-shopping-center-construction-costs/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/mitigating-construction-risks-in-shopping-centers-2/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/build-your-dream-dental-clinic-step-by-step-guide/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/following-franchise-design-guidelines/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/financing-options-for-shopping-center-projects-ultimate-guide/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/navigating-franchise-build-out-costs/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/effective-layouts-for-shopping-centers/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/mitigating-risks-smooth-construction-development/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/smooth-sailing-zoning-permitting-restaurant-build/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/guide-funding-building-project-successfully/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/the-top-10-factors-to-consider-when-choosing-a-car-wash-site/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/selecting-prime-spots-for-shopping-centers/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/picking-profitable-locations-warehouse-development/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/optimizing-warehouse-space-design-strategies/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/commercial-construction-costs-101/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/design-build-commercial-contractors-streamlining-the-construction-process/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/securing-key-tenants-for-shopping-center/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/building-the-perfect-smile-a-guide-to-dental-office-construction-and-design/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/understanding-costs-commercial-real-estate-construction/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/7-key-steps-in-creating-and-managing-a-commercial-construction-schedule/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/what-does-it-cost-to-build-an-industrial-warehouse/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/lien-waivers-on-commercial-construction-projects-what-you-need-to-know/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/commercial-real-estate-development-step-by-step-process-start-to-finish/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/top-5-factors-that-influence-the-cost-of-office-remodel-or-build-out-of-your-space/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/texas-commercial-real-estate-trends-in-2023/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/choose-a-commercial-contractor/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/key-responsibilities-of-a-commercial-general-contractor/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/top-5-questions-to-ask-before-purchasing-commercial-property-part-3-site-infrastructure/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/7-tips-for-evaluating-a-commercial-construction-bid/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/7-factors-that-affect-the-construction-cost-of-a-commercial-construction-project/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/importance-of-quality-control-processes-of-commercial-contractors-inspect-it-now-or-fix-it-later/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/how-to-maximize-roi-with-smarter-design-construction-on-the-warehouse-distribution-center/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/what-is-the-cost-of-construction-for-a-self-storage-facility/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/10-factors-that-affect-quality-on-commercial-construction-projects/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/top-10-questions-to-ask-before-selecting-your-commercial-contractor/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/the-cost-of-a-tenant-build-out-per-square-foot/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/top-5-tips-for-your-next-commercial-construction-project/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/benefits-of-lessons-learned-in-construction-management/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/office-build-out-cost-per-sf/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/top-practices-for-a-zero-punchlist-commercial-construction-project/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/why-logistic-planning-are-critical-to-the-success-of-any-construction-project/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/5-methods-to-accelerate-your-project-schedule/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/10-reasons-construction-project-falls-behind-schedule/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/austin-commercial-construction-cost-per-square-foot-2026/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/top-10-questions-to-ask-before-purchasing-your-commercial-property-part-2-zoning/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/10-key-steps-to-a-successful-commercial-construction-project/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/design-build-construction-houston-2/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/7-critical-steps-for-a-successful-commercial-construction-project-closeouts/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/concrete-tilt-up-vs-masonry-buildings-comparison/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/4-major-strategies-in-commercial-real-estate-investing-explained/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/5-best-types-of-commercial-real-estate-loans-to-consider-for-your-business-expansion-or-cre-project/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/inc-magazine-unveils-its-37th-annual-list-of-americas-fastest-growing-private-companies-the-inc-5/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/8-key-considerations-for-building-a-restaurant/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/dallas-commercial-construction-costs-2025-2026/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/5-key-insights-trends-in-retail-from-icsc-recon-2019/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/what-is-constructability-review-the-benefits-for-your-next-project/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/how-to-keep-your-hotel-rooms-quiet-part-1-stc-rating/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/construction-cost-per-square-foot-for-apartments-in-austin-texas/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/top-5-investments-for-commercial-real-estate-property-investors/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/guide-to-4-different-types-of-shell-structures/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/commercial-construction-companies-texas-2026/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/build-out-costs-retail-space/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/dental-office-construction-guide/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/the-ultimate-2026-hotel-construction-cost-guide-texas-edition/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/3-most-common-obstacles-in-commercial-construction-projects/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/7-advantages-of-podium-slab-in-hotels-multi-family-construction/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/10-steps-to-build-an-apartment-complex/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/best-retail-construction-contractors-in-houston-2026-rankings/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/complete-guide-commercial-building-planning-execution/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/cost-to-build-a-car-wash-in-texas/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/commercial-construction-project-timelines/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/join-our-team/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/medical-office-construction-costs-texas-2026-comprehensive-guide/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/6-tips-to-avoid-common-construction-delays/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/texas-commercial-construction-cost-2025-2026/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/understanding-commercial-build-outs-guide/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/cost-efficient-strategies-restaurant-construction/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/cost-per-square-foot-build-warehouse-texas/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/about/group-of-companies/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/opt-out-from-email-and-sms/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/commercial-construction-cost-houston-tx/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/projects/multi-family-and-mixed-use/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/projects/fuel-stations/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/single-page/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/about/mission-values/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/importance-of-mock-up-rooms-in-the-hospitality-industry/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/client-resources/faq/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/client-resources/construction-terminology/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/projects/healthcare-facilities/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/projects/corporate-interiors/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/join-our-team/vendors/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/projects/hospitality-entertainment/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/projects/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/projects/restaurants/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/client-resources/project-planning-guide/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/projects/tenant-improvements/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/projects/retail-shopping-centers/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/join-our-team/careers/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/projects/car-wash/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/contact/contact-information/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/projects/industrial-and-warehouse/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/thank-you/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/services/general-contracting/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/client-resources/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/industries/retail-construction-texas/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/client-resources/industry-news-and-trends/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/services/architectural-design-and-engineering/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/fort-worth-tx/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/dallas-tx/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/latest-news-updates/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/join-our-team/subcontractors/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/services/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/services/preconstruction/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/services/tenant-improvement/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/industries/healthcare-medical-construction-texas/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/services/design-and-build/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/houston-commercial-contractors/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/austin-tx/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/privacy-policy/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/industries/fitness-gym-construction-texas/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/client-resources/clients-guide/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/industries/industrial-warehouse-construction-texas/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/about/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/industries/hotel-hospitality-construction-texas/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/commercial-construction-project-inquiry/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/terms-and-conditions/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/industries/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/about/awards-and-recognition/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/portfolio/king-spa/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/industry-trends/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/portfolio/sterline-banquet-hall/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/about/our-history/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/portfolio/pearl-apartment/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/press-release/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/san-antonio-tx/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/portfolio/grand-mission/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/portfolio/lus-barbershop/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/portfolio/heartland-dental/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/portfolio/holiday-inn-express/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/expert-tips-insights/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/portfolio/home2suites-by-hilton/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/portfolio/j-d-byriders/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/portfolio/middle-spoon/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/portfolio/vivaldi-music-academy/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/portfolio/glazed-doughnut-cafe/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/services/construction-management/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/portfolio/y-shops-parkwest/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/portfolio/throwback-bar-grill/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/portfolio/kool-korner-mart/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/portfolio/award-warehouse/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/portfolio/fresh-fast/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/portfolio/24-seven-cullen/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/portfolio/comfort-suites/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/portfolio/y-shops-morton/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/portfolio/express-mart/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/portfolio/24-7-gas-station-airtex/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/portfolio/shoe-palace/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/portfolio/agas-banquet-hall/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/portfolio/minnonite-retail/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/portfolio/flash-fuel-station/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/portfolio/y-shops-sam-houston/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/portfolio/riverpointe-retail/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/portfolio/wonderland-retail/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/portfolio/sarai-properties/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/portfolio/ace-steel-supply/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/portfolio/anytime-fitness/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/locations/arlington-commercial-construction-companies/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/portfolio/calder-plaza/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/portfolio/pinnacle-retail/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/portfolio/24-7-gas-station-sam-houston/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/locations/irving-premier-commercial-contractors/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/locations/the-woodlands-commercial-contractors/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/project-type/fuel-stations/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/project-type/fitness/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/portfolio/y-shops-long-meadows/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/project-type/corporate-interiors/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/project-type/multi-family-mixed-use/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/project-type/industrial-warehouse/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/portfolio/y-shops-greenhouse/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/portfolio/altus-healthcare/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/project-type/hospitality-entertainment/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/project-attributes/houston/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/project-attributes/pflugerville/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/project-attributes/sugarland/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/project-type/tenant-improvements/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/project-type/retail-shopping-centers/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/locations/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/locations/san-antonio-commercial-contractors/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/project-type/healthcare-facilities/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/project-type/restaurants/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/project-attributes/pearland/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/project-attributes/rosenberg/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/project-attributes/pasadena/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/project-attributes/richmond/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/design-build-construction-houston/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/project-attributes/league-city/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/warehouse-construction-cost-per-square-foot-a-comprehensive-guide/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  },
+  {
+   "url": "/project-attributes/rd-katy/",
+   "types": [
+    "Organization",
+    "GeneralContractor"
+   ]
+  }
+ ],
+ "orphans": [
+  "/cost-effective-commercial-construction-strategies/",
+  "/harnessing-ai-construction-maxx-builders/",
+  "/challenges-and-considerations-when-planning-mixed-use-developments/",
+  "/successful-construction-project-guide/",
+  "/office-construction-trends-to-watch-in-2024/",
+  "/office-construction-how-to-meet-deadlines-without-sacrificing-quality/",
+  "/the-role-of-technology-in-modern-office-construction/",
+  "/5-tips-for-streamlining-your-office-construction-project/",
+  "/key-considerations-for-franchise-renovations/",
+  "/efficient-floor-plans-for-franchise-success/",
+  "/guide-shopping-center-construction-costs/",
+  "/following-franchise-design-guidelines/",
+  "/financing-options-for-shopping-center-projects-ultimate-guide/",
+  "/navigating-franchise-build-out-costs/",
+  "/mitigating-risks-smooth-construction-development/",
+  "/guide-funding-building-project-successfully/",
+  "/the-top-10-factors-to-consider-when-choosing-a-car-wash-site/",
+  "/selecting-prime-spots-for-shopping-centers/",
+  "/commercial-construction-costs-101/",
+  "/design-build-commercial-contractors-streamlining-the-construction-process/",
+  "/securing-key-tenants-for-shopping-center/",
+  "/understanding-costs-commercial-real-estate-construction/",
+  "/7-key-steps-in-creating-and-managing-a-commercial-construction-schedule/",
+  "/lien-waivers-on-commercial-construction-projects-what-you-need-to-know/",
+  "/commercial-real-estate-development-step-by-step-process-start-to-finish/",
+  "/top-5-factors-that-influence-the-cost-of-office-remodel-or-build-out-of-your-space/",
+  "/texas-commercial-real-estate-trends-in-2023/",
+  "/key-responsibilities-of-a-commercial-general-contractor/",
+  "/7-tips-for-evaluating-a-commercial-construction-bid/",
+  "/7-factors-that-affect-the-construction-cost-of-a-commercial-construction-project/",
+  "/importance-of-quality-control-processes-of-commercial-contractors-inspect-it-now-or-fix-it-later/",
+  "/what-is-the-cost-of-construction-for-a-self-storage-facility/",
+  "/10-factors-that-affect-quality-on-commercial-construction-projects/",
+  "/top-10-questions-to-ask-before-selecting-your-commercial-contractor/",
+  "/top-5-tips-for-your-next-commercial-construction-project/",
+  "/benefits-of-lessons-learned-in-construction-management/",
+  "/office-build-out-cost-per-sf/",
+  "/top-practices-for-a-zero-punchlist-commercial-construction-project/",
+  "/why-logistic-planning-are-critical-to-the-success-of-any-construction-project/",
+  "/5-methods-to-accelerate-your-project-schedule/",
+  "/10-reasons-construction-project-falls-behind-schedule/",
+  "/7-critical-steps-for-a-successful-commercial-construction-project-closeouts/",
+  "/concrete-tilt-up-vs-masonry-buildings-comparison/",
+  "/4-major-strategies-in-commercial-real-estate-investing-explained/",
+  "/5-best-types-of-commercial-real-estate-loans-to-consider-for-your-business-expansion-or-cre-project/",
+  "/inc-magazine-unveils-its-37th-annual-list-of-americas-fastest-growing-private-companies-the-inc-5/",
+  "/8-key-considerations-for-building-a-restaurant/",
+  "/5-key-insights-trends-in-retail-from-icsc-recon-2019/",
+  "/what-is-constructability-review-the-benefits-for-your-next-project/",
+  "/construction-cost-per-square-foot-for-apartments-in-austin-texas/",
+  "/top-5-investments-for-commercial-real-estate-property-investors/",
+  "/3-most-common-obstacles-in-commercial-construction-projects/",
+  "/opt-out-from-email-and-sms/",
+  "/single-page/",
+  "/client-resources/faq/",
+  "/client-resources/project-planning-guide/",
+  "/contact/contact-information/",
+  "/thank-you/",
+  "/client-resources/industry-news-and-trends/",
+  "/latest-news-updates/",
+  "/industry-trends/",
+  "/expert-tips-insights/",
+  "/project-type/fuel-stations/",
+  "/project-type/fitness/",
+  "/project-type/corporate-interiors/",
+  "/project-type/multi-family-mixed-use/",
+  "/project-type/industrial-warehouse/",
+  "/project-type/hospitality-entertainment/",
+  "/project-attributes/houston/",
+  "/project-attributes/pflugerville/",
+  "/project-attributes/sugarland/",
+  "/project-type/tenant-improvements/",
+  "/project-type/retail-shopping-centers/",
+  "/project-type/healthcare-facilities/",
+  "/project-type/restaurants/",
+  "/project-attributes/pearland/",
+  "/project-attributes/rosenberg/",
+  "/project-attributes/pasadena/",
+  "/project-attributes/richmond/",
+  "/project-attributes/league-city/",
+  "/project-attributes/rd-katy/",
+  "/locations.kml/"
+ ],
+ "contentOrphans": [
+  "/blog/",
+  "/why-75-of-commercial-construction-projects-miss-deadlines/",
+  "/selecting-perfect-site-commercial-location/",
+  "/preparing-for-a-commercial-construction-project-a-clients-guide/",
+  "/guide-to-franchise-build-out-process/",
+  "/austin-commercial-construction-cost-per-square-foot-2026/",
+  "/join-our-team/",
+  "/6-tips-to-avoid-common-construction-delays/",
+  "/about/group-of-companies/",
+  "/projects/fuel-stations/",
+  "/about/mission-values/",
+  "/client-resources/construction-terminology/",
+  "/projects/healthcare-facilities/",
+  "/projects/corporate-interiors/",
+  "/join-our-team/vendors/",
+  "/projects/hospitality-entertainment/",
+  "/projects/",
+  "/projects/tenant-improvements/",
+  "/join-our-team/careers/",
+  "/projects/car-wash/",
+  "/client-resources/",
+  "/industries/retail-construction-texas/",
+  "/fort-worth-tx/",
+  "/dallas-tx/",
+  "/join-our-team/subcontractors/",
+  "/industries/healthcare-medical-construction-texas/",
+  "/houston-commercial-contractors/",
+  "/privacy-policy/",
+  "/industries/fitness-gym-construction-texas/",
+  "/client-resources/clients-guide/",
+  "/industries/industrial-warehouse-construction-texas/",
+  "/about/",
+  "/industries/hotel-hospitality-construction-texas/",
+  "/terms-and-conditions/",
+  "/industries/",
+  "/about/awards-and-recognition/",
+  "/portfolio/sterline-banquet-hall/",
+  "/about/our-history/",
+  "/press-release/",
+  "/portfolio/grand-mission/",
+  "/portfolio/lus-barbershop/",
+  "/portfolio/holiday-inn-express/",
+  "/portfolio/middle-spoon/",
+  "/portfolio/vivaldi-music-academy/",
+  "/portfolio/throwback-bar-grill/",
+  "/portfolio/kool-korner-mart/",
+  "/portfolio/award-warehouse/",
+  "/portfolio/fresh-fast/",
+  "/portfolio/comfort-suites/",
+  "/portfolio/y-shops-morton/",
+  "/portfolio/express-mart/",
+  "/portfolio/24-7-gas-station-airtex/",
+  "/portfolio/shoe-palace/",
+  "/portfolio/agas-banquet-hall/",
+  "/portfolio/minnonite-retail/",
+  "/portfolio/flash-fuel-station/",
+  "/portfolio/y-shops-sam-houston/",
+  "/portfolio/riverpointe-retail/",
+  "/portfolio/wonderland-retail/",
+  "/portfolio/sarai-properties/"
+ ],
+ "linksToRedirects": [
+  {
+   "from": "/navigating-aia-construction-contracts/",
+   "link": "/choose-a-commercial-contractor/",
+   "resolvesTo": "/services/architectural-design-and-engineering/"
+  },
+  {
+   "from": "/choosing-commercial-general-contractor-guide/",
+   "link": "/choose-a-commercial-contractor/",
+   "resolvesTo": "/services/architectural-design-and-engineering/"
+  },
+  {
+   "from": "/how-to-choose-the-right-commercial-general-contractor-for-your-project/",
+   "link": "/choose-a-commercial-contractor/",
+   "resolvesTo": "/services/architectural-design-and-engineering/"
+  },
+  {
+   "from": "/comprehensive-guide-to-houstons-premier-commercial-contractors/",
+   "link": "/choose-a-commercial-contractor/",
+   "resolvesTo": "/services/architectural-design-and-engineering/"
+  },
+  {
+   "from": "/build-your-dream-dental-clinic-step-by-step-guide/",
+   "link": "/dental-office-construction-cost-guide/",
+   "resolvesTo": "/dental-office-construction-guide/"
+  },
+  {
+   "from": "/building-the-perfect-smile-a-guide-to-dental-office-construction-and-design/",
+   "link": "/dental-office-construction-cost-guide/",
+   "resolvesTo": "/dental-office-construction-guide/"
+  }
+ ],
+ "linksToUnknownCount": 56,
+ "linksToUnknown": [
+  "/2026/06/",
+  "/category/uncategorized/",
+  "/2025/11/",
+  "/2025/10/",
+  "/2024/11/",
+  "/2025/01/",
+  "/why-30-of-commercial-construction-projects-fail-to-meet-deadlines/",
+  "/preconstruction-services/",
+  "/2024/10/",
+  "/2024/05/",
+  "/2024/04/",
+  "/2024/03/",
+  "/maxx-builders-named-in-houston-business-journals-list-of-fast-100-houston-areas-fastest-growing/",
+  "/2024/02/",
+  "/2024/01/",
+  "/2023/11/",
+  "/blog/industry-trends/",
+  "/2023/10/",
+  "/tag/franchise-design/",
+  "/tag/shopping-center-financing/",
+  "/2023/04/",
+  "/tag/shopping-center-construction/",
+  "/2023/09/",
+  "/tag/warehouse-development/",
+  "/contact/",
+  "/2023/03/",
+  "/2023/02/",
+  "/2022/08/",
+  "/2021/10/",
+  "/2023/01/",
+  "/2020/02/",
+  "/2022/11/",
+  "/2022/10/",
+  "/2021/11/",
+  "/2022/04/",
+  "/2021/09/",
+  "/2019/09/",
+  "/2022/03/",
+  "/2019/07/",
+  "/2020/06/"
+ ],
+ "priorityReport": [
+  {
+   "url": "/",
+   "redirectedFrom": null,
+   "inSitemap": true,
+   "inboundAll": 231,
+   "inboundContent": 11,
+   "titleLen": 61,
+   "descLen": 136,
+   "h1Count": 1,
+   "tldr": false,
+   "tables": 0,
+   "faq": false,
+   "words": 1835,
+   "imgs": 113,
+   "scripts": 94,
+   "authors": [],
+   "types": [
+    "WebPage",
+    "ReadAction",
+    "ImageObject",
+    "BreadcrumbList",
+    "ListItem",
+    "WebSite",
+    "SearchAction",
+    "EntryPoint"
+   ]
+  },
+  {
+   "url": "/the-ultimate-2026-hotel-construction-cost-guide-texas-edition/",
+   "redirectedFrom": null,
+   "inSitemap": true,
+   "inboundAll": 4,
+   "inboundContent": 2,
+   "titleLen": 42,
+   "descLen": 143,
+   "h1Count": 1,
+   "tldr": false,
+   "tables": 1,
+   "faq": true,
+   "words": 2181,
+   "imgs": 23,
+   "scripts": 93,
+   "authors": [
+    "Maxx Builders"
+   ],
+   "types": [
+    "Article",
+    "WebPage",
+    "ReadAction",
+    "ImageObject",
+    "BreadcrumbList",
+    "ListItem",
+    "WebSite",
+    "SearchAction"
+   ]
+  },
+  {
+   "url": "/medical-office-construction-costs-texas-2026-comprehensive-guide/",
+   "redirectedFrom": null,
+   "inSitemap": true,
+   "inboundAll": 10,
+   "inboundContent": 5,
+   "titleLen": 44,
+   "descLen": 127,
+   "h1Count": 2,
+   "tldr": true,
+   "tables": 13,
+   "faq": true,
+   "words": 6285,
+   "imgs": 25,
+   "scripts": 83,
+   "authors": [
+    "Maxx Builders"
+   ],
+   "types": [
+    "Article",
+    "WebPage",
+    "ReadAction",
+    "ImageObject",
+    "BreadcrumbList",
+    "ListItem",
+    "WebSite",
+    "SearchAction"
+   ]
+  },
+  {
+   "url": "/cost-per-square-foot-build-warehouse-texas/",
+   "redirectedFrom": "/warehouse-construction-cost-per-square-foot-a-comprehensive-guide/",
+   "inSitemap": true,
+   "inboundAll": 10,
+   "inboundContent": 7,
+   "titleLen": 43,
+   "descLen": 152,
+   "h1Count": 2,
+   "tldr": true,
+   "tables": 9,
+   "faq": true,
+   "words": 2629,
+   "imgs": 21,
+   "scripts": 81,
+   "authors": [
+    "Maxx Builders"
+   ],
+   "types": [
+    "Article",
+    "WebPage",
+    "ReadAction",
+    "ImageObject",
+    "BreadcrumbList",
+    "ListItem",
+    "WebSite",
+    "SearchAction"
+   ]
+  },
+  {
+   "url": "/commercial-construction-cost-houston-tx/",
+   "redirectedFrom": null,
+   "inSitemap": true,
+   "inboundAll": 12,
+   "inboundContent": 9,
+   "titleLen": 55,
+   "descLen": 146,
+   "h1Count": 1,
+   "tldr": false,
+   "tables": 2,
+   "faq": true,
+   "words": 1183,
+   "imgs": 25,
+   "scripts": 83,
+   "authors": [
+    "Maxx Builders"
+   ],
+   "types": [
+    "Article",
+    "WebPage",
+    "ReadAction",
+    "ImageObject",
+    "BreadcrumbList",
+    "ListItem",
+    "WebSite",
+    "SearchAction"
+   ]
+  },
+  {
+   "url": "/dallas-commercial-construction-costs-2025-2026/",
+   "redirectedFrom": null,
+   "inSitemap": true,
+   "inboundAll": 12,
+   "inboundContent": 9,
+   "titleLen": 56,
+   "descLen": 153,
+   "h1Count": 1,
+   "tldr": true,
+   "tables": 3,
+   "faq": true,
+   "words": 2941,
+   "imgs": 25,
+   "scripts": 83,
+   "authors": [
+    "Maxx Builders"
+   ],
+   "types": [
+    "Article",
+    "WebPage",
+    "ReadAction",
+    "ImageObject",
+    "BreadcrumbList",
+    "ListItem",
+    "WebSite",
+    "SearchAction"
+   ]
+  },
+  {
+   "url": "/cost-to-build-a-car-wash-in-texas/",
+   "redirectedFrom": null,
+   "inSitemap": true,
+   "inboundAll": 18,
+   "inboundContent": 2,
+   "titleLen": 56,
+   "descLen": 144,
+   "h1Count": 1,
+   "tldr": false,
+   "tables": 2,
+   "faq": true,
+   "words": 1433,
+   "imgs": 25,
+   "scripts": 84,
+   "authors": [
+    "Maxx Builders"
+   ],
+   "types": [
+    "Article",
+    "WebPage",
+    "ReadAction",
+    "ImageObject",
+    "BreadcrumbList",
+    "ListItem",
+    "WebSite",
+    "SearchAction"
+   ]
+  },
+  {
+   "url": "/design-build-construction-houston-2/",
+   "redirectedFrom": "/design-build-construction-houston/",
+   "inSitemap": true,
+   "inboundAll": 4,
+   "inboundContent": 2,
+   "titleLen": 65,
+   "descLen": 0,
+   "h1Count": 1,
+   "tldr": true,
+   "tables": 3,
+   "faq": false,
+   "words": 2806,
+   "imgs": 19,
+   "scripts": 82,
+   "authors": [
+    "Harris Khan"
+   ],
+   "types": [
+    "Article",
+    "WebPage",
+    "ReadAction",
+    "BreadcrumbList",
+    "ListItem",
+    "WebSite",
+    "SearchAction",
+    "EntryPoint"
+   ]
+  },
+  {
+   "url": "/best-retail-construction-contractors-in-houston-2026-rankings/",
+   "redirectedFrom": null,
+   "inSitemap": true,
+   "inboundAll": 21,
+   "inboundContent": 13,
+   "titleLen": 51,
+   "descLen": 142,
+   "h1Count": 1,
+   "tldr": false,
+   "tables": 0,
+   "faq": true,
+   "words": 1407,
+   "imgs": 25,
+   "scripts": 83,
+   "authors": [
+    "Maxx Builders"
+   ],
+   "types": [
+    "Article",
+    "WebPage",
+    "ReadAction",
+    "ImageObject",
+    "BreadcrumbList",
+    "ListItem",
+    "WebSite",
+    "SearchAction"
+   ]
+  },
+  {
+   "url": "/8-key-considerations-for-building-a-restaurant/",
+   "redirectedFrom": null,
+   "inSitemap": true,
+   "inboundAll": 0,
+   "inboundContent": 0,
+   "titleLen": 55,
+   "descLen": 140,
+   "h1Count": 1,
+   "tldr": false,
+   "tables": 0,
+   "faq": false,
+   "words": 1780,
+   "imgs": 25,
+   "scripts": 82,
+   "authors": [
+    "Maxx Builders"
+   ],
+   "types": [
+    "Article",
+    "WebPage",
+    "ReadAction",
+    "ImageObject",
+    "BreadcrumbList",
+    "ListItem",
+    "WebSite",
+    "SearchAction"
+   ]
+  },
+  {
+   "url": "/cost-efficient-strategies-restaurant-construction/",
+   "redirectedFrom": null,
+   "inSitemap": true,
+   "inboundAll": 4,
+   "inboundContent": 4,
+   "titleLen": 55,
+   "descLen": 135,
+   "h1Count": 1,
+   "tldr": false,
+   "tables": 0,
+   "faq": false,
+   "words": 1795,
+   "imgs": 25,
+   "scripts": 82,
+   "authors": [
+    "Maxx Builders"
+   ],
+   "types": [
+    "Article",
+    "WebPage",
+    "ReadAction",
+    "ImageObject",
+    "BreadcrumbList",
+    "ListItem",
+    "WebSite",
+    "SearchAction"
+   ]
+  },
+  {
+   "url": "/commercial-construction-project-timelines/",
+   "redirectedFrom": null,
+   "inSitemap": true,
+   "inboundAll": 3,
+   "inboundContent": 1,
+   "titleLen": 56,
+   "descLen": 124,
+   "h1Count": 1,
+   "tldr": false,
+   "tables": 1,
+   "faq": true,
+   "words": 1370,
+   "imgs": 24,
+   "scripts": 81,
+   "authors": [
+    "Maxx Builders"
+   ],
+   "types": [
+    "Article",
+    "WebPage",
+    "ReadAction",
+    "ImageObject",
+    "BreadcrumbList",
+    "ListItem",
+    "WebSite",
+    "SearchAction"
+   ]
+  },
+  {
+   "url": "/complete-guide-commercial-building-planning-execution/",
+   "redirectedFrom": null,
+   "inSitemap": true,
+   "inboundAll": 23,
+   "inboundContent": 21,
+   "titleLen": 50,
+   "descLen": 141,
+   "h1Count": 1,
+   "tldr": false,
+   "tables": 0,
+   "faq": false,
+   "words": 3002,
+   "imgs": 25,
+   "scripts": 82,
+   "authors": [
+    "Maxx Builders"
+   ],
+   "types": [
+    "Article",
+    "WebPage",
+    "ReadAction",
+    "ImageObject",
+    "BreadcrumbList",
+    "ListItem",
+    "WebSite",
+    "SearchAction"
+   ]
+  },
+  {
+   "url": "/importance-of-mock-up-rooms-in-the-hospitality-industry/",
+   "redirectedFrom": null,
+   "inSitemap": true,
+   "inboundAll": 2,
+   "inboundContent": 2,
+   "titleLen": 71,
+   "descLen": 0,
+   "h1Count": 2,
+   "tldr": true,
+   "tables": 1,
+   "faq": false,
+   "words": 2570,
+   "imgs": 24,
+   "scripts": 80,
+   "authors": [
+    "Maxx Builders"
+   ],
+   "types": [
+    "Article",
+    "WebPage",
+    "ReadAction",
+    "ImageObject",
+    "BreadcrumbList",
+    "ListItem",
+    "WebSite",
+    "SearchAction"
+   ]
+  },
+  {
+   "url": "/3-most-common-obstacles-in-commercial-construction-projects/",
+   "redirectedFrom": null,
+   "inSitemap": true,
+   "inboundAll": 0,
+   "inboundContent": 0,
+   "titleLen": 50,
+   "descLen": 146,
+   "h1Count": 1,
+   "tldr": false,
+   "tables": 0,
+   "faq": false,
+   "words": 1868,
+   "imgs": 25,
+   "scripts": 82,
+   "authors": [
+    "Maxx Builders"
+   ],
+   "types": [
+    "Article",
+    "WebPage",
+    "ReadAction",
+    "ImageObject",
+    "BreadcrumbList",
+    "ListItem",
+    "WebSite",
+    "SearchAction"
+   ]
+  }
+ ],
+ "thin": [
+  {
+   "url": "/opt-out-from-email-and-sms/",
+   "words": 281
+  },
+  {
+   "url": "/single-page/",
+   "words": 270
+  },
+  {
+   "url": "/client-resources/faq/",
+   "words": 278
+  },
+  {
+   "url": "/client-resources/construction-terminology/",
+   "words": 298
+  },
+  {
+   "url": "/client-resources/project-planning-guide/",
+   "words": 282
+  },
+  {
+   "url": "/projects/car-wash/",
+   "words": 298
+  },
+  {
+   "url": "/contact/contact-information/",
+   "words": 281
+  },
+  {
+   "url": "/client-resources/industry-news-and-trends/",
+   "words": 285
+  },
+  {
+   "url": "/latest-news-updates/",
+   "words": 274
+  },
+  {
+   "url": "/client-resources/clients-guide/",
+   "words": 300
+  },
+  {
+   "url": "/industries/",
+   "words": 344
+  },
+  {
+   "url": "/portfolio/king-spa/",
+   "words": 300
+  },
+  {
+   "url": "/portfolio/sterline-banquet-hall/",
+   "words": 300
+  },
+  {
+   "url": "/portfolio/pearl-apartment/",
+   "words": 301
+  },
+  {
+   "url": "/portfolio/grand-mission/",
+   "words": 301
+  },
+  {
+   "url": "/portfolio/lus-barbershop/",
+   "words": 302
+  },
+  {
+   "url": "/portfolio/heartland-dental/",
+   "words": 300
+  },
+  {
+   "url": "/portfolio/holiday-inn-express/",
+   "words": 302
+  },
+  {
+   "url": "/portfolio/home2suites-by-hilton/",
+   "words": 302
+  },
+  {
+   "url": "/portfolio/j-d-byriders/",
+   "words": 299
+  },
+  {
+   "url": "/portfolio/middle-spoon/",
+   "words": 301
+  },
+  {
+   "url": "/portfolio/vivaldi-music-academy/",
+   "words": 303
+  },
+  {
+   "url": "/portfolio/glazed-doughnut-cafe/",
+   "words": 303
+  },
+  {
+   "url": "/portfolio/y-shops-parkwest/",
+   "words": 302
+  },
+  {
+   "url": "/portfolio/throwback-bar-grill/",
+   "words": 303
+  },
+  {
+   "url": "/portfolio/kool-korner-mart/",
+   "words": 303
+  },
+  {
+   "url": "/portfolio/award-warehouse/",
+   "words": 301
+  },
+  {
+   "url": "/portfolio/fresh-fast/",
+   "words": 301
+  },
+  {
+   "url": "/portfolio/24-seven-cullen/",
+   "words": 305
+  },
+  {
+   "url": "/portfolio/comfort-suites/",
+   "words": 300
+  },
+  {
+   "url": "/portfolio/y-shops-morton/",
+   "words": 302
+  },
+  {
+   "url": "/portfolio/express-mart/",
+   "words": 301
+  },
+  {
+   "url": "/portfolio/24-7-gas-station-airtex/",
+   "words": 306
+  },
+  {
+   "url": "/portfolio/shoe-palace/",
+   "words": 300
+  },
+  {
+   "url": "/portfolio/agas-banquet-hall/",
+   "words": 303
+  },
+  {
+   "url": "/portfolio/minnonite-retail/",
+   "words": 301
+  },
+  {
+   "url": "/portfolio/flash-fuel-station/",
+   "words": 303
+  },
+  {
+   "url": "/portfolio/y-shops-sam-houston/",
+   "words": 304
+  },
+  {
+   "url": "/portfolio/riverpointe-retail/",
+   "words": 300
+  },
+  {
+   "url": "/portfolio/wonderland-retail/",
+   "words": 302
+  },
+  {
+   "url": "/portfolio/sarai-properties/",
+   "words": 301
+  },
+  {
+   "url": "/portfolio/ace-steel-supply/",
+   "words": 304
+  },
+  {
+   "url": "/portfolio/anytime-fitness/",
+   "words": 301
+  },
+  {
+   "url": "/portfolio/calder-plaza/",
+   "words": 301
+  },
+  {
+   "url": "/portfolio/pinnacle-retail/",
+   "words": 300
+  },
+  {
+   "url": "/portfolio/24-7-gas-station-sam-houston/",
+   "words": 308
+  },
+  {
+   "url": "/project-type/fuel-stations/",
+   "words": 303
+  },
+  {
+   "url": "/project-type/fitness/",
+   "words": 272
+  },
+  {
+   "url": "/portfolio/y-shops-long-meadows/",
+   "words": 304
+  },
+  {
+   "url": "/project-type/corporate-interiors/",
+   "words": 273
+  },
+  {
+   "url": "/project-type/multi-family-mixed-use/",
+   "words": 278
+  },
+  {
+   "url": "/project-type/industrial-warehouse/",
+   "words": 278
+  },
+  {
+   "url": "/portfolio/y-shops-greenhouse/",
+   "words": 302
+  },
+  {
+   "url": "/portfolio/altus-healthcare/",
+   "words": 301
+  },
+  {
+   "url": "/project-type/hospitality-entertainment/",
+   "words": 292
+  },
+  {
+   "url": "/project-attributes/houston/",
+   "words": 307
+  },
+  {
+   "url": "/project-attributes/pflugerville/",
+   "words": 273
+  },
+  {
+   "url": "/project-attributes/sugarland/",
+   "words": 275
+  },
+  {
+   "url": "/project-type/tenant-improvements/",
+   "words": 287
+  },
+  {
+   "url": "/project-type/retail-shopping-centers/",
+   "words": 313
+  },
+  {
+   "url": "/project-type/healthcare-facilities/",
+   "words": 277
+  },
+  {
+   "url": "/project-type/restaurants/",
+   "words": 280
+  },
+  {
+   "url": "/project-attributes/pearland/",
+   "words": 272
+  },
+  {
+   "url": "/project-attributes/rosenberg/",
+   "words": 278
+  },
+  {
+   "url": "/project-attributes/pasadena/",
+   "words": 276
+  },
+  {
+   "url": "/project-attributes/richmond/",
+   "words": 280
+  },
+  {
+   "url": "/project-attributes/league-city/",
+   "words": 274
+  },
+  {
+   "url": "/project-attributes/rd-katy/",
+   "words": 299
+  }
+ ]
+}
