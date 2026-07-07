@@ -28,7 +28,7 @@ throw a descriptive error if missing (see `supabase.mjs` as the pattern).
 | `GSC_SITE_URL` | Your GSC property (e.g. `sc-domain:example.com`) | sensor-gsc.mjs, collect-outcomes.mjs |
 | `MONTHLY_BUDGET_USD` | GitHub Actions variable | orchestrator preflight |
 | `ORCHESTRATOR_MODEL` | Optional override; default `claude-sonnet-4-6` | orchestrator/run.mjs |
-| `WP_BASE_URL`, `WP_APP_PASSWORD`, `SEO_PLUGIN` | WordPress staging host credentials | packs/wordpress/ |
+| `WP_BASE_URL`, `WP_APP_PASSWORD`, `SEO_PLUGIN` | WordPress host credentials (production — no staging environment; see root CLAUDE.md) | packs/wordpress/ |
 | `WEBFLOW_API_TOKEN`, `WEBFLOW_SITE_ID` | Webflow account dashboard | packs/webflow/ |
 | `CITATIONS_CSV`, `CONVERSIONS_CSV` | Optional file paths for attribution data | scripts/collect-outcomes.mjs |
 | `SERPAPI_KEY`, `AIO_SAMPLES` | SerpApi key + per-run AIO sample count (default 3) | sensor-ai-citations.mjs (AIO capture) |
@@ -74,7 +74,7 @@ changing the source file.
 | `npm run diff-size` | Checks diff against `MAX_DIFF_LINES` (mirrors CI gate locally) |
 | `npm run learn` | outcomes → attribution → prioritize loop (weekly; safe to run manually) |
 | `npm run mem` | Calls `scripts/mem.mjs` — queue/log/status CLI for the orchestrator |
-| `npm run wp:apply` | Apply approved change_set rows to WordPress (staging by default) |
+| `npm run wp:apply` | Apply approved change_set rows to WordPress (production — no staging environment) |
 | `npm run webflow:apply` | Stage approved rows to Webflow (does not publish) |
 | `WEBFLOW_ALLOW_SITE_PUBLISH=true npm run webflow:publish` | Global Webflow publish + PSI canary |
 

@@ -28,7 +28,7 @@ See `.claude/rules/` for detailed rule files.
   eval-gate (PR quality check), auto-merge, learn (weekly attribution), apply-cms,
   vitals-pr.
 - **CMS Apply:** WordPress REST API and Webflow Data API v2 packs in `packs/`.
-- **Skills:** `.claude/skills/` — 11 skills loaded in both interactive and headless
+- **Skills:** `.claude/skills/` — 16 skills loaded in both interactive and headless
   sessions via `settingSources: ["project"]`.
 
 ## Architecture
