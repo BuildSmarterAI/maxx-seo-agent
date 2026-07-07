@@ -5,6 +5,8 @@ description: Mine Google Search Console for striking-distance pages, CTR gaps, c
 
 # Search Console Opportunity Mining
 
+Read-only — pulls GSC data and produces `gsc-opportunities.md`; changes nothing.
+
 Load CLAUDE.md. Requires the Google Search Console MCP (or a GSC export CSV).
 
 ## Steps

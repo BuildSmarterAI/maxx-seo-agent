@@ -5,7 +5,7 @@ description: Diagnose and fix Core Web Vitals (LCP, INP, CLS) at the template le
 
 # Core Web Vitals Remediation
 
-Load CLAUDE.md. Edits files; test with the PageSpeed Insights API (mobile) after changes.
+Load CLAUDE.md. **Execution model depends on the target site.** These steps assume direct template/theme file access. That is NOT available for the current Maxx Builders configuration — the WordPress apply pack (`packs/wordpress/`, REST-only) writes post meta and content only; it has no plugin/theme file access (see `.claude/rules/security.md`), and `.claude/CLAUDE.md` confirms this repo has no local copy of the site's template files. **For the current site, escalate CWV template fixes** for manual theme access (FTP/host panel/child theme) rather than attempting file edits through this repo. Run the steps below only when the target site has a local, editable template repo.
 
 ## Steps (work at the TEMPLATE level, order: TTFB → LCP → INP → CLS)
 

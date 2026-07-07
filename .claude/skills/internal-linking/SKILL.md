@@ -5,7 +5,7 @@ description: Find orphan pages and low-equity money pages, then insert contextua
 
 # Internal Linking Engine
 
-Load CLAUDE.md. Edits files; run a test build when done.
+Load CLAUDE.md. **Execution model depends on the target site.** This skill's default steps assume a code-accessible stack with a local template repo and build step (root CLAUDE.md's "repo-native kit" case). That is NOT the current Maxx Builders configuration — `.claude/CLAUDE.md` states this repo "IS the agent runtime, not the site it optimizes" and all site changes go over an API (`packs/wordpress/`), with no local site files to edit. **For the current site, use `internal-link-graph` instead** — it stages the same orphan/link-equity fixes as `change_set` rows for the WordPress apply pack. Only run the file-edit steps below if the target site genuinely has a local, buildable template repo.
 
 ## Inputs (need all three; split by path prefix if over context)
 
@@ -19,7 +19,7 @@ Load CLAUDE.md. Edits files; run a test build when done.
 2. Using the keyword/cluster map in CLAUDE.md, propose contextual links between topically related pages (hub→spoke, spoke→spoke, service↔location).
 3. Insert links in body content and shared templates (nav/footer where appropriate). Use descriptive anchor text, not "click here".
 4. Re-check that every money page is now reachable ≤ 3 clicks from home and has ≥ 3 inbound internal links.
-5. Run `npm run build`.
+5. Run the project's build command — verify it exists first (this repo's own `package.json` has no `build` script; this step only applies when targeting a code-accessible stack, not Maxx Builders' current WordPress config).
 
 ## Guardrails
 
