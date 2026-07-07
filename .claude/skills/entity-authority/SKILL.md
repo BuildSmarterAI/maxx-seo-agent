@@ -28,6 +28,7 @@ or run once to establish the `Organization` + author entity baseline.
 - Only real, verifiable entities — never invent a partner, certification, or statistic.
 - Schema must validate.
 - Enrichment is additive and must not change the page's meaning or claims.
+- Before staging enrichment, check whether `schema-generate` has already produced `schema/{slug}.jsonld` with Organization/Person/Service/Place schema for this page — reconcile with it rather than adding entities that conflict.
 
 ## Output contract
 `change_set` row(s) for body/schema, `status='pending'`.
