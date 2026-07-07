@@ -27,11 +27,11 @@
 
 ---
 
-## Current handoff — 2026-07-06
+## Current handoff — 2026-07-07 (audit PR #74 merged to main)
 
 ### Branch & state
-- **Active branch:** `seo/audit-remediation-2026-07` (clean re-cut off current `main`) → **PR #74, MERGEABLE**. This is the one to review/merge. At home: `git fetch && git checkout seo/audit-remediation-2026-07`.
-- **Superseded:** `seo/cut-llms-txt` + **PR #73** — that branch also carried prior parallel infra work (AI-search module, sensor scripts) that conflicts because `main` already has its own diverged copy. #73 is commented as superseded; close it and sort that branch's infra work separately when convenient.
+- **Merged to `main`:** PR #74 (`seo/audit-remediation-2026-07`) squash-merged 2026-07-07 as commit `29b3976`. `main` now carries the full 2026-07-06 audit + F-1→F-20 artifact set. At home: `git checkout main && git pull`.
+- **Closed:** `seo/cut-llms-txt` + **PR #73** (superseded by #74). That branch still holds unrelated parallel infra work (AI-search module, sensor scripts) that diverged from `main`; the branch is **kept, not deleted**, so that work can be reconciled separately when convenient.
 - **Working tree:** clean except pre-existing untracked `tdlr-projects-2026-06-29.csv` and tooling dirs `.agents/` `.codex/` (NOT ours — leave them).
 - Zero WP/CMS writes, zero Supabase mutations beyond `decision_log` audit entries. Nothing applied to the live site.
 
@@ -54,7 +54,7 @@ All metadata CSVs pass `npm run validate:metadata`. Every content claim was adve
 
 ### Next actions (resume here) — everything below is GATED on Harris
 1. **Decide the 8 cluster redirects** in `output/cannibalization/manifest-2026-07-06.md` — needs a backlink check per cluster (no backlink tool in-session) + sign-off. Highest ROI, highest risk.
-2. **Review + merge PR #74** (repo-safe: config + audit + artifacts; MERGEABLE). Then WP apply in ≤5-page batches (production only, no staging — **confirm a restorable backup first**). Close superseded PR #73.
+2. **WP apply the merged artifacts** in ≤5-page batches (production only, no staging — **confirm a restorable backup first**). Source rows now live on `main`: metadata CSVs (`metadata-changes-*-2026-07-06.csv`), schema JSON-LD (`schema/localbusiness-*.jsonld`), internal-link + answer-first changesets (`output/`). Apply via `packs/wordpress`, verify rendered output before each next batch. *(#74 merged, #73 closed — 2026-07-07.)*
 3. **Supply author names + credentials** for `output/schema-eeat/author-map-2026-07-06.md` (F-8).
 4. **Mint `PAGESPEED_API_KEY`** (GCP → PageSpeed Insights API) + set locally and as a GH Actions secret — unblocks all CWV field verification (F-20; keyless PSI 429s).
 5. **Homepage items stay prepare-only** (`do_not_touch`): money-page link block, 61→60 title trim, LCP work — require explicit override.
