@@ -32,3 +32,4 @@ Load CLAUDE.md. Produces the dataset + content, gated, ready for the platform to
 
 - Doorway guardrail: warn at 30, hard-stop at 50 pending human review.
 - Submit new URLs via IndexNow after publish. Human-review the manifest before publishing.
+- For multi-location or service-area landing pages with NAP + LocalBusiness schema, use `/local-page-plan` instead.
