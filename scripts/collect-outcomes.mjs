@@ -40,12 +40,40 @@ async function collectGsc() {
 // `landingPage` is a path; `siteUrl` (trailing slash stripped) + path = the full URL the
 // attribution join keys on. Metrics are namespaced `organic_*` so they never collide with
 // the AI-referral collector's `ai_conversions` on the same free-text `outcomes.metric`.
+//
+// GA4 emits non-trailing-slash paths ("/foo") plus query/fragment variants, but every other
+// producer (decision_log.url, GSC-form outcomes.url) uses the trailing-slash canonical
+// ("/foo/") and metricAround joins with exact .eq("url", url) — so paths must be
+// canonicalized here or interior-page conversions silently never match.
+function canonicalGa4Path(path) {
+  if (!path || path === "(not set)") return null;
+  let p = path.split(/[?#]/)[0];
+  if (!p.startsWith("/")) p = "/" + p;
+  if (!p.endsWith("/")) p += "/";
+  return p;
+}
+
 export function mapGa4Rows(data, siteUrl) {
-  const rows = [];
+  // Aggregate by canonical URL: query-param variants of one page collapse into a single
+  // (url, metric) row — duplicate rows would make metricAround's latest-row read nondeterministic.
+  const byUrl = new Map();
   for (const r of data?.rows ?? []) {
-    const url         = siteUrl + r.dimensionValues[0].value;
-    const conversions = Number(r.metricValues[0].value ?? 0);
-    const sessions    = Number(r.metricValues[1].value ?? 0);
+    const path = canonicalGa4Path(r.dimensionValues[0].value);
+    if (!path) continue;
+    const url  = siteUrl + path;
+    const conv = Number(r.metricValues[0].value ?? 0);
+    const sess = Number(r.metricValues[1].value ?? 0);
+    // One NaN would poison the whole URL's accumulator and silently drop valid sibling
+    // variants — skip the malformed row loudly instead.
+    if (!Number.isFinite(conv) || !Number.isFinite(sess)) {
+      console.warn(`GA4: non-numeric metric value for landingPage="${r.dimensionValues[0].value}" — skipping row`);
+      continue;
+    }
+    const agg = byUrl.get(url) ?? { conversions: 0, sessions: 0 };
+    byUrl.set(url, { conversions: agg.conversions + conv, sessions: agg.sessions + sess });
+  }
+  const rows = [];
+  for (const [url, { conversions, sessions }] of byUrl) {
     if (conversions > 0) rows.push({ url, metric: "organic_conversions", value: conversions });
     if (sessions    > 0) rows.push({ url, metric: "organic_sessions",    value: sessions    });
   }

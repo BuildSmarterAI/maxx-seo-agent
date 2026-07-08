@@ -27,10 +27,63 @@ test("mapGa4Rows builds full URLs (siteUrl + landingPage) and namespaces the org
 });
 
 test("mapGa4Rows omits a metric whose value is zero (no empty-signal rows)", () => {
-  const rows = mapGa4Rows({ rows: [ga4("/a", 0, 50), ga4("/b", 2, 0)] }, "https://x.com");
+  const rows = mapGa4Rows({ rows: [ga4("/a/", 0, 50), ga4("/b/", 2, 0)] }, "https://x.com");
   assert.deepEqual(rows, [
-    { url: "https://x.com/a", metric: "organic_sessions",    value: 50 },
-    { url: "https://x.com/b", metric: "organic_conversions", value: 2 },
+    { url: "https://x.com/a/", metric: "organic_sessions",    value: 50 },
+    { url: "https://x.com/b/", metric: "organic_conversions", value: 2 },
+  ]);
+});
+
+// R3: GA4 landingPage is non-trailing-slash ("/foo") while decision_log.url and GSC-form
+// outcomes.url are trailing-slash canonical ("/foo/"). metricAround joins with exact
+// .eq("url", url), so un-normalized GA4 rows silently miss every interior page.
+test("mapGa4Rows canonicalizes a non-trailing-slash landingPage to the trailing-slash URL", () => {
+  const rows = mapGa4Rows({ rows: [ga4("/foo", 1, 10)] }, "https://x.com");
+  assert.deepEqual(rows, [
+    { url: "https://x.com/foo/", metric: "organic_conversions", value: 1 },
+    { url: "https://x.com/foo/", metric: "organic_sessions",    value: 10 },
+  ]);
+});
+
+test("mapGa4Rows strips query strings and fragments before canonicalizing", () => {
+  const rows = mapGa4Rows({ rows: [ga4("/foo?utm_source=x", 1, 0), ga4("/bar#section", 2, 0)] }, "https://x.com");
+  assert.deepEqual(rows, [
+    { url: "https://x.com/foo/", metric: "organic_conversions", value: 1 },
+    { url: "https://x.com/bar/", metric: "organic_conversions", value: 2 },
+  ]);
+});
+
+test("mapGa4Rows skips the GA4 '(not set)' landing page entirely", () => {
+  assert.deepEqual(mapGa4Rows({ rows: [ga4("(not set)", 5, 100)] }, "https://x.com"), []);
+});
+
+test("mapGa4Rows aggregates path variants of the same canonical URL into one row per metric", () => {
+  const rows = mapGa4Rows(
+    { rows: [ga4("/foo", 1, 10), ga4("/foo?utm=x", 2, 20), ga4("/foo/", 3, 30)] },
+    "https://x.com",
+  );
+  assert.deepEqual(rows, [
+    { url: "https://x.com/foo/", metric: "organic_conversions", value: 6 },
+    { url: "https://x.com/foo/", metric: "organic_sessions",    value: 60 },
+  ]);
+});
+
+test("mapGa4Rows skips a row with a non-numeric metric value without poisoning its URL's aggregate", () => {
+  const rows = mapGa4Rows(
+    { rows: [ga4("/foo", "abc", 10), ga4("/foo?utm=x", 2, 20)] },
+    "https://x.com",
+  );
+  assert.deepEqual(rows, [
+    { url: "https://x.com/foo/", metric: "organic_conversions", value: 2 },
+    { url: "https://x.com/foo/", metric: "organic_sessions",    value: 20 },
+  ]);
+});
+
+test("mapGa4Rows keeps the homepage landing page '/' as the bare site root", () => {
+  const rows = mapGa4Rows({ rows: [ga4("/", 4, 40)] }, "https://x.com");
+  assert.deepEqual(rows, [
+    { url: "https://x.com/", metric: "organic_conversions", value: 4 },
+    { url: "https://x.com/", metric: "organic_sessions",    value: 40 },
   ]);
 });
 
