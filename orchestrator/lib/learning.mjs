@@ -87,26 +87,31 @@ function meanAbs(values) {
 // Injectable core: re-score pending queue items from learned patterns, writing back
 // only when the priority actually changes. All I/O is injected.
 //
-// GSC learned_patterns is the anchor signal. GEO learned_patterns_geo (citation-delta
-// per change_type) blends in as a bounded, sample-size-shrunk bonus on the SAME scale:
-//   effect = gsc + geoWeight · shrink(n) · (S_gsc / S_geo) · geo
-// The S_gsc/S_geo ratio (mean |effect| of each signal) auto-rescales GEO's units onto
-// GSC's, so the two incompatible scales combine without a hand-tuned constant. When
-// either signal has no spread we can't calibrate, so the GEO term is suppressed rather
-// than guessed. GEO is OFF by default (empty map / geoWeight 0), so callers that pass no
-// GEO args — and the whole loop until learned_patterns_geo fills — score exactly as before.
-export async function reprioritize({ fetchPatterns, fetchQueue, setPriority, log, weight, base, fetchGeoPatterns = async () => new Map(), geoWeight = 0, shrinkK = 5 }) {
+// GSC learned_patterns is the anchor signal. TWO further signals blend in as bounded,
+// sample-size-shrunk bonuses on the SAME scale, each auto-rescaled onto GSC's units:
+//   effect = gsc + geoWeight·shrink(n)·(S_gsc/S_geo)·geo + convWeight·shrink(n)·(S_gsc/S_conv)·conv
+// GEO is learned_patterns_geo (citation-delta per change_type); CONV is learned_patterns_conv
+// (organic-conversion delta, PR 1C). The S_gsc/S_x ratio (mean |effect| of each signal)
+// rescales each incompatible scale onto GSC's without a hand-tuned constant; when a signal
+// has no spread we can't calibrate, so its term is suppressed rather than guessed. Both are
+// OFF by default (empty map / weight 0), so callers that pass no GEO/CONV args — and the whole
+// loop until each table fills — score exactly as before. effectOf is NOT touched by either.
+export async function reprioritize({ fetchPatterns, fetchQueue, setPriority, log, weight, base, fetchGeoPatterns = async () => new Map(), geoWeight = 0, shrinkK = 5, fetchConvPatterns = async () => new Map(), convWeight = 0, convShrinkK = 5 }) {
   const patterns = await fetchPatterns();
   const geoPatterns = await fetchGeoPatterns();
+  const convPatterns = await fetchConvPatterns();
   const queue = await fetchQueue();
 
   const sGsc = meanAbs([...patterns.values()]);
   const sGeo = meanAbs([...geoPatterns.values()].map((g) => g.avg_effect));
+  const sConv = meanAbs([...convPatterns.values()].map((c) => c.avg_effect));
   const scale = geoWeight > 0 && sGsc > 0 && sGeo > 0 ? sGsc / sGeo : 0;
+  const convScale = convWeight > 0 && sGsc > 0 && sConv > 0 ? sGsc / sConv : 0;
 
   let changed = 0;
-  let matched = 0;    // rows whose task joined a GSC learned pattern — the learning signal's reach
-  let geoMatched = 0; // rows that also drew a non-zero GEO bonus — the GEO signal's reach
+  let matched = 0;     // rows whose task joined a GSC learned pattern — the learning signal's reach
+  let geoMatched = 0;  // rows that also drew a non-zero GEO bonus — the GEO signal's reach
+  let convMatched = 0; // rows that also drew a non-zero CONV bonus — the conversion signal's reach
 
   for (const row of queue) {
     const baseScore = base[row.source] ?? 1;
@@ -121,10 +126,17 @@ export async function reprioritize({ fetchPatterns, fetchQueue, setPriority, log
       if (geoTerm !== 0) geoMatched++;
     }
 
-    const next = priorityScore(baseScore, gsc + geoTerm, weight);
+    const conv = convPatterns.get(row.task);
+    let convTerm = 0;
+    if (conv && convScale > 0) {
+      convTerm = convWeight * shrink(conv.n, convShrinkK) * convScale * Number(conv.avg_effect);
+      if (convTerm !== 0) convMatched++;
+    }
+
+    const next = priorityScore(baseScore, gsc + geoTerm + convTerm, weight);
     if (next !== row.priority) { await setPriority(row.id, next); changed++; }
   }
 
-  log(`reprioritized ${changed}/${queue.length} pending items (${matched} GSC, ${geoMatched} GEO patterns matched).`);
+  log(`reprioritized ${changed}/${queue.length} pending items (${matched} GSC, ${geoMatched} GEO, ${convMatched} CONV patterns matched).`);
   return { changed, total: queue.length, matched };
 }

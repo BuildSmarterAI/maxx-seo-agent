@@ -260,3 +260,85 @@ test("reprioritize: zero GEO spread contributes nothing (guards divide-by-zero)"
   });
   assert.deepEqual(writes, [[1, 4]]); // == GSC-only; no NaN, no divide-by-zero
 });
+
+// ---- CONV blend (learned_patterns_conv → prioritize, PR 1C) ----
+// A third bounded term mirroring the GEO blend: organic-conversion delta per change_type,
+// sample-size-shrunk and rescaled onto the GSC scale by S_gsc/S_conv. OFF unless convWeight
+// is passed, so existing callers score exactly as before; effectOf is untouched.
+
+test("reprioritize: CONV data is ignored unless convWeight is set (defaults off)", async () => {
+  const writes = [];
+  await reprioritize({
+    fetchPatterns: async () => new Map([["m", 0.4]]),
+    fetchConvPatterns: async () => new Map([["m", { avg_effect: 5.0, n: 100 }]]), // huge, but no convWeight
+    fetchQueue: async () => [{ id: 1, source: "gsc", task: "m", priority: 0 }],
+    setPriority: async (id, p) => writes.push([id, p]),
+    log: () => {}, weight: 5, base: { gsc: 2 },
+  });
+  assert.deepEqual(writes, [[1, 4]]); // GSC-only: 2 + round(0.4*5=2.0) = 4, CONV ignored
+});
+
+test("reprioritize: a calibrated CONV blend adds a bounded bonus over the GSC-only score", async () => {
+  // S_gsc = |0.4| = 0.4 ; S_conv = |0.4| = 0.4 -> ratio 1 ; shrink(5, K=5) = 0.5
+  const cfg = (convWeight) => {
+    const writes = [];
+    return { writes, run: reprioritize({
+      fetchPatterns: async () => new Map([["m", 0.4]]),
+      fetchConvPatterns: async () => new Map([["m", { avg_effect: 0.4, n: 5 }]]),
+      fetchQueue: async () => [{ id: 1, source: "gsc", task: "m", priority: 0 }],
+      setPriority: async (id, p) => writes.push([id, p]),
+      log: () => {}, weight: 5, base: { gsc: 2 }, convWeight, convShrinkK: 5,
+    }) };
+  };
+  const off = cfg(0); await off.run;
+  assert.deepEqual(off.writes, [[1, 4]]);   // GSC-only: 2 + round(2.0) = 4
+  const on = cfg(0.6); await on.run;
+  // convTerm = 0.6 * 0.5 * 1 * 0.4 = 0.12 ; effect 0.52 ; 2 + round(2.6) = 5
+  assert.deepEqual(on.writes, [[1, 5]]);
+});
+
+test("reprioritize: GEO and CONV blends are independent and additive", async () => {
+  // GSC 0.4 ; GEO term 0.6*0.5*1*0.4=0.12 ; CONV term 0.6*0.5*1*0.4=0.12
+  // effect = 0.4 + 0.12 + 0.12 = 0.64 ; 2 + round(3.2) = 5
+  const writes = [];
+  await reprioritize({
+    fetchPatterns: async () => new Map([["m", 0.4]]),
+    fetchGeoPatterns: async () => new Map([["m", { avg_effect: 0.4, n: 5 }]]),
+    fetchConvPatterns: async () => new Map([["m", { avg_effect: 0.4, n: 5 }]]),
+    fetchQueue: async () => [{ id: 1, source: "gsc", task: "m", priority: 0 }],
+    setPriority: async (id, p) => writes.push([id, p]),
+    log: () => {}, weight: 5, base: { gsc: 2 }, geoWeight: 0.6, shrinkK: 5, convWeight: 0.6, convShrinkK: 5,
+  });
+  assert.deepEqual(writes, [[1, 5]]);
+});
+
+test("reprioritize: a thin CONV sample contributes less than a well-sampled one", async () => {
+  // S_gsc=0.4, S_conv=0.8 -> ratio 0.5 ; convWeight 0.5
+  const run = async (n) => {
+    let captured;
+    await reprioritize({
+      fetchPatterns: async () => new Map([["m", 0.4]]),
+      fetchConvPatterns: async () => new Map([["m", { avg_effect: 0.8, n }]]),
+      fetchQueue: async () => [{ id: 1, source: "gsc", task: "m", priority: 0 }],
+      setPriority: async (id, p) => { captured = p; },
+      log: () => {}, weight: 5, base: { gsc: 2 }, convWeight: 0.5, convShrinkK: 5,
+    });
+    return captured;
+  };
+  const thin = await run(1);   // shrink 1/6 -> convTerm 0.033 -> effect 0.433 -> 2+round(2.17)=4
+  const thick = await run(95); // shrink 0.95 -> convTerm 0.19  -> effect 0.59  -> 2+round(2.95)=5
+  assert.equal(thin, 4);
+  assert.equal(thick, 5);
+});
+
+test("reprioritize: zero CONV spread contributes nothing (guards divide-by-zero)", async () => {
+  const writes = [];
+  await reprioritize({
+    fetchPatterns: async () => new Map([["m", 0.4]]),
+    fetchConvPatterns: async () => new Map([["m", { avg_effect: 0, n: 50 }]]), // S_conv = 0 -> ratio forced to 0
+    fetchQueue: async () => [{ id: 1, source: "gsc", task: "m", priority: 0 }],
+    setPriority: async (id, p) => writes.push([id, p]),
+    log: () => {}, weight: 5, base: { gsc: 2 }, convWeight: 0.9, convShrinkK: 5,
+  });
+  assert.deepEqual(writes, [[1, 4]]); // == GSC-only; no NaN, no divide-by-zero
+});
