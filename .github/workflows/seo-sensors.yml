@@ -33,12 +33,14 @@ jobs:
           GSC_SITE_URL: ${{ vars.GSC_SITE_URL }}
           SITEMAP_URL: ${{ vars.SITEMAP_URL }}
           INDEXATION_LIMIT: ${{ vars.INDEXATION_LIMIT || '50' }}
+          CRUX_API_KEY: ${{ secrets.CRUX_API_KEY }}
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: |
           node scripts/sensor-gsc.mjs
           node scripts/sensor-sitemap.mjs
           node scripts/sensor-indexation.mjs
+          node scripts/sensor-cwv.mjs
 
       - name: Configure git identity
         run: |
