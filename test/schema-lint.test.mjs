@@ -104,7 +104,7 @@ test("@graph wrapper: valid graph passes; entities inherit @context from root", 
     "@context": "https://schema.org",
     "@graph": [
       { "@type": "Article", headline: "Costs guide", author: { "@type": "Person", name: "Jane Builder" } },
-      { "@type": "FAQPage", mainEntity: [] },
+      { "@type": "FAQPage", mainEntity: [{ "@type": "Question", name: "How much?", acceptedAnswer: { "@type": "Answer", text: "It depends." } }] },
     ],
   });
   assert.deepEqual(lintSchemaArtifact(raw, { jsonLd: true }), []);
@@ -117,6 +117,73 @@ test("@graph wrapper: graph entity missing @type, empty @graph, missing root @co
   assert.ok(lintSchemaArtifact(empty, { jsonLd: true }).length > 0);
   const noCtx = JSON.stringify({ "@graph": [{ "@type": "Article" }] });
   assert.ok(lintSchemaArtifact(noCtx, { jsonLd: true }).some((e) => /@context/.test(e)));
+});
+
+// ── deepened placeholder gate: double-underscore syntax (1F) ─────────────────
+
+test("double-underscore placeholder __AUTHOR_NAME__ is rejected (4th shipped syntax)", () => {
+  const raw = VALID_JSONLD.replace("Jane Builder", "__AUTHOR_NAME__");
+  const errors = lintSchemaArtifact(raw, { jsonLd: true });
+  assert.ok(errors.some((e) => /__AUTHOR_NAME__/.test(e)), errors.join("; "));
+});
+
+test("__HUMAN_VERIFY_*__ is rejected (the form that slips past the HUMAN-EDIT content-guard)", () => {
+  const raw = VALID_JSONLD.replace("Jane Builder", "__HUMAN_VERIFY_AUTHOR_NAME__");
+  const errors = lintSchemaArtifact(raw, { jsonLd: true });
+  assert.ok(errors.some((e) => /__HUMAN_VERIFY_AUTHOR_NAME__/.test(e)), errors.join("; "));
+});
+
+test("lowercase dunders and bare underscores do NOT trip the placeholder rule", () => {
+  const okDunder = JSON.stringify([{ "@context": "https://schema.org", "@type": "Article", headline: "Using __init__ and snake__case safely" }]);
+  assert.deepEqual(lintSchemaArtifact(okDunder, { jsonLd: true }), []);
+  const okBare = JSON.stringify([{ "@context": "https://schema.org", "@type": "Article", headline: "a __ b ____ c" }]);
+  assert.deepEqual(lintSchemaArtifact(okBare, { jsonLd: true }), []);
+});
+
+// ── deepened structure gate: required properties + @context sanity (1F) ──────
+
+test("Article with @context+@type but no headline is rejected", () => {
+  const raw = JSON.stringify([{ "@context": "https://schema.org", "@type": "Article", description: "no headline" }]);
+  const errors = lintSchemaArtifact(raw, { jsonLd: true });
+  assert.ok(errors.some((e) => /Article missing required property "headline"/.test(e)), errors.join("; "));
+});
+
+test("FAQPage missing mainEntity and GeneralContractor missing address are rejected", () => {
+  const faq = JSON.stringify([{ "@context": "https://schema.org", "@type": "FAQPage" }]);
+  assert.ok(lintSchemaArtifact(faq, { jsonLd: true }).some((e) => /FAQPage missing required property "mainEntity"/.test(e)));
+  const gc = JSON.stringify({ "@context": "https://schema.org", "@type": "GeneralContractor", name: "Maxx Builders" });
+  assert.ok(lintSchemaArtifact(gc, { jsonLd: true }).some((e) => /GeneralContractor missing required property "address"/.test(e)));
+  const gcOk = JSON.stringify({ "@context": "https://schema.org", "@type": "GeneralContractor", name: "Maxx Builders", address: { "@type": "PostalAddress", addressLocality: "Stafford" } });
+  assert.deepEqual(lintSchemaArtifact(gcOk, { jsonLd: true }), []);
+});
+
+test("an empty array required property is treated as missing (zero-item FAQ/breadcrumb is inert)", () => {
+  const faq = JSON.stringify({ "@context": "https://schema.org", "@type": "FAQPage", mainEntity: [] });
+  assert.ok(lintSchemaArtifact(faq, { jsonLd: true }).some((e) => /FAQPage missing required property "mainEntity"/.test(e)));
+  const bc = JSON.stringify({ "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [] });
+  assert.ok(lintSchemaArtifact(bc, { jsonLd: true }).some((e) => /BreadcrumbList missing required property "itemListElement"/.test(e)));
+});
+
+test("unknown @type carries no required-property gate (not over-eager)", () => {
+  const ws = JSON.stringify({ "@context": "https://schema.org", "@type": "WebSite", url: "https://x" });
+  assert.deepEqual(lintSchemaArtifact(ws, { jsonLd: true }), []);
+});
+
+test("@graph Article missing headline is rejected (required props apply in graph mode)", () => {
+  const raw = JSON.stringify({ "@context": "https://schema.org", "@graph": [{ "@type": "Article", description: "x" }] });
+  assert.ok(lintSchemaArtifact(raw, { jsonLd: true }).some((e) => /Article missing required property "headline"/.test(e)));
+});
+
+test("@type array is honored for required-property lookup", () => {
+  const raw = JSON.stringify({ "@context": "https://schema.org", "@type": ["LocalBusiness", "GeneralContractor"], name: "Maxx" });
+  assert.ok(lintSchemaArtifact(raw, { jsonLd: true }).some((e) => /GeneralContractor missing required property "address"/.test(e)));
+});
+
+test("string @context not referencing schema.org is rejected; object @context is allowed", () => {
+  const typo = JSON.stringify([{ "@context": "https://shema.org", "@type": "Article", headline: "typo'd context" }]);
+  assert.ok(lintSchemaArtifact(typo, { jsonLd: true }).some((e) => /does not reference schema\.org/.test(e)), "typo context should fail");
+  const objCtx = JSON.stringify([{ "@context": { "@vocab": "https://schema.org/" }, "@type": "Article", headline: "object context" }]);
+  assert.deepEqual(lintSchemaArtifact(objCtx, { jsonLd: true }), []);
 });
 
 test("plain-JSON mode skips JSON-LD structure but still catches placeholders", () => {
