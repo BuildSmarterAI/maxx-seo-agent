@@ -4,6 +4,11 @@
       "command": "npx",
       "args": ["-y", "@supabase/mcp-server-supabase@0.8.2", "--read-only=false"],
       "env": { "SUPABASE_ACCESS_TOKEN": "${SUPABASE_ACCESS_TOKEN}" }
+    },
+    "analytics-mcp": {
+      "command": "uvx",
+      "args": ["analytics-mcp"],
+      "env": { "GOOGLE_APPLICATION_CREDENTIALS": "${GOOGLE_APPLICATION_CREDENTIALS:-gcp.json}" }
     }
   }
 }
