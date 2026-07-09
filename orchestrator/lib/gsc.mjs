@@ -67,12 +67,16 @@ export async function queryAnalytics(client, { siteUrl, startDaysAgo, endDaysAgo
   return all;
 }
 
-// Inspect one URL's index status; returns the indexStatusResult object (null-safe → {}).
-// Retries transient failures so a single quota blip doesn't drop a URL.
+// Inspect one URL: spreads indexStatusResult so verdict/coverageState/googleCanonical/
+// userCanonical stay top-level (the indexation sensor reads verdict/coverageState off the
+// flat object), and adds `richResults` (richResultsResult) as a sibling for rich-result
+// detection + canonical-divergence checks. Null-safe. Retries transient failures so a single
+// quota blip doesn't drop a URL.
 export async function inspectUrl(client, { siteUrl, url, retries, sleep }) {
   const { data } = await withRetry(
     () => client.urlInspection.index.inspect({ requestBody: { siteUrl, inspectionUrl: url } }),
     { retries, sleep },
   );
-  return data?.inspectionResult?.indexStatusResult ?? {};
+  const r = data?.inspectionResult ?? {};
+  return { ...(r.indexStatusResult ?? {}), richResults: r.richResultsResult ?? {} };
 }

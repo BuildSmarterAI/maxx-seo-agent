@@ -31,10 +31,13 @@ throw a descriptive error if missing (see `supabase.mjs` as the pattern).
 | `WP_BASE_URL`, `WP_APP_PASSWORD`, `SEO_PLUGIN` | WordPress host credentials (production — no staging environment; see root CLAUDE.md) | packs/wordpress/ |
 | `WEBFLOW_API_TOKEN`, `WEBFLOW_SITE_ID` | Webflow account dashboard | packs/webflow/ |
 | `CITATIONS_CSV`, `CONVERSIONS_CSV` | Optional file paths for attribution data | scripts/collect-outcomes.mjs |
+| `CRUX_API_KEY` (or `PAGESPEED_API_KEY`), `CWV_COOLDOWN_DAYS` | Chrome UX Report API key + field-lag cooldown (default 30 days); sensor no-ops without a key | scripts/sensor-cwv.mjs |
 | `SERPAPI_KEY`, `AIO_SAMPLES` | SerpApi key + per-run AIO sample count (default 3) | sensor-ai-citations.mjs (AIO capture) |
 | `CITATION_EVENT_WINDOW_DAYS` | Lookback for the AIO snapshot diff (default 60) | scripts/diff-citation-events.mjs |
 | `CITATION_ANALYST_MODEL` | Optional override; default `claude-sonnet-4-6` | scripts/analyze-citation-events.mjs |
 | `SELF_INFLICTED_LEAD_DAYS`, `ANALYST_BATCH_LIMIT`, `ALGO_UPDATES_FILE` | Analyst window (14), batch cap (50), algo-calendar path | scripts/analyze-citation-events.mjs |
+| `CONV_PRIORITY_WEIGHT`, `CONV_SHRINK_K` | Optional; conversion-blend weight (default 0.3) + sample-size shrink k (default 5) | scripts/prioritize.mjs (blends `learned_patterns_conv`) |
+| `GA4_PROPERTY_ID`, `SITE_URL` | GA4 property id + canonical site URL (GitHub Actions repo vars) | scripts/collect-outcomes.mjs (organic-conversion outcomes) |
 
 ## Model routing
 

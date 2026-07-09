@@ -83,18 +83,31 @@ test("queryAnalytics stops when an exactly-full page is followed by an empty pag
   assert.equal(seen.length, 2);
 });
 
-test("inspectUrl unwraps indexStatusResult and passes the inspection target", async () => {
+test("inspectUrl spreads indexStatusResult (+ richResults) and passes the inspection target", async () => {
   const seen = [];
   const client = { urlInspection: { index: { inspect: async (req) => { seen.push(req); return { data: { inspectionResult: { indexStatusResult: { verdict: "PASS", coverageState: "Indexed" } } } }; } } } };
   const r = await inspectUrl(client, { siteUrl: "sc-domain:x", url: "https://x/a" });
-  assert.deepEqual(r, { verdict: "PASS", coverageState: "Indexed" });
+  assert.deepEqual(r, { verdict: "PASS", coverageState: "Indexed", richResults: {} });
   assert.equal(seen[0].requestBody.siteUrl, "sc-domain:x");
   assert.equal(seen[0].requestBody.inspectionUrl, "https://x/a");
 });
 
-test("inspectUrl returns {} when the result nesting is absent", async () => {
+test("inspectUrl surfaces richResults and keeps index fields (incl. canonicals) top-level", async () => {
+  const client = { urlInspection: { index: { inspect: async () => ({ data: { inspectionResult: {
+    indexStatusResult: { verdict: "PASS", coverageState: "Indexed", googleCanonical: "https://x/a", userCanonical: "https://x/a" },
+    richResultsResult: { verdict: "PASS", detectedItems: [{ richResultType: "FAQ" }] },
+  } } }) } } };
+  const r = await inspectUrl(client, { siteUrl: "sc-domain:x", url: "https://x/a" });
+  assert.equal(r.verdict, "PASS");
+  assert.equal(r.coverageState, "Indexed");
+  assert.equal(r.googleCanonical, "https://x/a");   // canonical-divergence signal stays top-level
+  assert.equal(r.userCanonical, "https://x/a");
+  assert.deepEqual(r.richResults, { verdict: "PASS", detectedItems: [{ richResultType: "FAQ" }] });
+});
+
+test("inspectUrl returns only { richResults: {} } when the result nesting is absent", async () => {
   const client = { urlInspection: { index: { inspect: async () => ({ data: {} }) } } };
-  assert.deepEqual(await inspectUrl(client, { siteUrl: "x", url: "y" }), {});
+  assert.deepEqual(await inspectUrl(client, { siteUrl: "x", url: "y" }), { richResults: {} });
 });
 
 test("withRetry returns the result on first success without sleeping", async () => {
@@ -151,6 +164,6 @@ test("inspectUrl retries a transient failure then returns the index status", asy
   let calls = 0;
   const client = { urlInspection: { index: { inspect: async () => { calls++; if (calls === 1) throw httpError(503, "response"); return { data: { inspectionResult: { indexStatusResult: { verdict: "PASS" } } } }; } } } };
   const r = await inspectUrl(client, { siteUrl: "x", url: "y", retries: 3, sleep: async () => {} });
-  assert.deepEqual(r, { verdict: "PASS" });
+  assert.deepEqual(r, { verdict: "PASS", richResults: {} });
   assert.equal(calls, 2);
 });
