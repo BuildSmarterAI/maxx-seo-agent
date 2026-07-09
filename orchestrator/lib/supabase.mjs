@@ -210,6 +210,14 @@ export async function learnedPatternsGeo() {
   return new Map((data ?? []).map((r) => [r.change_type, { avg_effect: Number(r.avg_effect), n: Number(r.n) }]));
 }
 
+// Conversion learned patterns (organic-conversion delta per change_type, PR 1C). Same
+// richer {avg_effect, n} shape as learnedPatternsGeo — the priority blend shrinks each
+// type's bonus by its sample size. Empty until attribute-conversions.mjs has run.
+export async function learnedPatternsConv() {
+  const { data } = await db.from("learned_patterns_conv").select("change_type, avg_effect, n");
+  return new Map((data ?? []).map((r) => [r.change_type, { avg_effect: Number(r.avg_effect), n: Number(r.n) }]));
+}
+
 export async function insertChangeset(row) {
   // Write-boundary guard: keep a non-task change_type (a CMS field name, or a generic label
   // like "metadata") out of change_set so it never reaches decision_log as an orphan the
