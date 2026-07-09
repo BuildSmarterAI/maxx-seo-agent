@@ -32,6 +32,7 @@ opens with "In today's market..." gives them nothing to lift.
 - Answer block must be factually grounded in the page's own data. If the page lacks the fact,
   escalate instead of inventing it.
 - Stay under `MAX_DIFF_LINES`; if the body is huge, change only the intro region.
+- Lead the answer block with a **statistic** (specific number/range) — the KDD '24 GEO study found added statistics lift AI-citation rates the most, and `check-citation-density.mjs` gates for them. Where the page has a named-source quote or an authoritative outbound citation, keep it in or near the answer block.
 
 ## Output contract
 A single `change_set` row per page, `status='pending'`, for human approval before `wp:apply`.
