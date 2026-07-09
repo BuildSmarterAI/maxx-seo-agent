@@ -46,6 +46,28 @@ jobs:
             node scripts/check-content-guards.mjs $files
           fi
 
+      # Deterministic citation-worthiness gate (KDD '24 GEO markers: statistics, sourced
+      # quotations, outbound citations — see AGENTIC-AI-SEO-RESEARCH.md). Runs after the
+      # content guards / before the LLM judge on bot-authored content PRs only (seo-auto),
+      # so human PRs pass automatically and it can stay a required check. Diff-scoped: skips
+      # when no draft/HTML content changed. Deterministic + dependency-free (no API call).
+      - name: Citation density guard
+        if: contains(github.event.pull_request.labels.*.name, 'seo-auto')
+        env:
+          BASE_REF: origin/${{ github.base_ref }}
+          TARGET_DOMAIN: ${{ vars.TARGET_DOMAIN }}
+          MIN_STATS_PER_1K: ${{ vars.MIN_STATS_PER_1K }}
+          MIN_QUOTES: ${{ vars.MIN_QUOTES }}
+          MIN_CITATIONS: ${{ vars.MIN_CITATIONS }}
+        run: |
+          files=$(git diff --name-only --diff-filter=ACM "$BASE_REF"...HEAD -- 'drafts/*.md' '*.html')
+          if [ -z "$files" ]; then
+            echo "citation-density: no content files changed → pass."
+          else
+            echo "citation-density: checking:"; echo "$files"
+            node scripts/check-citation-density.mjs $files
+          fi
+
       # Deterministic artifact validators (audit H2/M6). Unlike the judge steps these run
       # on EVERY PR — they are lint-grade facts (leaked OPERATOR_INSERT_* placeholders,
       # broken JSON-LD, metadata cap/duplicate/canonical violations), not judgement, and
