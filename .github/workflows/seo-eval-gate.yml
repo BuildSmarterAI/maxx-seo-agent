@@ -55,7 +55,11 @@ jobs:
         if: contains(github.event.pull_request.labels.*.name, 'seo-auto')
         env:
           BASE_REF: origin/${{ github.base_ref }}
+          # Self-domain exclusion: TARGET_DOMAIN if set, else the WP host (matches the
+          # code's `TARGET_DOMAIN || WP_BASE_URL` fallback). Without a value here the
+          # self-link exclusion silently no-ops and an internal link satisfies the gate.
           TARGET_DOMAIN: ${{ vars.TARGET_DOMAIN }}
+          WP_BASE_URL: ${{ vars.WP_BASE_URL }}
           MIN_STATS_PER_1K: ${{ vars.MIN_STATS_PER_1K }}
           MIN_QUOTES: ${{ vars.MIN_QUOTES }}
           MIN_CITATIONS: ${{ vars.MIN_CITATIONS }}
