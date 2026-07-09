@@ -95,6 +95,16 @@ export async function pendingQueue(limit = 25) {
   return data ?? [];
 }
 
+// True if a (url, task) work_queue row was created within `sinceDays` (ANY status). Read-only.
+// Used by sensor-cwv to suppress re-enqueuing a recently-actioned URL while CrUX field p75
+// (~28-day window) still lags behind an already-applied fix.
+export async function hasRecentTask(url, task, sinceDays) {
+  const since = new Date(Date.now() - sinceDays * 864e5).toISOString();
+  const { data } = await db.from("work_queue").select("id")
+    .eq("url", url).eq("task", task).gte("created_at", since).limit(1);
+  return Boolean(data?.length);
+}
+
 export async function setQueueStatus(url, task, to) {
   await db.from("work_queue").update({ status: to }).eq("url", url).eq("task", task);
 }
