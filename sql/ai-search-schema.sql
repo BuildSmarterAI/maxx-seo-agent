@@ -106,6 +106,23 @@ create table if not exists learned_patterns_geo (
 );
 create unique index if not exists learned_patterns_geo_change_type_key on learned_patterns_geo(change_type);
 
+-- ---- conversion learned effects (separate from GSC learned_patterns AND GEO) ----
+-- attribute-conversions.mjs writes an organic-conversion delta per change_type here. Same
+-- rationale as learned_patterns_geo: folding conversions into learned_patterns would
+-- retroactively rescale the GSC anchor (a normalized click/impression/position lift) against
+-- a raw conversion-count delta on an incompatible scale, deflate every pattern lacking sparse
+-- conversion data, and corrupt eval_set.realized_lift mining. Its own table lets all three
+-- signals persist; prioritize.mjs blends it as a bounded, sample-size-shrunk, auto-rescaled
+-- term (CONV_PRIORITY_WEIGHT). Mirrors learned_patterns_geo's shape.
+create table if not exists learned_patterns_conv (
+  id          bigint generated always as identity primary key,
+  change_type text,
+  avg_effect  numeric,
+  n           int,
+  updated_at  timestamptz default now()
+);
+create unique index if not exists learned_patterns_conv_change_type_key on learned_patterns_conv(change_type);
+
 -- ---- AI Overview presence flag on the raw citation log (ADR-007) ----
 -- google_aio rows carry whether an AI Overview block actually rendered, so the diff can tell
 -- "AIO vanished" (lost) from "AIO present but we're uncited". Null for non-AIO engines.
