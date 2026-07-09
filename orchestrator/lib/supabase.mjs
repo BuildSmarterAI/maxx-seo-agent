@@ -95,6 +95,16 @@ export async function pendingQueue(limit = 25) {
   return data ?? [];
 }
 
+// True if a (url, task) work_queue row was created within `sinceDays` (ANY status). Read-only.
+// Used by sensor-cwv to suppress re-enqueuing a recently-actioned URL while CrUX field p75
+// (~28-day window) still lags behind an already-applied fix.
+export async function hasRecentTask(url, task, sinceDays) {
+  const since = new Date(Date.now() - sinceDays * 864e5).toISOString();
+  const { data } = await db.from("work_queue").select("id")
+    .eq("url", url).eq("task", task).gte("created_at", since).limit(1);
+  return Boolean(data?.length);
+}
+
 export async function setQueueStatus(url, task, to) {
   await db.from("work_queue").update({ status: to }).eq("url", url).eq("task", task);
 }
@@ -207,6 +217,14 @@ export async function learnedPatterns() {
 // than learnedPatterns(). Empty until attribute-citations.mjs has run.
 export async function learnedPatternsGeo() {
   const { data } = await db.from("learned_patterns_geo").select("change_type, avg_effect, n");
+  return new Map((data ?? []).map((r) => [r.change_type, { avg_effect: Number(r.avg_effect), n: Number(r.n) }]));
+}
+
+// Conversion learned patterns (organic-conversion delta per change_type, PR 1C). Same
+// richer {avg_effect, n} shape as learnedPatternsGeo — the priority blend shrinks each
+// type's bonus by its sample size. Empty until attribute-conversions.mjs has run.
+export async function learnedPatternsConv() {
+  const { data } = await db.from("learned_patterns_conv").select("change_type, avg_effect, n");
   return new Map((data ?? []).map((r) => [r.change_type, { avg_effect: Number(r.avg_effect), n: Number(r.n) }]));
 }
 

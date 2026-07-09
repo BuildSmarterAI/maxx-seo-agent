@@ -20,6 +20,14 @@ const OPERATOR_TOKEN_RE = /\bOPERATOR[ _-]?INSERT/g;
 // "replace your roof" or a standalone capitalized "Replace" can never trip it.
 const REPLACE_TOKEN_RE = /\w+[-_]REPLACE\b|\bREPLACE[-_]?ME\b/g;
 
+// Fourth shipped syntax, found live in schema/*.jsonld this session: double-underscore-
+// wrapped ALL-CAPS tokens the schema-generate skill emits for deferred author identity
+// ("__AUTHOR_NAME__", "__HUMAN_VERIFY_AUTHOR_LINKEDIN_OR_BIO_URL__"). The content-guards
+// HUMAN-EDIT rule needs the literal "EDIT", so the "__HUMAN_VERIFY_…" form slipped past
+// every existing gate. Require an uppercase letter immediately after the leading "__" so
+// lowercase dunders ("__init__") and bare "__"/"____" in real content never trip.
+const UNDERSCORE_TOKEN_RE = /__[A-Z][A-Z0-9_]*__/g;
+
 function snippetAt(raw, index) {
   return raw.slice(index, index + 60).split(/["\]\n]/)[0].trim();
 }
@@ -32,6 +40,9 @@ function placeholderErrors(raw) {
   for (const m of raw.matchAll(REPLACE_TOKEN_RE)) {
     errors.push(`REPLACE marker left in artifact: "${m[0]}"`);
   }
+  for (const m of raw.matchAll(UNDERSCORE_TOKEN_RE)) {
+    errors.push(`operator placeholder left in artifact: "${m[0]}"`);
+  }
   for (const v of scanPlaceholders(raw)) {
     errors.push(`${v.message} — "${v.snippet}"`);
   }
@@ -42,6 +53,65 @@ function isPlainObject(v) {
   return typeof v === "object" && v !== null && !Array.isArray(v);
 }
 
+// @type → the properties an entity of that type must carry to be useful beyond bare
+// @context/@type structure. Scoped to the entity types this repo's schema-generate emits at
+// top level / in @graph (Article/FAQPage/BreadcrumbList/GeneralContractor); an unknown @type
+// is left to the structure check alone. A structurally-valid Article with no headline, or a
+// FAQPage with no mainEntity, is inert for rich results — this catches that class.
+const REQUIRED_PROPS = {
+  Article: ["headline"],
+  FAQPage: ["mainEntity"],
+  BreadcrumbList: ["itemListElement"],
+  GeneralContractor: ["name", "address"],
+};
+
+// @type may be a string or an array of types in JSON-LD; normalize to an array.
+function typeList(entity) {
+  const t = entity["@type"];
+  return Array.isArray(t) ? t : [t];
+}
+
+function requiredPropErrors(entity, label) {
+  const errors = [];
+  for (const type of typeList(entity)) {
+    for (const prop of REQUIRED_PROPS[type] ?? []) {
+      const v = entity[prop];
+      // Absent, blank, or an empty array all count as missing — a zero-item mainEntity /
+      // itemListElement is as inert for a rich result as a missing property.
+      if (v == null || v === "" || (Array.isArray(v) && v.length === 0)) {
+        errors.push(`${label}: ${type} missing required property "${prop}"`);
+      }
+    }
+  }
+  return errors;
+}
+
+// @context may legitimately be an object or array (advanced JSON-LD) — only the string form
+// is value-checked. A string @context that doesn't reference schema.org is almost always a
+// typo ("htps://schema.org") here, since this repo emits schema.org vocabulary exclusively.
+function contextValueError(ctx, label) {
+  if (typeof ctx === "string" && !ctx.includes("schema.org")) {
+    return [`${label}: "@context" does not reference schema.org ("${ctx}")`];
+  }
+  return [];
+}
+
+// One entity's structure errors. needContext=false for @graph members, which inherit the
+// root @context. Beyond presence, it enforces @context value sanity and @type-required props.
+function entityErrors(entity, label, needContext) {
+  if (!isPlainObject(entity)) {
+    return [`${label}: not a JSON object — JSON-LD requires an object (or array of objects)`];
+  }
+  const errors = [];
+  if (needContext) {
+    if (!entity["@context"]) errors.push(`${label}: missing "@context"`);
+    else errors.push(...contextValueError(entity["@context"], label));
+  }
+  if (!entity["@type"]) errors.push(`${label}: missing "@type"`);
+  else errors.push(...requiredPropErrors(entity, label));
+  return errors;
+}
+
 // Two accepted shapes: an entity/array of entities (each needs @context + @type), or a
 // single @graph wrapper ({ @context, @graph: [entities…] } — graph entities inherit the
 // root @context, so they only need @type).
@@ -49,31 +119,26 @@ function jsonLdStructureErrors(parsed) {
   if (isPlainObject(parsed) && "@graph" in parsed) {
     const errors = [];
     if (!parsed["@context"]) errors.push('root entity: missing "@context"');
+    else errors.push(...contextValueError(parsed["@context"], "root entity"));
     const graph = parsed["@graph"];
     if (!Array.isArray(graph) || graph.length === 0) {
       errors.push('"@graph" must be a non-empty array of entities');
       return errors;
     }
     graph.forEach((entity, i) => {
-      if (!isPlainObject(entity)) errors.push(`@graph entity ${i + 1}: not a JSON object`);
-      else if (!entity["@type"]) errors.push(`@graph entity ${i + 1}: missing "@type"`);
+      errors.push(...entityErrors(entity, `@graph entity ${i + 1}`, false));
     });
     return errors;
   }
 
-  const entities = Array.isArray(parsed) ? parsed : [parsed];
   if (Array.isArray(parsed) && parsed.length === 0) {
     return ["JSON-LD artifact is an empty array — no entities to emit"];
   }
+  const entities = Array.isArray(parsed) ? parsed : [parsed];
   const errors = [];
   entities.forEach((entity, i) => {
     const label = Array.isArray(parsed) ? `entity ${i + 1}` : "root entity";
-    if (!isPlainObject(entity)) {
-      errors.push(`${label}: not a JSON object — JSON-LD requires an object (or array of objects)`);
-      return;
-    }
-    if (!entity["@context"]) errors.push(`${label}: missing "@context"`);
-    if (!entity["@type"]) errors.push(`${label}: missing "@type"`);
+    errors.push(...entityErrors(entity, label, true));
   });
   return errors;
 }

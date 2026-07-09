@@ -36,6 +36,7 @@ jobs:
         run: |
           node scripts/collect-outcomes.mjs
           node scripts/attribute.mjs
+          node scripts/attribute-conversions.mjs
           node scripts/prioritize.mjs
           node scripts/push-escalations.mjs
 
