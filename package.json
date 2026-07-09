@@ -13,7 +13,7 @@
     "diff-size": "node --env-file=.env scripts/check-diff-size.mjs",
     "validate:metadata": "node --env-file=.env scripts/validate-metadata-csv.mjs",
     "outcomes": "node --env-file=.env scripts/collect-outcomes.mjs",
-    "learn": "node --env-file=.env scripts/collect-outcomes.mjs && node --env-file=.env scripts/attribute.mjs && node --env-file=.env scripts/prioritize.mjs && node --env-file=.env scripts/push-escalations.mjs",
+    "learn": "node --env-file=.env scripts/collect-outcomes.mjs && node --env-file=.env scripts/attribute.mjs && node --env-file=.env scripts/attribute-conversions.mjs && node --env-file=.env scripts/prioritize.mjs && node --env-file=.env scripts/push-escalations.mjs",
     "eval:build": "node --env-file=.env scripts/build-eval-set.mjs",
     "eval:bench": "node --env-file=.env scripts/eval-benchmark.mjs",
     "judge:calibrate": "node --env-file=.env scripts/judge-calibrate.mjs",

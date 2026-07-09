@@ -75,7 +75,11 @@ async function run() {
     totalConv += conversions;
 
     referralRows.push({ source, url, sessions, conversions, period });
-    if (conversions > 0) outcomeRows.push({ url, metric: "conversions", value: conversions });
+    // Namespaced `ai_conversions` (not bare `conversions`) so it never collides with the
+    // organic GA4 collector's `organic_conversions` on the shared free-text outcomes.metric.
+    // NOTE: `url` here is landingPagePlusQueryString (a path), not a full URL — it is NOT yet
+    // joinable to decision_log; kept for the ai_referrals value story until URLs are canonicalized.
+    if (conversions > 0) outcomeRows.push({ url, metric: "ai_conversions", value: conversions });
   }
 
   // Never-swallow (A12): matches the guard already established for the outcomes insert in

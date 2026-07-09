@@ -33,7 +33,7 @@ create table if not exists do_not_touch (
 create table if not exists outcomes (
   id          bigint generated always as identity primary key,
   url         text,
-  metric      text,                         -- clicks | impressions | position | citations | conversions
+  metric      text,                         -- clicks | impressions | position | citations | organic_conversions | organic_sessions | ai_conversions
   value       numeric,
   captured_at timestamptz default now()
 );
