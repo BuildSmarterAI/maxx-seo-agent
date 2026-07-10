@@ -8,7 +8,7 @@ Three credential classes are in active use. Know what each one can do.
 |---|---|---|
 | `ANTHROPIC_API_KEY` | Metered credit pool drained (separate from Max subscription) | Anthropic Console → API keys → Delete + create new |
 | `SUPABASE_SERVICE_ROLE_KEY` | Full read/write on prod Supabase: queue, logs, snapshots, outcomes, do_not_touch | Supabase → Project settings → API → Rotate |
-| `gcp.json` (GCP service-account) | GSC read-only for this property + any other scopes granted to the SA | GCP → IAM → Service accounts → Keys → Delete key → Create new key |
+| `gcp.json` (GCP service-account) | GSC read-only + GA4 read-only (`analytics.readonly`, via collect-outcomes.mjs) for this property + any other scopes granted to the SA | GCP → IAM → Service accounts → Keys → Delete key → Create new key |
 
 Additional credentials (lower blast radius but still sensitive):
 - `SUPABASE_ACCESS_TOKEN` — personal access token for MCP; scoped to account, not project.

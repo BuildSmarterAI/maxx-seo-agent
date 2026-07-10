@@ -331,6 +331,28 @@ test("reprioritize: a thin CONV sample contributes less than a well-sampled one"
   assert.equal(thick, 5);
 });
 
+test("reprioritize: rejects a non-finite or negative numeric knob instead of writing NaN priorities", async () => {
+  // A typo'd env var in prioritize.mjs (e.g. CONV_SHRINK_K="abc") reaches the core as NaN;
+  // unchecked it flows shrink() -> NaN -> priorityScore -> setPriority(id, NaN), and
+  // JSON.stringify({priority: NaN}) serializes to null — silently nulling prod priorities.
+  const writes = [];
+  const run = (knobs) => reprioritize({
+    fetchPatterns: async () => new Map([["m", 0.4]]),
+    fetchGeoPatterns: async () => new Map([["m", { avg_effect: 0.4, n: 5 }]]),
+    fetchConvPatterns: async () => new Map([["m", { avg_effect: 0.4, n: 5 }]]),
+    fetchQueue: async () => [{ id: 1, source: "gsc", task: "m", priority: 0 }],
+    setPriority: async (id, p) => writes.push([id, p]),
+    log: () => {}, weight: 5, base: { gsc: 2 }, geoWeight: 0.6, shrinkK: 5, convWeight: 0.6, convShrinkK: 5,
+    ...knobs,
+  });
+  await assert.rejects(() => run({ weight: NaN }), /weight/);
+  await assert.rejects(() => run({ shrinkK: Number("abc") }), /shrinkK/);
+  await assert.rejects(() => run({ convShrinkK: NaN }), /convShrinkK/);
+  await assert.rejects(() => run({ geoWeight: -0.3 }), /geoWeight/);
+  await assert.rejects(() => run({ convWeight: Infinity }), /convWeight/);
+  assert.deepEqual(writes, []); // nothing reached the write path
+});
+
 test("reprioritize: zero CONV spread contributes nothing (guards divide-by-zero)", async () => {
   const writes = [];
   await reprioritize({
