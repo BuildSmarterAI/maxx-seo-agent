@@ -7,7 +7,7 @@
 
 > **ADR numbering.** This repo carries two ADR series. The **lowercase** `0001`–`0003` are the
 > product/architecture decisions this PRD cites (repo-per-client, human-gate policy, single
-> configurable skill). The **uppercase** `ADR-001`–`ADR-010` are the runtime/build decisions.
+> configurable skill). The **uppercase** `ADR-001` onward are the runtime/build decisions.
 > Where this document says "ADR-0001" it means the lowercase series.
 
 ---
