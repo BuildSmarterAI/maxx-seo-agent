@@ -27,12 +27,15 @@ function makeDeps({
   openPRResult = { empty: false, prUrl: "https://x/pr/1" },
   openPRThrows = null,
 } = {}) {
-  const calls = { addSpend: [], exit: [], rollback: [], startBranch: 0, openPR: 0 };
+  const calls = { addSpend: [], exit: [], rollback: [], startBranch: 0, openPR: 0, queryArgs: [] };
   const deps = {
-    query: () => (async function* () {
-      for (const m of messages) yield m;
-      if (throwAfter) throw throwAfter;
-    })(),
+    query: (args) => {
+      calls.queryArgs.push(args);
+      return (async function* () {
+        for (const m of messages) yield m;
+        if (throwAfter) throw throwAfter;
+      })();
+    },
     addSpend: async (usd) => { calls.addSpend.push(usd); },
     startBranch: () => { calls.startBranch++; return "seo/auto-test"; },
     rollback: (b) => { calls.rollback.push(b); },
@@ -74,6 +77,73 @@ test("runRepo records spend exactly once even when delivery then fails", async (
   await runRepo([], deps);
   assert.deepEqual(calls.addSpend, [0.7], "recorded once, not twice");
   assert.deepEqual(calls.exit, [1], "delivery failure exits non-zero");
+});
+
+// ---- A8: SDK spend/turn caps + dispatch allowlist ---------------------------
+// The budget must bound the run WHILE it happens, not only gate the next one: preflight's
+// headroom rides into the SDK as maxBudgetUsd (native mid-run stop), maxTurns backstops a
+// crash-looping agent, and a cap-stop result is a failure (rollback), never a PR of
+// half-processed work.
+
+test("runRepo passes budget headroom to the SDK as maxBudgetUsd and always sets maxTurns", async () => {
+  const { calls, deps } = makeDeps({ messages: [{ result: "ok" }] });
+  await runRepo([], deps, 12.5);
+  const opts = calls.queryArgs[0].options;
+  assert.equal(opts.maxBudgetUsd, 12.5);
+  assert.ok(Number.isFinite(opts.maxTurns) && opts.maxTurns > 0, "maxTurns must always bound the run");
+});
+
+test("runRepo omits maxBudgetUsd when no finite headroom is given (never sends Infinity)", async () => {
+  const { calls, deps } = makeDeps({ messages: [{ result: "ok" }] });
+  await runRepo([], deps);
+  const opts = calls.queryArgs[0].options;
+  assert.ok(!("maxBudgetUsd" in opts), "Infinity must not leak into the SDK options");
+  assert.ok(Number.isFinite(opts.maxTurns) && opts.maxTurns > 0);
+});
+
+test("runRepo embeds the preflight-vetted rows in the prompt as a dispatch allowlist", async () => {
+  const { calls, deps } = makeDeps({ messages: [{ result: "ok" }] });
+  const queue = [{ id: 3, url: "https://x/a/", task: "metadata-generate", risk_class: "safe", reason: "internal" }];
+  await runRepo(queue, deps);
+  const prompt = calls.queryArgs[0].prompt;
+  assert.match(prompt, /DISPATCH ALLOWLIST/);
+  assert.match(prompt, /"id":3/);
+  assert.match(prompt, /"url":"https:\/\/x\/a\/"/);
+  assert.ok(!prompt.includes("internal"), "only vetted fields are embedded, not free-text columns");
+  assert.match(prompt, /work_queue/i, "the base goal prompt is still present");
+});
+
+test("runRepo treats an SDK budget-cap stop as agent failure: rollback, exit 1, spend recorded", async () => {
+  const { calls, deps } = makeDeps({
+    messages: [{ subtype: "error_max_budget_usd", total_cost_usd: 3.3 }],
+  });
+  await runRepo([], deps, 3.0);
+  assert.deepEqual(calls.rollback, ["seo/auto-test"], "half-processed work must not become a PR");
+  assert.deepEqual(calls.exit, [1]);
+  assert.deepEqual(calls.addSpend, [3.3], "the capped run's spend still bills the budget");
+  assert.equal(calls.openPR, 0);
+});
+
+test("runRepo treats an SDK turn-cap stop as agent failure too", async () => {
+  const { calls, deps } = makeDeps({
+    messages: [{ subtype: "error_max_turns", total_cost_usd: 1.0 }],
+  });
+  await runRepo([], deps);
+  assert.deepEqual(calls.rollback, ["seo/auto-test"]);
+  assert.deepEqual(calls.exit, [1]);
+  assert.deepEqual(calls.addSpend, [1.0]);
+});
+
+test("runCms passes the caps to the SDK and treats a budget-cap stop as failure", async () => {
+  const { calls, deps } = makeDeps({
+    messages: [{ subtype: "error_max_budget_usd", total_cost_usd: 2.2 }],
+  });
+  await runCms([], deps, 8.75);
+  const opts = calls.queryArgs[0].options;
+  assert.equal(opts.maxBudgetUsd, 8.75);
+  assert.ok(Number.isFinite(opts.maxTurns) && opts.maxTurns > 0);
+  assert.deepEqual(calls.exit, [1], "cap stop exits non-zero (change_set rows already written stay human-gated)");
+  assert.deepEqual(calls.addSpend, [2.2]);
 });
 
 // ---- runCms ---------------------------------------------------------------
