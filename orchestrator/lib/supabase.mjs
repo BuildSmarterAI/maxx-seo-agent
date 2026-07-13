@@ -138,6 +138,27 @@ export async function setLinearIssueId(id, linearIssueId) {
   await db.from("work_queue").update({ linear_issue_id: linearIssueId }).eq("id", id);
 }
 
+// The inverse of escalatedQueue: terminal-status rows (done = resolved, cancelled = withdrawn)
+// that were mirrored to Linear (linear_issue_id set) but whose ticket isn't closed yet
+// (linear_closed_at null). close-escalations.mjs closes each in Linear and stamps markClosed,
+// so a stale escalation ticket doesn't outlive the queue row that spawned it.
+export async function closableQueue(limit = 50) {
+  const { data, error } = await db
+    .from("work_queue").select("*")
+    .in("status", ["done", "cancelled"])
+    .not("linear_issue_id", "is", null)
+    .is("linear_closed_at", null)
+    .order("priority", { ascending: false }).limit(limit);
+  // Fail loud like escalatedQueue: a missing linear_closed_at column (migration not run) must
+  // surface, not silently close nothing.
+  if (error) throw new Error(`closableQueue failed: ${error.message}`);
+  return data ?? [];
+}
+
+export async function markClosed(id) {
+  await db.from("work_queue").update({ linear_closed_at: new Date().toISOString() }).eq("id", id);
+}
+
 export async function logDecision(row) {
   await db.from("decision_log").insert(row);
 }
