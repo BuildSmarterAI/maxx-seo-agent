@@ -25,18 +25,21 @@ process.env.SEO_AGENT_GUARDED = "1";
 // Why this exists: total_cost_usd rides only on the SDK's terminal `result` message — both the
 // 'success' and 'error_*' subtypes carry it (verified against @anthropic-ai/claude-agent-sdk
 // 0.1.77 SDKResultMessage), so the read key is already correct. When a run still ends with
-// costUsd === 0, the result message never reached the loop (an early crash / the SDK's
-// process-exit shutdown firing before it) OR the run used non-metered auth (subscription/OAuth
-// reports $0). Both leave MONTHLY_BUDGET_USD blind for the run, so we surface it loudly instead
-// of silently recording nothing (never fabricate a cost). apiKeySource (from the system/init
-// message) tells the reader which case it is: a metered source ('user'|'project'|'org'|
-// 'temporary') paired with $0 is a real recording gap; its absence points to subscription auth
-// where $0 is expected. Pure + exported so the regression test asserts the signal without
-// stubbing global console.
+// costUsd === 0, either the result message never reached the loop (an early crash / the SDK's
+// process-exit shutdown before it) or the run billed nothing to a metered pool. Both leave
+// MONTHLY_BUDGET_USD blind, so we surface it loudly rather than silently record nothing (never
+// fabricate a cost). apiKeySource comes from the system/init message and is a REQUIRED field
+// there (one of 'user'|'project'|'org'|'temporary'), so 'unknown' means init itself never
+// arrived — a crash before init, or a non-metered/subscription run — whereas a NAMED source
+// paired with $0 is a genuine metered recording gap worth investigating. Pure + exported so the
+// regression test asserts the signal without stubbing global console.
 export function zeroSpendWarning(apiKeySource) {
-  return "spend: run completed with $0 recorded — MONTHLY_BUDGET_USD gate is blind for this "
-    + `run. apiKeySource=${apiKeySource ?? "unknown"}. Under subscription/OAuth auth $0 is `
-    + "expected; with a metered API key it means the SDK result message never arrived — investigate.";
+  const diagnosis = apiKeySource
+    ? `apiKeySource=${apiKeySource} (a metered key source) with $0 usually means the SDK result `
+      + "message never arrived — investigate a recording gap."
+    : "apiKeySource=unknown — the init message never reached the loop (a crash before init, or a "
+      + "non-metered/subscription run).";
+  return `spend: run completed with $0 recorded — MONTHLY_BUDGET_USD is blind for this run. ${diagnosis}`;
 }
 
 export async function runRepo(queue, deps = {}) {

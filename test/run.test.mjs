@@ -105,6 +105,7 @@ test("runCms records spend and completes on normal success", async () => {
   await runCms([], deps);
   assert.deepEqual(calls.addSpend, [0.9]);
   assert.deepEqual(calls.exit, []);
+  assert.deepEqual(calls.warn, [], "a normally-billed CMS run must not warn");
 });
 
 // ---- $0 / missing-cost accounting (the spend_usd = 0 blind-spot) -----------
@@ -150,4 +151,29 @@ test("runCms warns (does not record) even on the SDK shutdown when no cost arriv
   assert.equal(calls.warn.length, 1);
   assert.match(calls.warn[0], /apiKeySource=user/);
   assert.deepEqual(calls.exit, [], "the SDK shutdown is still not a failure");
+});
+
+// The flagship blind-spot: a run that CRASHES before any cost message. These lock the warn onto
+// the failure paths (agentFailed / failed), which the tests above never reach (they warn only on
+// non-failure paths). Without them, silencing the warn behind `!agentFailed` / `!failed` — i.e.
+// restoring the exact A5 silent-$0-crash bug — passes the whole suite.
+test("runRepo warns AND rolls back when the agent CRASHES with no cost message (A5)", async () => {
+  const { calls, deps } = makeDeps({
+    messages: [{ type: "system", subtype: "init", apiKeySource: "project" }],
+    throwAfter: new Error("agent boom"),
+  });
+  await runRepo([], deps);
+  assert.deepEqual(calls.addSpend, [], "a $0 crash records nothing (never fabricate)");
+  assert.equal(calls.warn.length, 1, "a $0 CRASH must STILL surface the budget-blind warning");
+  assert.match(calls.warn[0], /apiKeySource=project/);
+  assert.deepEqual(calls.rollback, ["seo/auto-test"], "crash still rolls back the branch");
+  assert.deepEqual(calls.exit, [1], "crash still exits non-zero");
+});
+
+test("runCms warns on a real ($0) failure that arrives before any cost message", async () => {
+  const { calls, deps } = makeDeps({ messages: [], throwAfter: new Error("real cms failure") });
+  await runCms([], deps);
+  assert.deepEqual(calls.addSpend, [], "no cost captured → nothing recorded");
+  assert.equal(calls.warn.length, 1, "a $0 real failure must surface the warning");
+  assert.deepEqual(calls.exit, [1], "real failure still exits non-zero");
 });
