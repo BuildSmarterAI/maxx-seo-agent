@@ -10,6 +10,15 @@
 // 7 cancelled *-sitemap.xml escalations). This makes the mirror bidirectional. CI can't use the
 // claude.ai Linear MCP (interactive auth), so it talks to the Linear GraphQL API directly with
 // LINEAR_API_KEY, reusing push-escalations' auth pattern and idempotency precedent.
+//
+// KNOWN LIMITATION (upstream queue lifecycle — not fixable in this script): the close-path
+// relies on an escalated row transitioning IN PLACE to done/cancelled while keeping its
+// linear_issue_id. Because work_queue rows are never purged and carry unique(url,task,status), a
+// SECOND escalate->resolve cycle for the SAME (url,task) collides on the surviving terminal row —
+// setQueueStatusById throws, the row stays 'escalated', and its new ticket is never auto-closed.
+// This recurs only on repeat escalations of the same URL+task (e.g. GSC-decay re-enqueue),
+// surfaces loudly (the status UPDATE errors), and belongs to the queue-uniqueness design (relax
+// the constraint / purge terminal rows) — tracked as a follow-up, not worked around here.
 import { fileURLToPath } from "node:url";
 import { closableQueue, markClosed as markRowClosed } from "../orchestrator/lib/supabase.mjs";
 
@@ -25,12 +34,25 @@ export function stateTypeForStatus(status) {
   return null;
 }
 
-// Pure: pick the id of the first workflow state matching `type` from a team's state list.
-// Linear teams normally have exactly one canceled and one completed state; first-match keeps it
-// deterministic if a team has several. Returns null when the team has no state of that type.
+// Canonical primary state name per Linear category — the tiebreaker when a team has MORE THAN
+// ONE state of the target type. A default Linear team ships BOTH "Canceled" and "Duplicate" as
+// type `canceled` (and teams often add "Merged"/"Deployed" alongside "Done" as `completed`), so
+// naive first-match could move a withdrawn escalation to "Duplicate". Preferring the canonical
+// name — then the lowest `position` (Linear's in-category order) — lands on the intended state.
+const CANONICAL_STATE_NAME = { canceled: "Canceled", completed: "Done" };
+
+// Pure: resolve the concrete Linear workflow-state id to move an issue to, from a team's state
+// list. Among states of the target `type`: a lone match wins; otherwise prefer the one whose name
+// is the canonical category name, else the lowest-`position` state (falling back to input order
+// when position is absent). Returns null when the team has no state of that type.
 export function resolveStateId(states, type) {
-  const match = (states ?? []).find((s) => s.type === type);
-  return match?.id ?? null;
+  const ofType = (states ?? []).filter((s) => s.type === type);
+  if (ofType.length <= 1) return ofType[0]?.id ?? null;
+  const canonical = CANONICAL_STATE_NAME[type];
+  const named = canonical && ofType.find((s) => (s.name ?? "").toLowerCase() === canonical.toLowerCase());
+  if (named) return named.id;
+  const byPosition = [...ofType].sort((a, b) => (a.position ?? Infinity) - (b.position ?? Infinity));
+  return byPosition[0].id;
 }
 
 async function linearGraphQL(apiKey, query, variables) {
@@ -50,7 +72,7 @@ async function linearGraphQL(apiKey, query, variables) {
 async function fetchTeamStates(apiKey) {
   const data = await linearGraphQL(
     apiKey,
-    "query($teamId: String!){ team(id:$teamId){ states { nodes { id type name } } } }",
+    "query($teamId: String!){ team(id:$teamId){ states { nodes { id type name position } } } }",
     { teamId: TEAM_ID },
   );
   return data?.team?.states?.nodes ?? [];
@@ -97,7 +119,17 @@ export async function closeEscalations({ fetchClosable, closeIssue, markClosed, 
 async function main() {
   const apiKey = process.env.LINEAR_API_KEY;
   if (!apiKey) throw new Error("Set LINEAR_API_KEY");
-  const states = await fetchTeamStates(apiKey);
+  // Isolate the one-time team-states pre-fetch: a transient Linear error here must NOT fail the
+  // weekly learn job (close-escalations shares a non-continue-on-error CI step with attribution).
+  // Per-row closeIssue failures are already isolated inside closeEscalations; this covers the
+  // pre-fetch that sits outside it.
+  let states;
+  try {
+    states = await fetchTeamStates(apiKey);
+  } catch (err) {
+    console.error(`close-escalations: could not fetch Linear team states — skipping this run, retries next run: ${err.message}`);
+    return;
+  }
   await closeEscalations({
     fetchClosable: () => closableQueue(),
     closeIssue: (issueId, stateType) => {

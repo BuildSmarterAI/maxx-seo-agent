@@ -28,17 +28,38 @@ test("stateTypeForStatus maps terminal queue statuses to Linear state types", ()
   assert.equal(stateTypeForStatus("pending"), null);
 });
 
-test("resolveStateId finds the first state id of a given type", () => {
+test("resolveStateId picks the state of a given type (single match per type)", () => {
   const states = [
-    { id: "s_todo", type: "unstarted", name: "Todo" },
-    { id: "s_done", type: "completed", name: "Done" },
-    { id: "s_cancel", type: "canceled", name: "Canceled" },
+    { id: "s_todo", type: "unstarted", name: "Todo", position: 1 },
+    { id: "s_done", type: "completed", name: "Done", position: 2 },
+    { id: "s_cancel", type: "canceled", name: "Canceled", position: 3 },
   ];
   assert.equal(resolveStateId(states, "completed"), "s_done");
   assert.equal(resolveStateId(states, "canceled"), "s_cancel");
   assert.equal(resolveStateId(states, "started"), null); // absent
   assert.equal(resolveStateId([], "completed"), null);   // empty
   assert.equal(resolveStateId(undefined, "completed"), null); // null-safe
+});
+
+test("resolveStateId prefers the canonical name when a type has multiple states", () => {
+  // Default Linear team: BOTH Canceled and Duplicate are type 'canceled'. Must pick Canceled,
+  // even when Duplicate is returned first, so a withdrawn escalation is not mislabeled Duplicate.
+  const states = [
+    { id: "s_dup", type: "canceled", name: "Duplicate", position: 5 },
+    { id: "s_cancel", type: "canceled", name: "Canceled", position: 4 },
+    { id: "s_done", type: "completed", name: "Done", position: 2 },
+    { id: "s_merged", type: "completed", name: "Merged", position: 3 },
+  ];
+  assert.equal(resolveStateId(states, "canceled"), "s_cancel", "prefers 'Canceled' over 'Duplicate'");
+  assert.equal(resolveStateId(states, "completed"), "s_done", "prefers 'Done' over 'Merged'");
+});
+
+test("resolveStateId falls back to the lowest position when no canonical name matches", () => {
+  const states = [
+    { id: "s_hi", type: "canceled", name: "Abandoned", position: 9 },
+    { id: "s_lo", type: "canceled", name: "Scrapped", position: 2 },
+  ];
+  assert.equal(resolveStateId(states, "canceled"), "s_lo", "lowest position wins the tiebreak");
 });
 
 test("closeEscalations closes one issue per row and stamps each closed", async () => {

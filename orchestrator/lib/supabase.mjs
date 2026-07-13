@@ -156,7 +156,11 @@ export async function closableQueue(limit = 50) {
 }
 
 export async function markClosed(id) {
-  await db.from("work_queue").update({ linear_closed_at: new Date().toISOString() }).eq("id", id);
+  // Throw on error like closableQueue/setQueueStatusById (house "fail loud" rule): a swallowed
+  // stamp failure would leave linear_closed_at null, re-selecting and re-closing the row every
+  // run while the DB error never surfaces. closeEscalations catches this as a per-row failure.
+  const { error } = await db.from("work_queue").update({ linear_closed_at: new Date().toISOString() }).eq("id", id);
+  if (error) throw new Error(`markClosed failed: ${error.message}`);
 }
 
 export async function logDecision(row) {
