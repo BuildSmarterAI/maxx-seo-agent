@@ -22,6 +22,23 @@ const IS_CMS = PLATFORM === "wordpress" || PLATFORM === "webflow";
 // set this, so a developer's own session stays unrestricted.
 process.env.SEO_AGENT_GUARDED = "1";
 
+// Why this exists: total_cost_usd rides only on the SDK's terminal `result` message — both the
+// 'success' and 'error_*' subtypes carry it (verified against @anthropic-ai/claude-agent-sdk
+// 0.1.77 SDKResultMessage), so the read key is already correct. When a run still ends with
+// costUsd === 0, the result message never reached the loop (an early crash / the SDK's
+// process-exit shutdown firing before it) OR the run used non-metered auth (subscription/OAuth
+// reports $0). Both leave MONTHLY_BUDGET_USD blind for the run, so we surface it loudly instead
+// of silently recording nothing (never fabricate a cost). apiKeySource (from the system/init
+// message) tells the reader which case it is: a metered source ('user'|'project'|'org'|
+// 'temporary') paired with $0 is a real recording gap; its absence points to subscription auth
+// where $0 is expected. Pure + exported so the regression test asserts the signal without
+// stubbing global console.
+export function zeroSpendWarning(apiKeySource) {
+  return "spend: run completed with $0 recorded — MONTHLY_BUDGET_USD gate is blind for this "
+    + `run. apiKeySource=${apiKeySource ?? "unknown"}. Under subscription/OAuth auth $0 is `
+    + "expected; with a metered API key it means the SDK result message never arrived — investigate.";
+}
+
 export async function runRepo(queue, deps = {}) {
   const {
     query: runQuery = query,
@@ -29,11 +46,13 @@ export async function runRepo(queue, deps = {}) {
     startBranch: beginBranch = startBranch,
     openPR: deliver = openPR,
     rollback: revert = rollback,
+    warn = console.warn,
     exit = process.exit,
   } = deps;
 
   const branch = beginBranch();
   let costUsd = 0;
+  let apiKeySource;
   let agentFailed = false;
 
   // Agent failure: roll back the branch and bail — nothing useful was produced.
@@ -56,6 +75,7 @@ export async function runRepo(queue, deps = {}) {
         },
       },
     })) {
+      if (msg?.type === "system" && msg?.subtype === "init") apiKeySource = msg.apiKeySource;
       if (typeof msg?.total_cost_usd === "number") costUsd = msg.total_cost_usd;
       if ("result" in msg) console.log(msg.result);
     }
@@ -69,6 +89,7 @@ export async function runRepo(queue, deps = {}) {
     // crash-looping run spends unbounded. One call site (this finally) also preserves the
     // no-double-count invariant a second success/failure billing would break.
     if (costUsd) await recordSpend(costUsd);
+    else warn(zeroSpendWarning(apiKeySource));
   }
   if (agentFailed) { exit(1); return; }
 
@@ -95,10 +116,12 @@ export async function runCms(queue, deps = {}) {
   const {
     query: runQuery = query,
     addSpend: recordSpend = addSpend,
+    warn = console.warn,
     exit = process.exit,
   } = deps;
 
   let costUsd = 0;
+  let apiKeySource;
   let failed = false;
   console.log(`CMS mode (${PLATFORM}): writing change_set rows for ${queue.length} pending items.`);
 
@@ -149,6 +172,7 @@ Never write to the CMS directly. Never create git branches.`,
         },
       },
     })) {
+      if (msg?.type === "system" && msg?.subtype === "init") apiKeySource = msg.apiKeySource;
       if (typeof msg?.total_cost_usd === "number") costUsd = msg.total_cost_usd;
       if ("result" in msg) console.log(msg.result);
     }
@@ -167,6 +191,7 @@ Never write to the CMS directly. Never create git branches.`,
     // call site (this finally) removes the double-count that occurred when both the try-tail
     // and the catch billed the same cost.
     if (costUsd) await recordSpend(costUsd);
+    else warn(zeroSpendWarning(apiKeySource));
   }
   if (failed) { exit(1); return; }
   console.log(`CMS run complete — check change_set table for pending rows. (cost ≈ $${costUsd.toFixed(2)})`);

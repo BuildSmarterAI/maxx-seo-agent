@@ -16,7 +16,7 @@ import assert from "node:assert/strict";
 process.env.SUPABASE_URL ||= "https://x.supabase.co";
 process.env.SUPABASE_SERVICE_ROLE_KEY ||= "dummy_service_role_key_000000";
 
-const { runRepo, runCms } = await import("../orchestrator/run.mjs");
+const { runRepo, runCms, zeroSpendWarning } = await import("../orchestrator/run.mjs");
 
 // Builds injectable deps + a calls record. `messages` are yielded by the fake query() in
 // order; `throwAfter` (an Error) is thrown once the loop drains them, simulating a crash or
@@ -27,7 +27,7 @@ function makeDeps({
   openPRResult = { empty: false, prUrl: "https://x/pr/1" },
   openPRThrows = null,
 } = {}) {
-  const calls = { addSpend: [], exit: [], rollback: [], startBranch: 0, openPR: 0 };
+  const calls = { addSpend: [], exit: [], rollback: [], startBranch: 0, openPR: 0, warn: [] };
   const deps = {
     query: () => (async function* () {
       for (const m of messages) yield m;
@@ -37,6 +37,7 @@ function makeDeps({
     startBranch: () => { calls.startBranch++; return "seo/auto-test"; },
     rollback: (b) => { calls.rollback.push(b); },
     openPR: () => { calls.openPR++; if (openPRThrows) throw openPRThrows; return openPRResult; },
+    warn: (m) => { calls.warn.push(m); },
     exit: (code) => { calls.exit.push(code); },
   };
   return { calls, deps };
@@ -104,4 +105,49 @@ test("runCms records spend and completes on normal success", async () => {
   await runCms([], deps);
   assert.deepEqual(calls.addSpend, [0.9]);
   assert.deepEqual(calls.exit, []);
+});
+
+// ---- $0 / missing-cost accounting (the spend_usd = 0 blind-spot) -----------
+// Root cause (verified against @anthropic-ai/claude-agent-sdk 0.1.77): total_cost_usd rides
+// only on the terminal `result` message, so a run that ends without one — an early crash, the
+// process-exit shutdown before it, or non-metered subscription/OAuth auth — leaves costUsd = 0.
+// The OLD code recorded nothing SILENTLY there, so MONTHLY_BUDGET_USD never saw the run. These
+// cases lock in the fix: keep the honest $0 (never fabricate a cost) but warn loudly and name
+// the auth source. The prior suite couldn't catch this — its fakes always emit a cost message.
+
+test("runRepo warns (does not record) when the run yields no cost message", async () => {
+  const { calls, deps } = makeDeps({
+    messages: [{ type: "system", subtype: "init", apiKeySource: "project" }, { result: "done" }],
+  });
+  await runRepo([], deps);
+  assert.deepEqual(calls.addSpend, [], "no cost captured → nothing recorded (never fabricate)");
+  assert.equal(calls.warn.length, 1, "the blind $0 run must be surfaced, not silent");
+  assert.match(calls.warn[0], /\$0 recorded/, "warning flags the $0 gate blind-spot");
+  assert.match(calls.warn[0], /apiKeySource=project/, "warning surfaces the captured auth source");
+});
+
+test("runRepo $0 warning falls back to apiKeySource=unknown without an init message", async () => {
+  const { calls, deps } = makeDeps({ messages: [{ result: "done" }] });
+  await runRepo([], deps);
+  assert.deepEqual(calls.addSpend, []);
+  assert.equal(calls.warn[0], zeroSpendWarning(undefined));
+});
+
+test("runRepo stays quiet when a cost was recorded", async () => {
+  const { calls, deps } = makeDeps({ messages: [{ total_cost_usd: 0.5 }, { result: "done" }] });
+  await runRepo([], deps);
+  assert.deepEqual(calls.addSpend, [0.5]);
+  assert.deepEqual(calls.warn, [], "a normally-billed run must not warn");
+});
+
+test("runCms warns (does not record) even on the SDK shutdown when no cost arrived", async () => {
+  const { calls, deps } = makeDeps({
+    messages: [{ type: "system", subtype: "init", apiKeySource: "user" }],
+    throwAfter: new Error("Claude Code process exited with code 1"),
+  });
+  await runCms([], deps);
+  assert.deepEqual(calls.addSpend, [], "no cost captured → nothing recorded");
+  assert.equal(calls.warn.length, 1);
+  assert.match(calls.warn[0], /apiKeySource=user/);
+  assert.deepEqual(calls.exit, [], "the SDK shutdown is still not a failure");
 });
