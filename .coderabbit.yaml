@@ -1,0 +1,88 @@
+# yaml-language-server: $schema=https://storage.googleapis.com/coderabbit_public_assets/schema.v2.json
+#
+# CodeRabbit is an EVIDENCE SOURCE for this repository, not a merge authority.
+# Findings are verified before they are acted on; review behaviour is governed globally.
+# Every auto-modification surface is disabled on purpose: CodeRabbit reports, it does
+# not modify this repo.
+#
+# Automated SEO pipeline.
+# seo-auto-merge.yml queues auto-merge for safe-class bot PRs, so request_changes_workflow is DISABLED here on purpose: CodeRabbit must report without blocking that lane.
+# This is a deliberate deviation from the other repos.
+
+language: en-US
+
+tone_instructions: >-
+  Be direct and specific. Every finding must name the concrete failure: the input, the
+  state, and the wrong behaviour that results. Do not soften findings with praise, and do
+  not pad reviews with encouragement.
+
+reviews:
+  profile: assertive
+  request_changes_workflow: false
+
+  high_level_summary: true
+  changed_files_summary: true
+  estimate_code_review_effort: true
+  related_issues: true
+  related_prs: true
+
+  poem: false
+  in_progress_fortune: false
+  collapse_walkthrough: true
+  sequence_diagrams: false
+
+  auto_review:
+    enabled: true
+    drafts: false
+    base_branches:
+      - main
+
+  path_filters:
+    - "!**/node_modules/**"
+    - "!**/dist/**"
+    - "!**/build/**"
+    - "!**/coverage/**"
+    - "!**/.next/**"
+    - "!**/*.lock"
+    - "!**/package-lock.json"
+    - "!**/pnpm-lock.yaml"
+
+  path_instructions:
+    - path: "**/*.{js,mjs}"
+      instructions: >-
+        Node scripts driving an automated publishing pipeline. Flag any path that can write to a
+        CMS or open a PR without a guard, and any unbounded retry or spend loop. An error
+        swallowed here publishes silently.
+    - path: ".github/workflows/**"
+      instructions: >-
+        This repo auto-merges bot PRs. Flag any workflow change that widens what auto-merges,
+        weakens a required check, or grants write scope beyond need.
+
+  tools:
+    gitleaks:
+      enabled: true
+    actionlint:
+      enabled: true
+    yamllint:
+      enabled: true
+
+  # READ-ONLY REVIEW. CodeRabbit must never modify this repository.
+  finishing_touches:
+    docstrings:
+      enabled: false
+    unit_tests:
+      enabled: false
+    simplify:
+      enabled: false
+    autofix:
+      enabled: false
+    fix_ci:
+      enabled: false
+    resolve_merge_conflict:
+      enabled: false
+
+knowledge_base:
+  learnings:
+    scope: local
+  issues:
+    scope: local
