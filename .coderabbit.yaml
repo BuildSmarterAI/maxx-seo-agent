@@ -48,7 +48,7 @@ reviews:
     - "!**/pnpm-lock.yaml"
 
   path_instructions:
-    - path: "*.{js,mjs}"
+    - path: "**/*.{js,mjs}"
       instructions: >-
         Node scripts driving an automated publishing pipeline. Flag any path that can write to a
         CMS or open a PR without a guard, and any unbounded retry or spend loop. An error
