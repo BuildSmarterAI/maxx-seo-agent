@@ -39,6 +39,7 @@ jobs:
           node scripts/attribute-conversions.mjs
           node scripts/prioritize.mjs
           node scripts/push-escalations.mjs
+          node scripts/close-escalations.mjs
 
       # RO-1 weekly judge calibration (matches the roadmap cadence). Refreshes the eval_set
       # benchmark, then scores the judge against it and RECORDS a recommendation to
