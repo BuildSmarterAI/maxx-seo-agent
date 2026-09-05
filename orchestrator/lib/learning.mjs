@@ -97,6 +97,16 @@ function meanAbs(values) {
 // OFF by default (empty map / weight 0), so callers that pass no GEO/CONV args — and the whole
 // loop until each table fills — score exactly as before. effectOf is NOT touched by either.
 export async function reprioritize({ fetchPatterns, fetchQueue, setPriority, log, weight, base, fetchGeoPatterns = async () => new Map(), geoWeight = 0, shrinkK = 5, fetchConvPatterns = async () => new Map(), convWeight = 0, convShrinkK = 5 }) {
+  // A non-finite or negative knob (a typo'd env var in prioritize.mjs, e.g.
+  // CONV_SHRINK_K="abc") must fail loudly here: left unchecked it flows
+  // shrink() -> NaN -> priorityScore -> setPriority(id, NaN), and
+  // JSON.stringify({priority: NaN}) serializes to null — silently nulling
+  // work_queue.priority in prod. Guarding the core entry covers every caller.
+  for (const [name, value] of Object.entries({ weight, geoWeight, shrinkK, convWeight, convShrinkK })) {
+    if (!Number.isFinite(value) || value < 0) {
+      throw new Error(`reprioritize: ${name} must be a non-negative finite number, got ${value}`);
+    }
+  }
   const patterns = await fetchPatterns();
   const geoPatterns = await fetchGeoPatterns();
   const convPatterns = await fetchConvPatterns();

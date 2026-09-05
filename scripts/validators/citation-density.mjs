@@ -9,12 +9,29 @@
 // run on every PR without an API call — reused by scripts/check-citation-density.mjs
 // (hook + CI). Unit-tested in test/citation-density.test.mjs.
 
-export const DEFAULT_THRESHOLDS = {
-  minStatsPer1k: Number(process.env.MIN_STATS_PER_1K || 3), // statistics / 1000 words
-  minQuotes: Number(process.env.MIN_QUOTES || 1), // sourced quotations / document
-  minCitations: Number(process.env.MIN_CITATIONS || 1), // outbound citations / document
-  minWords: Number(process.env.MIN_CITATION_WORDS || 200), // below this, too short to gate
-};
+// A non-numeric or negative knob (a typo'd CI var) must fail loudly here — left unchecked,
+// Number(...) silently produces NaN, every `<` threshold comparison goes false, and the
+// gate never fires while CI reports green. Same convention as eval-judge loadConfig().
+function numKnob(env, name, fallback) {
+  const raw = env[name];
+  if (raw == null || raw === "") return fallback;
+  const n = Number(raw);
+  if (!Number.isFinite(n) || n < 0) {
+    throw new Error(`citation-density: ${name} must be a non-negative finite number, got "${raw}"`);
+  }
+  return n;
+}
+
+export function readThresholds(env = process.env) {
+  return {
+    minStatsPer1k: numKnob(env, "MIN_STATS_PER_1K", 3), // statistics / 1000 words
+    minQuotes: numKnob(env, "MIN_QUOTES", 1), // sourced quotations / document
+    minCitations: numKnob(env, "MIN_CITATIONS", 1), // outbound citations / document
+    minWords: numKnob(env, "MIN_CITATION_WORDS", 200), // below this, too short to gate
+  };
+}
+
+export const DEFAULT_THRESHOLDS = readThresholds();
 
 // Strip code fences + markdown decoration but KEEP $ and % (they are statistic markers),
 // and keep link *text* while dropping the URL — same approach as check-entity-density.mjs.
@@ -74,9 +91,18 @@ function hostOf(url) {
 
 // Outbound citations to an external source: markdown links, HTML anchors, and bare
 // autolinks. Links to selfDomain (if supplied) are excluded so internal linking is not
-// counted as sourcing — that is measured separately by link-graph.mjs.
+// counted as sourcing — that is measured separately by link-graph.mjs. selfDomain may be
+// a bare domain OR a full base URL — CI passes TARGET_DOMAIN || WP_BASE_URL verbatim, and
+// the live value is URL-shaped — so normalize like lib/db.mjs targetDomain() (strip
+// scheme, www, and any path) before comparing hosts; otherwise the comparison never
+// matches and a draft's self-links count as outbound citations.
 function countCitations(text, selfDomain) {
-  const self = (selfDomain || "").replace(/^www\./i, "").toLowerCase();
+  const self = (selfDomain || "")
+    .replace(/^https?:\/\//i, "")
+    .replace(/^www\./i, "")
+    .replace(/\/.*$/, "")
+    .trim()
+    .toLowerCase();
   const urls = new Set();
   for (const m of text.matchAll(/\[[^\]]*\]\((https?:\/\/[^)\s]+)\)/gi)) urls.add(m[1]);
   for (const m of text.matchAll(/<a\b[^>]*\bhref=["'](https?:\/\/[^"']+)["']/gi)) urls.add(m[1]);

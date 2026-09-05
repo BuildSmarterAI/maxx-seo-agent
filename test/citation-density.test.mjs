@@ -7,6 +7,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 
 import { scoreCitationDensity, citationDensityViolations } from "../scripts/validators/citation-density.mjs";
+import * as cd from "../scripts/validators/citation-density.mjs";
 
 const richBody = `
 # Medical office construction cost in Texas
@@ -39,6 +40,39 @@ test("selfDomain excludes internal links from the citation count", () => {
     [BLS data](https://www.bls.gov/ppi).`;
   assert.equal(scoreCitationDensity(text).citations, 2);
   assert.equal(scoreCitationDensity(text, { selfDomain: "maxxbuilders.com" }).citations, 1);
+});
+
+test("selfDomain accepts a full base URL, not just a bare domain (CI passes TARGET_DOMAIN || WP_BASE_URL verbatim)", () => {
+  const text = `See [our guide](https://www.maxxbuilders.com/guide) and the
+    [BLS data](https://www.bls.gov/ppi).`;
+  // The live repo var is the full URL form — both shapes must exclude the self-link.
+  assert.equal(scoreCitationDensity(text, { selfDomain: "https://www.maxxbuilders.com" }).citations, 1);
+  assert.equal(scoreCitationDensity(text, { selfDomain: "https://maxxbuilders.com/" }).citations, 1);
+});
+
+test("a draft whose only link is internal does NOT satisfy the citation gate under a URL-shaped selfDomain", () => {
+  // The H1 bypass: with selfDomain unnormalized, the self-link counted as an outbound
+  // citation and the gate passed with zero real external sources.
+  const selfOnly = richBody.replace(
+    "[Associated General Contractors index](https://www.agc.org/data)",
+    "[our cost guide](https://www.maxxbuilders.com/cost-guide)",
+  ) + " lorem word".repeat(120);
+  const v = citationDensityViolations(selfOnly, { selfDomain: "https://www.maxxbuilders.com" });
+  assert.ok(v.some((x) => x.rule === "citation-count"), `expected a citation-count violation, got ${JSON.stringify(v)}`);
+});
+
+test("readThresholds falls back to defaults when env knobs are unset or empty", () => {
+  assert.equal(typeof cd.readThresholds, "function", "readThresholds export missing");
+  assert.deepEqual(cd.readThresholds({}), { minStatsPer1k: 3, minQuotes: 1, minCitations: 1, minWords: 200 });
+  assert.equal(cd.readThresholds({ MIN_QUOTES: "" }).minQuotes, 1);
+});
+
+test("readThresholds throws on a non-numeric or negative gate knob instead of silently disabling the gate", () => {
+  assert.equal(typeof cd.readThresholds, "function", "readThresholds export missing");
+  // Unchecked, Number("three") -> NaN and every `<` comparison goes false: the gate
+  // never fires while CI reports green. Fail loudly at load instead.
+  assert.throws(() => cd.readThresholds({ MIN_STATS_PER_1K: "three" }), /MIN_STATS_PER_1K/);
+  assert.throws(() => cd.readThresholds({ MIN_CITATIONS: "-1" }), /MIN_CITATIONS/);
 });
 
 test("inline quoted term under 6 words is NOT counted as a sourced quotation", () => {
