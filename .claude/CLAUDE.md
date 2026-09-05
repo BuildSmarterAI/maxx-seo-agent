@@ -56,6 +56,27 @@ The `control` table has a `paused` kill switch and monthly `spend_usd` budget ca
 
 See `.claude/rules/workflow.md` and `.claude/rules/technical-defaults.md`.
 
+## Testing & module conventions
+
+- **Test runner:** Node's built-in `node:test`. Run the whole suite with `npm test`
+  (`node --test`). Tests live in `test/<module>.test.mjs` — one suite per module,
+  matching the source file name.
+- **Dependency injection is the house style.** Modules with I/O (DB, git, network) take
+  an injectable second argument: `export async function fn(args, deps = {})` where `deps`
+  destructures to the real implementations by default and tests pass fakes. This is why
+  `run.mjs`, `preflight.mjs`, `git-delivery.mjs`, and `supabase.mjs` are exercisable with
+  no network or process exit. Follow this pattern for any new module that touches I/O —
+  do not reach for global mocks.
+- **Seams over inline logic.** `run.mjs` is a thin coordinator; consequential decisions
+  are lifted into their own module (preflight, git delivery, memory) that returns a
+  verdict instead of calling `process.exit`. Add new logic as a seam, not inline in the
+  runner.
+- **Fail loud, sometimes fail closed.** Seam helpers `throw new Error("<fn> failed: …")`
+  on a DB error so a missing migration surfaces immediately. Reads whose empty result
+  would disable a guard (e.g. `doNotTouch`) throw rather than returning empty.
+- **Module headers explain *why the seam exists*,** not just what the code does — match
+  that comment style when adding files.
+
 ## Constraints
 
 - Never push to `main` directly. All changes go through a `seo/auto-*` branch → PR →
