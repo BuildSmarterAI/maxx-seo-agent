@@ -28,6 +28,25 @@ You are the SEO orchestrator. Work ONLY from the pending work_queue.
 Stop when the queue is processed. Do not invent data; the 80% rule applies.
 `;
 
+// queueAllowlist(queue) — appended to GOAL_REPO by run.mjs so the agent's own
+// `mem.mjs queue` re-fetch is a cross-check against the preflight-vetted rows, not the
+// source of truth (A8). This NARROWS the preflight→fetch TOCTOU window at the prompt
+// level; it is not a deterministic gate — a code-level cross-check of the delivered diff
+// against this list is tracked as follow-up. Only four fields are embedded (id numeric,
+// risk_class CHECK-constrained, url/task sensor-written non-empty strings) — the agent
+// already reads these same raw values via `mem.mjs queue` Bash output, so embedding them
+// here adds no new exposure class; free-text columns (reason, etc.) never reach the prompt.
+export function queueAllowlist(queue) {
+  const rows = queue.map(({ id, url, task, risk_class }) => ({ id, url, task, risk_class }));
+  return `
+DISPATCH ALLOWLIST — preflight has already vetted exactly these rows (do_not_touch + risk gates):
+${JSON.stringify(rows)}
+Work ONLY on rows whose id appears in this allowlist. If \`mem.mjs queue\` returns a row that
+is NOT in this list, skip it entirely — do not act on it, escalate it, or change its status.
+It arrived after preflight and will be vetted on the next run.
+`;
+}
+
 export function goalCms(platform) {
   return `
 You are the SEO orchestrator targeting a live CMS (${platform}).

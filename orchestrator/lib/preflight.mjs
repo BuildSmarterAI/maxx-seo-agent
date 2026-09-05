@@ -67,5 +67,39 @@ export async function check(budgetUsd, queueLimit = 25, deps = {}) {
 
   if (!safe.length) return { ok: false, reason: "queue empty after do_not_touch filter → nothing to do." };
 
-  return { ok: true, queue: safe };
+  // Dispatch risk gate (A8): the safe/gated decision must not depend on the model obeying
+  // its goal prompt — before this gate, run.mjs never read risk_class and the only code
+  // enforcement lived on the CMS apply path (cms.mjs applyRow). Mirror that path's rule
+  // exactly: anything !== "safe" — including a missing or unknown risk_class — escalates,
+  // fail closed. Same status + decision_log shape the goal prompt tells the agent to
+  // produce, so the operator-facing escalation queue is unchanged. The goal prompt's own
+  // escalate step stays as defense-in-depth for rows enqueued after this gate.
+  const dispatchable = safe.filter((row) => row.risk_class === "safe");
+  const gated = safe.filter((row) => row.risk_class !== "safe");
+  let escalated = 0;
+  for (const row of gated) {
+    try {
+      await retireRow(row.id, "escalated");
+      escalated += 1;
+      // decision_log.risk_class is CHECK-constrained to safe|gated: always log "gated" and
+      // carry the row's raw value (possibly absent) in the free-text reason instead.
+      await logDecide({ url: row.url, action: "escalate", risk_class: "gated",
+                        reason: `non-safe risk_class (${row.risk_class ?? "missing"}) at dispatch (preflight gate)`,
+                        agent: "preflight" });
+    } catch (err) {
+      // An escalated (url,task) twin or transient write failure: the row stays pending and
+      // keeps being dropped here every run (same containment as a failed dnt park above).
+      // Loud, and no phantom log entry for a status change that never landed.
+      console.error(`preflight: failed to escalate row ${row.id} (${row.url}): ${err?.message ?? err}`);
+    }
+  }
+  if (escalated) console.warn(`preflight: escalated ${escalated} non-safe row(s) at the dispatch gate`);
+
+  if (!dispatchable.length) {
+    return { ok: false, reason: "queue empty after do_not_touch + risk gates → nothing to do." };
+  }
+
+  // `spent` rides along so the caller can compute the run's remaining budget headroom
+  // (SDK maxBudgetUsd) without a second getMonthSpend read racing this one.
+  return { ok: true, queue: dispatchable, spent };
 }
