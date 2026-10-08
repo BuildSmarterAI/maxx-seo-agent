@@ -1,0 +1,35 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "'C:\\Users\\Harris87\\Documents\\GitHub\\maxx-seo-agent\\.codex\\hooks\\guard-publish.sh'"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "'C:\\Users\\Harris87\\Documents\\GitHub\\maxx-seo-agent\\.codex\\hooks\\post-validate.sh'"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '✅ Tool call complete'"
+          }
+        ]
+      }
+    ]
+  }
+}

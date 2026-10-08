@@ -204,3 +204,11 @@ do $$ begin
     check (risk_class is not null and risk_class in ('safe', 'gated'));
 exception when duplicate_object then null;
 end $$;
+
+-- Queue claim tracking: when an orchestrator run moved a row to in_progress. A row stuck
+-- in_progress with an old (or null) claimed_at is a crashed run's leftover; preflight
+-- reclaims it (orchestrator/lib/claims.mjs). Nullable + additive, so existing rows and
+-- the sensors' inserts are unaffected. Idempotent.
+alter table work_queue add column if not exists claimed_at timestamptz;
+create index if not exists work_queue_in_progress_claimed_idx
+  on work_queue (claimed_at) where status = 'in_progress';
