@@ -1,188 +1,122 @@
 # Maxx Builders — Technical SEO Audit
 
-Audit date: 2026-07-06
+Audit date: 2026-10-08
 Site: https://www.maxxbuilders.com (WordPress, Yoast)
-Scope: full read-only technical audit — crawl/index hygiene, metadata, internal links, schema/E-E-A-T, CWV, GSC performance. Supersedes the 2026-06-25 GEO/AI-citation audit (see "Diff vs June 25" below).
+Mode: read-only. Supersedes the 2026-07-06 audit (preserved in git history).
 
-**Inputs:** live crawl of all 237 sitemap URLs + 15 priority URLs (`config/urls.txt`); GSC Search Analytics 28d vs prior 28d (read-only via `orchestrator/lib/gsc.mjs`); Chrome DevTools performance traces (mobile emulation, Fast 4G, 4× CPU); June 26 cold Lighthouse baseline (`audit/lighthouse-home.json`). PSI API returned HTTP 429 on all 15 keyless calls — see F-20.
+**Inputs:** live fetch of all 239 sitemap URLs (7 sub-sitemaps, 235 × 200, 4 × 301); `robots.txt`; GSC Search Analytics via `orchestrator/lib/gsc.mjs` (28d 2026-09-10→10-05 vs prior 28d); `config/urls.txt` (16 priority URLs).
 
-**Guardrail note:** `https://www.maxxbuilders.com/` (and http variant) is in Supabase `do_not_touch`. Homepage findings below are report-only; any homepage apply requires an explicit operator override.
+**Not measured:** Core Web Vitals. PSI returned HTTP 429 on all 16 calls even with `PAGESPEED_API_KEY` set, CrUX returned 403 PERMISSION_DENIED, and `scripts/check-vitals.sh` can't run here (`jq` not installed, exit 3). See F-1.
+**Not checked:** internal links to URLs outside the sitemap (the orphan and link-to-redirect counts cover sitemap URLs only). No crawl export exists (`./crawl/` absent), so link data comes from an in-house HTML fetch, not Screaming Frog.
+
+**Guardrail:** the homepage is in Supabase `do_not_touch` (per the July audit; not re-verified). Homepage findings are report-only.
 
 ---
 
-## Score: 48 / 100
+## Score: 55 / 100 (July: 48)
 
-| Component | Weight | Score | Basis |
+| Component | Wt | Score | Basis |
 |---|---|---|---|
-| Crawl/index hygiene | 20 | 14 | robots.txt clean, zero noindex conflicts, max 1 redirect hop — but 4 redirecting sitemap URLs, junk sitemap entries, 6 broken internal 404s |
-| Metadata | 15 | 6 | Money pages mostly compliant; 210/237 pages missing meta description; 77 titles > 60 chars; 2 priority pages desc-less |
-| Content quality / intent | 20 | 9 | Money-page depth is real (1.2k–6.3k words) but 4 cannibalized clusters, 2 orphaned priority pages, answer-first missing on 9 priority pages |
-| Internal linking | 15 | 5 | 82 orphans; homepage links to 1 of 14 priority pages; flagship hotel guide has 4 inbound links total |
-| Schema / E-E-A-T | 10 | 5 | JSON-LD valid everywhere, FAQ schema on money pages — but Organization schema on all 237 pages and 114 generic "Maxx Builders" bylines |
-| CWV / performance | 10 | 6 | TBT/CLS pass everywhere measured; LCP passes warm Fast-4G (~1.0s) but failed June cold slow-4G sim (8.3s homepage); field data unverifiable |
-| Search performance trend | 10 | 3 | Clicks −26% period-over-period (898 → 668); every priority money page declined; CTR 0.11–0.24% at positions 6–10 |
+| Crawl/index hygiene | 20 | 15 | Clean robots, 0 noindex, 1-hop redirects, host variants 301 correctly. Minus: 4 redirecting sitemap URLs, `.kml` and `blog__trashed` canonical in sitemap |
+| Metadata | 15 | 9 | Missing descriptions 210 → 81; 51 over 155 chars; 78 titles over 60; 2 priority pages still description-less |
+| Content / intent | 20 | 10 | Money pages deep (1.4k–6.4k words) but 4 cannibalized clusters; double H1 template bug; 90 thin pages |
+| Internal linking | 15 | 6 | 99 orphans (July 82); 2 priority pages with 0 inbound; flagship hotel guide has 4 |
+| Schema / E-E-A-T | 10 | 5 | JSON-LD valid (0 parse errors), FAQPage on 47 pages — but `Organization/GeneralContractor` on 234 of 235 pages and 110 of 117 Articles bylined "Maxx Builders" |
+| CWV | 10 | 5 | Unmeasured; neutral score |
+| Search trend | 10 | 5 | Clicks 566 → 539 (−5%, July was −26%) but impressions 182k → 123k (−32%) |
 
----
-
-## Executive summary
-
-The site is structurally sound (clean robots, one-hop redirects, valid JSON-LD, deep money pages) but **losing traffic**: clicks fell 26% over the last 28 days vs the prior 28, with every priority money page down. The three forces behind that, in order:
-
-1. **Click-through collapse at good positions.** Pages ranking 6–10 with 9k–46k impressions earn 0.11–0.24% CTR. That is an answer-first + title/description problem in the AI-Overview era — the SERP answers the query before the user reaches the listing, and the listing copy isn't winning the residual click.
-2. **Cannibalization at cluster level**, well beyond the known restaurant pair: tenant improvement (4 pages), dental office (3), Texas-wide cost guides (2 + Houston overlap), construction financing (2). Google is rotating between them; the weakest cluster member (`/8-key-considerations-for-building-a-restaurant/`) collapsed from position 13 → 27.5 and is also a zero-inbound orphan.
-3. **Link equity isn't routed to money pages.** 82 sitemap pages have zero inbound links from any other sitemap page; the homepage links to exactly one priority money page; the flagship hotel cost guide has 4 inbound links and contains 2 broken 404 outbound links.
-
-The keyword map in `CLAUDE.md` and `config/urls.txt` is also stale: the site's #2 traffic page (`/texas-commercial-construction-cost-2025-2026/`, 46k impressions) belongs to no cluster and isn't monitored, and the warehouse cluster still points at the dead old slug.
-
----
-
-## Diff vs June 25 audit
-
-| June 25 finding | Status now |
-|---|---|
-| Obstacles page desc = "blueprints" (10 chars) | **FIXED** — now 146 chars |
-| Warehouse + design-build old slugs in sitemap | **FIXED** — sitemap carries only final slugs |
-| TL;DR missing on medical, warehouse, Dallas, design-build, mock-up | **FIXED** on those five (answer-first detected) |
-| Homepage title 66 chars | **IMPROVED** — 61 chars (still 1 over cap) |
-| TL;DR missing on hotel, Houston, car wash, retail rankings, restaurants ×2, timelines, planning, obstacles, homepage | **OPEN** |
-| Generic "Maxx Builders" Article author | **OPEN** — 114 pages; only 4 pages name Harris Khan |
-| Design-build `-2` page missing meta description | **OPEN** — and title now doubles the brand ("… \| Maxx Builders \| Maxx Builders", 65 chars) |
-| Duplicate/slug-like H1s (medical, warehouse, mock-up) | **OPEN** — plus 7 more pages found this run |
-| Mock-up page title 71 chars + no description | **OPEN** |
-| Homepage doesn't link to money pages | **OPEN** — links to 1 of 14 |
-| IndexNow absent | **OPEN** — `/indexnow.txt` 404 |
-| CWV unverified (PSI 429) | **PARTIALLY RESOLVED** — lab traces pass warm; cold-sim homepage LCP fails; field data still blocked (F-20) |
-| Visible project proof on money pages | **NOT RE-MEASURED** this run — treat June status (weak outside hotel/mock-up/planning) as current |
+## Progress since July
+Missing meta descriptions 210 → 81. Broken sitemap-to-sitemap links 6 → 2 (redirecting targets). Bylines "Maxx Builders" 114 → 110 (7 now credit Harris Khan). Orphans worsened 82 → 99. Four redirecting sitemap URLs are unchanged.
 
 ---
 
 ## Critical
 
-**F-1. Site-wide click decline −26% (898 → 668) with every priority money page down.**
-URLs: all of `config/urls.txt`; worst deltas: Houston cost 35→21, hotel 23→13, medical 26→16, car wash 32→22, mock-up 15→8, restaurant 8-key 2→0 (position 13 → 27.5).
-Fix: this is the composite of F-2, F-3, F-4 — treat those as the remediation. Re-measure via `npm run learn` attribution after each batch lands.
-Produced by: `/gsc-opportunity-mining` (tracking), fixes via skills below.
-
-**F-2. CTR collapse on high-impression rankings (answer-first + snippet problem).**
-URLs: `/texas-commercial-construction-cost-2025-2026/` (46k imp, pos 6.1, CTR 0.11%), `/cost-per-square-foot-build-warehouse-texas/` (23k, 7.9, 0.18%), `/understanding-commercial-build-outs-guide/` (30k, 8.3, 0.12%), `/commercial-construction-cost-houston-tx/` (11k, 9.7, 0.19%), medical/hotel/car-wash/Dallas guides all < 0.25%.
-Fix: answer-first blocks (TL;DR + cost table in first 30%) on the 9 priority pages still missing them, plus CTR-oriented title/description rewrites leading with concrete numbers ("$X–$Y/SF 2026").
-Produced by: `/restructure-for-citation` (content blocks) + `/metadata-generate` (titles/descs). **Apply: WordPress pack, small batches.**
-
-**F-3. Four cannibalized clusters splitting rank equity.**
-- Tenant improvement: `/tenant-improvement-contractors-guide/`, `/mastering-tenant-improvement-construction-a-comprehensive-guide/`, `/enhancing-commercial-spaces-tenant-improvements-guide/`, `/understanding-commercial-build-outs-guide/` — 4 pages trading positions 30–88 on "tenant improvement" queries.
-- Dental: `/dental-office-construction-guide/` (pos 11.4) vs `/building-the-perfect-smile-…/` (74.7) vs `/build-your-dream-dental-clinic-…/` (83.8).
-- Texas cost: `/texas-commercial-construction-cost-2025-2026/` vs `/comprehensive-guide-to-commercial-construction-costs-per-square-foot-in-texas-2025/` vs Houston page on "commercial construction cost" (positions 11.6 / 36.4 / 71.7).
-- Financing: `/financing-options-for-commercial-construction-projects/` vs `/commercial-property-construction-loans-in-texas-2026-…/`.
-- Restaurant (known): `/8-key-considerations-…/` collapsed to pos 27.5, orphaned, 0 clicks.
-Fix: pick one canonical page per cluster; merge/301 or sharply differentiate the rest. **Merges/redirects are `gated` risk class — escalate to human review, do not auto-apply.** The audit's recommended survivors: `/tenant-improvement-contractors-guide/`, `/dental-office-construction-guide/`, `/texas-commercial-construction-cost-2025-2026/`, `/financing-options-…/`, `/cost-efficient-strategies-restaurant-construction/`.
-Produced by: `/blog-audit` (keep/refresh/merge/delete classification) → human manifest.
-
-**F-4. Keyword map / priority set is stale — the #2 traffic page is unmanaged.**
-URLs: `/texas-commercial-construction-cost-2025-2026/` (52 clicks, 46k imp — absent from `config/urls.txt` and the CLAUDE.md cluster map); `config/urls.txt` + CLAUDE.md warehouse cluster still reference dead slug `/warehouse-construction-cost-per-square-foot-a-comprehensive-guide/` (zero GSC rows this period; live slug is `/cost-per-square-foot-build-warehouse-texas/`); design-build cluster references the pre-redirect slug.
-Fix: repo-side edit — update `config/urls.txt`, CLAUDE.md keyword map, and `config/monitored-queries.json` to final slugs; add the TX cost guide as its own cluster (also resolves half of F-3's TX overlap by declaring one primary page). **No pack needed — repo files only.**
-
----
+None. No noindex conflicts, no non-200 money pages, no schema parse errors.
 
 ## High
 
-**F-5. 82 orphan pages (zero inbound from any sitemap page), including 2 priority pages.**
-URLs: `/8-key-considerations-for-building-a-restaurant/` and `/3-most-common-obstacles-in-commercial-construction-projects/` (priority, 0 inbound); ~50 blog posts; full list in audit data.
-Caveat: blog pagination pages aren't in the sitemap, so "orphan" = unlinked from any indexable page — the equity-bearing definition.
-Fix: contextual links from topically related money/pillar pages; fold the two priority orphans into F-3's restaurant decision and an obstacles-page link pass.
-Produced by: `/internal-linking` (page-level) + `/internal-link-graph` (site-wide). **Apply: WordPress pack.**
+**F-1 · CWV cannot be verified — tooling is broken.**
+Affected: all priority URLs. PSI 429 with a key set means the key's GCP project has no PSI quota/API enabled; CrUX 403 means the Chrome UX Report API isn't enabled for it either. `jq` missing breaks `check-vitals.sh` on this machine.
+Fix: enable PageSpeed Insights API and Chrome UX Report API on the key's GCP project, install `jq`, rerun `/cwv-audit`. Until then the field-CWV sensor (`sensor-cwv.mjs`) is also a no-op. Needs no pack.
 
-**F-6. Homepage links to only 1 of 14 priority money pages.**
-URL: `/` — 56 outbound internal links, only `/design-build-construction-houston-2/` from the priority set.
-Fix: add a services/guides section linking the 6 cost guides + design-build. **Homepage is in `do_not_touch` — requires operator override before any apply.**
-Produced by: `/internal-linking`.
+**F-2 · Double H1 on priority pages — second H1 contains the raw URL slug.**
+Affected (9 pages, re-verified by live fetch of all 239 sitemap URLs): `/cost-per-square-foot-build-warehouse-texas/`, `/medical-office-construction-costs-texas-2026-comprehensive-guide/`, `/importance-of-mock-up-rooms-in-the-hospitality-industry/`, `/guide-commercial-construction-bids/`, `/10-steps-to-build-an-apartment-complex/`, and 4 location pages (The Woodlands, Irving, Arlington, San Antonio). On the three money pages the second H1 is the slug itself (e.g. `importance-of-mock-up-rooms-…`), which points to a template or builder-module bug rather than content.
+Fix: find the source (theme/page-builder block outputting `post_name` as H1), fix at template level. Needs theme access; outside the WP REST pack.
 
-**F-7. Broken internal links (404) from money pages.**
-- `/the-ultimate-2026-hotel-construction-cost-guide-texas-edition/` → `/design-build-services/` (404) and `/preconstruction-services/` (404)
-- `/comprehensive-guide-to-commercial-construction-costs-per-square-foot-in-texas-2025/` → `/preconstruction-services/` (404, ×2)
-- 4 tag-archive links → 404 (`/tag/franchise-design/`, `/tag/shopping-center-financing/`, `/tag/shopping-center-construction/`, `/tag/warehouse-development/`)
-Fix: repoint service links to live equivalents (`/services/…`, `/design-build-construction-houston-2/`); remove dead tag links.
-Produced by: `/internal-linking`. **Apply: WordPress pack.**
+**F-3 · Org schema is site-wide, not homepage-only.**
+`Organization/Place/GeneralContractor` (with OfferCatalog, OpeningHours, ContactPoint) appears on all 234 HTML pages in the sitemap (re-verified; the 235th 200 URL is `locations.kml`). Violates the "Organization on homepage only; LocalBusiness per location" rule and bloats every page.
+Fix: restrict the full entity to the homepage and reference it by `@id` elsewhere; location pages carry their own LocalBusiness subtype. `/schema-generate` + `/entity-authority`; applied via Yoast schema settings or the WP pack.
 
-**F-8. Generic authorship persists: 114 pages authored as "Maxx Builders", 4 as Harris Khan.**
-Fix: named-expert byline + Person schema rollout on money pages first (operator must supply the real names — brand/positioning adjacent, treat as **gated**; escalate with a proposed author-to-page map).
-Produced by: `/entity-authority` + `/schema-generate`. **Apply: WordPress pack.**
+**F-4 · Generic bylines on 110 of 117 Article schemas.**
+Author is "Maxx Builders"; only 7 name a person (Harris Khan). Breaches the named-author E-E-A-T rule. Fix requires operator input on real authors per post — gated on attribution truth. `/entity-authority`.
 
-**F-9. Sitemap hygiene: 4 redirecting URLs + junk entries.**
-Redirecting in sitemap: `/texas-commercial-building-costs-guide/`, `/dental-office-construction-cost-guide/`, `/choose-a-commercial-contractor/`, `/the-cost-of-a-tenant-build-out-per-square-foot/`.
-Junk in sitemap: `/thank-you/`, `/opt-out-from-email-and-sms/`, `/single-page/`, `/locations.kml/`, empty `project-type/*` and `project-attributes/*` taxonomy archives (all also orphaned).
-Fix: Yoast — exclude redirected/utility URLs and empty taxonomies from the sitemap; noindex thank-you/opt-out pages.
-Produced by: manual Yoast config change. **Apply: WordPress pack (settings).**
+**F-5 · CTR gaps on pages already ranking in the top 10** (28d).
 
-**F-10. Design-build money page metadata defects.**
-URL: `/design-build-construction-houston-2/` — meta description absent, title 65 chars with doubled brand suffix "| Maxx Builders | Maxx Builders", only 4 inbound links, and zero GSC clicks both periods for the service cluster.
-Fix: dedupe Yoast title template, write description, internal-link push from Houston/cost pages.
-Produced by: `/metadata-generate` + `/internal-linking`. **Apply: WordPress pack.**
+| Page | Impr | Clicks | Pos |
+|---|---|---|---|
+| `/understanding-commercial-build-outs-guide/` | 9,621 | 9 | 9.0 |
+| `/guide-to-4-different-types-of-shell-structures/` | 10,176 | 47 | 6.6 |
+| `/texas-commercial-construction-cost-2025-2026/` | 8,093 | 37 | 7.3 |
+| `/medical-office-construction-costs-texas-2026-comprehensive-guide/` | 2,918 | 13 | 5.2 |
+| `/importance-of-mock-up-rooms-in-the-hospitality-industry/` | 1,917 | 5 | 4.4 |
+| `/restaurant-construction-cost-per-square-foot-guide-2024/` | 2,273 | 4 | 9.5 |
+| `/commercial-construction-project-timelines/` | 1,836 | 6 | 8.9 |
 
----
+Fix: rewrite title/description to lead with the query intent (`/metadata-generate`, safe-class; apply via `wp:apply`). The build-outs guide absorbed a 301 (F-9), so its snippet should be checked first. Note the `restaurant…2024` slug and year in title likely depress CTR.
+
+**F-6 · Two priority pages have no meta description** (same as July): `/design-build-construction-houston-2/` (the service/transactional page) and `/importance-of-mock-up-rooms-in-the-hospitality-industry/`. `/metadata-generate`, then `wp:apply`.
 
 ## Medium
 
-**F-11. 210 of 237 pages missing meta descriptions; 77 titles over 60 chars.**
-Worst titles 90–116 chars (old blog long tail). Money pages are compliant except F-10 and mock-up (71-char title, no description).
-Fix: batch-generate for the ~40 pages with meaningful impressions first (GSC-ranked), then the tail.
-Produced by: `/metadata-generate` (validates via `npm run validate:metadata`). **Apply: WordPress pack, small batches.**
+**F-7 · Orphans: 99 sitemap URLs with zero inbound links** (53 posts, 25 pages, plus 10 project-type and 9 project-attribute archives).
+Priority pages affected: `/8-key-considerations-for-building-a-restaurant/` (0), `/3-most-common-obstacles-in-commercial-construction-projects/` (0). Low inbound: hotel cost guide (4), restaurant strategies (4), timelines (3), mock-up rooms (2), design-build (6).
+Fix: whole-graph pass with `/internal-link-graph`, then `/internal-linking`; link the flagship hotel guide from the homepage and from hospitality portfolio pages.
 
-**F-12. Duplicate/slug-like H1s on 10 pages.**
-`/medical-office-construction-costs-texas-2026-comprehensive-guide/` (slug-text H1 + real H1), `/importance-of-mock-up-rooms-…/` (same), `/cost-per-square-foot-build-warehouse-texas/` (identical H1 ×2), `/guide-commercial-construction-bids/`, `/10-steps-to-build-an-apartment-complex/`, 4 `/locations/*` pages ("AWARDS & RECOGNITION" as second H1 — template defect).
-Fix: template-level — one H1 per page; demote secondary headings to H2.
-Produced by: `/metadata-generate` output feeds it; H1s are content edits via **WordPress pack**.
+**F-8 · Missing and over-length metadata.** 81 pages lack a description; 51 exceed 155 chars (up to 239); 78 titles exceed 60. Mostly older posts (e.g. "office-construction-trends-to-watch-in-2024"). `/metadata-generate` in batches; `npm run validate:metadata` before apply.
 
-**F-13. Organization/GeneralContractor schema emitted on all 237 pages** (rule: homepage only; LocalBusiness subtype on location pages).
-Fix: restrict Yoast org graph emission; keep Organization on `/`, use LocalBusiness/GeneralContractor per location page with NAP matching visible text.
-Produced by: `/schema-generate`. **Apply: WordPress pack.**
+**F-9 · Four redirecting URLs still listed in the sitemap, two still linked internally.**
+- `/texas-commercial-building-costs-guide/` → `/comprehensive-guide-to-commercial-construction-costs-per-square-foot-in-texas-2025/` (0 inbound)
+- `/dental-office-construction-cost-guide/` → `/dental-office-construction-guide/` (**5 internal links still point at the redirector**)
+- `/the-cost-of-a-tenant-build-out-per-square-foot/` → `/understanding-commercial-build-outs-guide/` (0)
+- `/choose-a-commercial-contractor/` → `/services/architectural-design-and-engineering/` (**4 inbound**; the target looks topically unrelated to the source)
+Fix: drop all four from the sitemap (Yoast), update the 9 inbound links to final targets. Confirm the `choose-a-commercial-contractor` redirect is intended. Redirect changes themselves are gated.
 
-**F-14. `llms.txt` live (7 KB at `/llms.txt`) — WITHDRAWN: operator decided 2026-07-06 to keep it** as a zero-cost agent-routing hedge (research confirms no SEO/citation effect either way: Google Search ignores it, AI retrieval bots rarely fetch it). CLAUDE.md policy updated to match.
-Optional hardening (not scheduled): serve `X-Robots-Tag: noindex` on the file per Google's recommendation; re-verify its claims whenever brand facts change. **Apply (if ever): WordPress pack.**
+**F-10 · Cannibalization — five live clusters.**
+- *Tenant improvement:* `/mastering-tenant-improvement-construction-…`, `/tenant-improvement-contractors-guide/`, `/enhancing-commercial-spaces-tenant-improvements-guide/`, `/understanding-commercial-build-outs-guide/` split the same queries, all at pos 28–87.
+- *Generic "commercial construction cost":* six pages share it (pos 8–83).
+- *Dental:* `/dental-office-construction-guide/` vs `/build-your-dream-dental-clinic-step-by-step-…`.
+- *Restaurant:* known pair (`8-key-considerations…` pos 27, `cost-efficient-strategies…` pos 15).
+- *Statewide cost:* the redirect in F-9 sends the statewide-cost redirector to `/comprehensive-guide-…-texas-2025/`, which ranks pos 18.6 with 5,628 impressions — but the keyword map designates `/texas-commercial-construction-cost-2025-2026/` as the statewide page. Two live statewide pages compete.
+Fix: merge/redirect decisions are gated. Run `/blog-audit` for keep/refresh/merge classification.
 
-**F-15. Internal links pointing at redirects (48 instances).**
-6 content-relevant (e.g. dental posts → old dental slug; 4 contractor-guide posts → `/choose-a-commercial-contractor/` which now 301s to an unrelated service page — likely a wrong redirect target worth reviewing); 42 are theme date-archive links 301ing to `/`.
-Fix: repoint the 6 content links to final URLs; review the `/choose-a-commercial-contractor/` redirect target (it 301s to architectural-design, not a contractor-selection page).
-Produced by: `/internal-linking`. **Apply: WordPress pack.**
+**F-11 · Sitemap contains non-page and bad-canonical URLs.**
+`/locations.kml` (no title, no canonical, in `geo-sitemap.xml`). `/latest-news-updates/` canonicals to `/blog__trashed/latest-news-updates/`, a trashed-post path. Fix: exclude the `.kml`; correct the canonical or retire the page (retirement is gated).
 
-**F-16. Homepage LCP risk on slow connections (report-only — `do_not_touch`).**
-Lab: warm Fast-4G trace LCP 996ms / CLS 0.00 (pass); June 26 cold simulated-mobile Lighthouse: LCP **8,296ms**, FCP 3,196ms, perf 69. 113 images / 94 scripts on the page. TBT fine everywhere (17ms).
-Fix: preload hero/LCP image, never lazy-load it, trim below-fold image payload. Article template measured healthy (hotel guide LCP 1,019ms warm).
-Produced by: `/cwv-audit`. **Apply: WordPress pack + operator override (homepage).**
-
----
+**F-12 · Impressions down 32% across the board** (182,041 → 123,306): homepage −43%, medical-office −65%, Houston −54%, statewide −49%, hotel guide −45%. Clicks held (−5%), and average position improved on several pages. I can't tell from this data whether the drop is real demand loss, a reporting change or SERP changes. Verify against GSC's UI before treating it as a ranking loss.
 
 ## Low
 
-**F-17. `/blog/` index is thin (58 words) and pagination is the only path to ~50 older posts.**
-Fix: category-hub modules on the blog index linking pillar/cluster pages.
-Produced by: `/internal-link-graph`.
+**F-13 · Thin pages: 90 under 400 words.** Mostly archive/portfolio shells (`/projects/*` category pages at 51–84 words, `/join-our-team/`, utility pages like `/single-page/` at 23). Not money pages. Consider noindexing the utility pages and adding intro copy to the project-type archives; do not generate more.
 
-**F-18. IndexNow absent** (`/indexnow.txt` 404). Bing/Copilot discovery nicety, unchanged since June.
-Fix: generate key file + ping after approved publishes. **Apply: WordPress pack.**
+**F-14 · `llms.txt` is live (200) with no `X-Robots-Tag`.** Per CLAUDE.md it should be kept accurate and noindexed. Add the header at the server/plugin level.
 
-**F-19. Striking-distance opportunities (free wins if F-2 lands):**
-"building shells" (3,681 imp, pos 10 — `/guide-to-4-different-types-of-shell-structures/`), "hotel construction" (472 imp, pos 19.4), "commercial building construction" (431, 16.8), "2026 commercial restroom construction cost per SF" (359, 5.7), "commercial building construction schedule" (294, 8.8).
-Produced by: `/gsc-opportunity-mining` → `/restructure-for-citation` per page.
+**F-15 · GSC still reports the `http://www` homepage** (41 impressions on "maxx builders", 10 clicks). Host variants 301 correctly, so this is residual reporting; no action unless it persists.
 
-**F-20. Tooling: PSI API keyless quota is zero — all 15 calls returned HTTP 429 (same as June).**
-Fix: obtain a PageSpeed API key, set `PAGESPEED_API_KEY` locally and as a GitHub Actions secret (`vitals-pr.yml` and `seo-apply-cms.yml` already reference it; keyless CI runs will flake). Repo-side/infra — no pack.
+## Passing
+robots.txt (Yoast, `Disallow:` empty, sitemap declared) · 0 noindex pages · 0 JSON-LD parse errors · FAQPage on 47 pages · 1 canonical per page (self-referencing except F-11) · 0 images missing alt · no duplicate titles · http and apex both 301 to `https://www` · max one redirect hop.
 
 ---
 
 ## Top 5 actions (ROI ÷ effort)
 
-1. **Answer-first + CTR metadata batch on the 9 gap money pages** (F-2, F-11): `/restructure-for-citation` + `/metadata-generate`. Highest-leverage safe-class work; directly attacks the −26% trend. Effort: medium. Apply: WP pack, small batches.
-2. **Internal-link sprint** (F-5/F-6/F-7/F-10): fix 6 broken 404 links, repoint 6 redirect links, de-orphan 2 priority pages, add homepage → money-page links (needs `do_not_touch` override). `/internal-linking`. Effort: low. Apply: WP pack.
-3. **Cluster consolidation manifest** (F-3): `/blog-audit` to produce a keep/merge/301 manifest for tenant-improvement, dental, TX-cost, financing, restaurant clusters. **Gated — human approves before any redirect.** Effort: medium; ROI: highest single ranking lever.
-4. **Repo config refresh** (F-4): update `config/urls.txt`, CLAUDE.md cluster map, `monitored-queries.json` to live slugs + add TX cost guide cluster. Effort: trivial. No pack; unblocks correct sensing/monitoring for everything else.
-5. **Sitemap + schema hygiene batch** (F-9, F-13): Yoast sitemap exclusions and Organization-scope fix. Effort: low. Apply: WP pack (settings-level, one change set).
+1. **Rewrite titles/descriptions on the 7 CTR-gap pages (F-5, F-6).** ~34k impressions already in the top 10. `/metadata-generate` → `wp:apply`, small batch, safe-class.
+2. **Fix the double-H1 template bug (F-2).** One template fix clears 9 pages including 3 money pages. Needs theme access.
+3. **Repair internal links (F-7, F-9).** Re-point 9 links off redirectors; link the 2 zero-inbound priority pages and the hotel guide. `/internal-link-graph` → `/internal-linking`.
+4. **Restore CWV measurement (F-1).** Enable PSI + CrUX APIs on the key's project and install `jq`; every CWV decision is blind until then.
+5. **Scope Org schema to homepage + location pages (F-3).** Template-level, removes 234 redundant entities. Pair with real author bylines (F-4) once the operator supplies names.
 
----
-
-## Method caveats
-
-- Word counts for Elementor-built pages (`/locations/*`, `/industries/*`, `/services/*`, `/projects/*`) under-read via entry-content extraction; body-text spot-checks confirmed locations/industries pages are substantive (San Antonio 2,133 words). Only `/projects/*` galleries are genuinely text-thin. The June "location pages thin" style finding does not apply.
-- CWV lab traces were warm-cache (TTFB ~12ms); cold-load numbers come from the June 26 Lighthouse baseline. Field-level (CrUX) verification is blocked until F-20 lands.
-- "Orphan" = no inbound link from any of the 237 sitemap pages; blog pagination archives were not crawled.
-- GSC windows: 2026-06-08→07-05 vs 2026-05-11→06-07 (28d each, 1-day lag).
-- GBP/NAP not audited (no GBP access from this runtime).
+## Needs a platform pack or operator decision
+- **`wp:apply` (safe-class):** F-5, F-6, F-8, F-9 link updates, F-3 if done through Yoast meta/schema fields. No staging exists, so each batch needs a backup/export first.
+- **Theme/builder access (not covered by the pack):** F-2, F-14.
+- **Gated, operator decision:** F-4 (author attribution), F-10 and F-11 (merges, redirects, retiring pages), anything on the homepage.
