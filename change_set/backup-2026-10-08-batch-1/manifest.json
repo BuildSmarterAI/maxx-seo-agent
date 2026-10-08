@@ -1,0 +1,118 @@
+{
+  "exported_at": "2026-10-08T21:49:11.976Z",
+  "seo_plugin": "yoast",
+  "entries": [
+    {
+      "id": "300",
+      "kind": "posts",
+      "link": "https://www.maxxbuilders.com/importance-of-mock-up-rooms-in-the-hospitality-industry/",
+      "slug": "importance-of-mock-up-rooms-in-the-hospitality-industry",
+      "status": "publish",
+      "modified_gmt": "2026-07-02T18:27:10",
+      "title_raw": "importance-of-mock-up-rooms-in-the-hospitality-industry",
+      "seo_meta": {
+        "title": "",
+        "description": "",
+        "canonical": "https://www.maxxbuilders.com/importance-of-mock-up-rooms-in-the-hospitality-industry/",
+        "focus": "mock up rooms hospitality"
+      },
+      "seo_meta_exposed": {
+        "title": true,
+        "description": true,
+        "canonical": true,
+        "focus": true
+      },
+      "rendered": {
+        "title": "importance-of-mock-up-rooms-in-the-hospitality-industry | Maxx Builders",
+        "description": null,
+        "canonical": "https://www.maxxbuilders.com/importance-of-mock-up-rooms-in-the-hospitality-industry/"
+      },
+      "content_bytes": 20113,
+      "content_sha256": "2c592aa1be073939c2d24db9b032d41cce82422c828a6b22a0d7a5fa19f8a3aa"
+    },
+    {
+      "id": "7429",
+      "kind": "posts",
+      "link": "https://www.maxxbuilders.com/design-build-construction-houston-2/",
+      "slug": "design-build-construction-houston-2",
+      "status": "publish",
+      "modified_gmt": "2026-06-25T16:06:09",
+      "title_raw": "Design-Build Construction Houston | Maxx Builders",
+      "seo_meta": {
+        "title": "",
+        "description": "",
+        "canonical": "",
+        "focus": ""
+      },
+      "seo_meta_exposed": {
+        "title": true,
+        "description": true,
+        "canonical": true,
+        "focus": true
+      },
+      "rendered": {
+        "title": "Design-Build Construction Houston | Maxx Builders | Maxx Builders",
+        "description": null,
+        "canonical": "https://www.maxxbuilders.com/design-build-construction-houston-2/"
+      },
+      "content_bytes": 22328,
+      "content_sha256": "0ee364a63f8565a2894c646f8390f06a910708b5cd8b8312b5b21d05dfe7e05a"
+    },
+    {
+      "id": "2639",
+      "kind": "posts",
+      "link": "https://www.maxxbuilders.com/restaurant-construction-cost-per-square-foot-guide-2024/",
+      "slug": "restaurant-construction-cost-per-square-foot-guide-2024",
+      "status": "publish",
+      "modified_gmt": "2026-05-18T15:55:07",
+      "title_raw": "How Much does it Cost to Build a Restaurant",
+      "seo_meta": {
+        "title": "How Much does it Cost to Build a Restaurant",
+        "description": "Unlock the secrets to managing your restaurant construction costs in 2024. Discover how factors like location, design, and type influence expenses, and learn strategies for budgeting effectively. Read our expert guide now.",
+        "canonical": "",
+        "focus": "restaurant construction"
+      },
+      "seo_meta_exposed": {
+        "title": true,
+        "description": true,
+        "canonical": true,
+        "focus": true
+      },
+      "rendered": {
+        "title": "How Much does it Cost to Build a Restaurant",
+        "description": "Unlock the secrets to managing your restaurant construction costs in 2024. Discover how factors like location, design, and type influence expenses, and learn strategies for budgeting effectively. Read our expert guide now.",
+        "canonical": "https://www.maxxbuilders.com/restaurant-construction-cost-per-square-foot-guide-2024/"
+      },
+      "content_bytes": 21152,
+      "content_sha256": "c13d35a65fde260ef59d48a0d660e847a29486e28b7f6326527a0afb592bc9b8"
+    },
+    {
+      "id": "5913",
+      "kind": "posts",
+      "link": "https://www.maxxbuilders.com/medical-office-construction-costs-texas-2026-comprehensive-guide/",
+      "slug": "medical-office-construction-costs-texas-2026-comprehensive-guide",
+      "status": "publish",
+      "modified_gmt": "2026-07-02T18:27:17",
+      "title_raw": "medical-office-construction-costs-texas-2026-comprehensive-guide",
+      "seo_meta": {
+        "title": "Medical Office Construction Costs Texas 2026",
+        "description": "Medical office construction in Texas costs $200-$450/sq ft in 2026. Breaks down cost drivers by specialty type and Texas metro.",
+        "canonical": "https://www.maxxbuilders.com/medical-office-construction-costs-texas-2026-comprehensive-guide/",
+        "focus": "medical office construction cost Texas"
+      },
+      "seo_meta_exposed": {
+        "title": true,
+        "description": true,
+        "canonical": true,
+        "focus": true
+      },
+      "rendered": {
+        "title": "Medical Office Construction Costs Texas 2026",
+        "description": "Medical office construction in Texas costs $200-$450/sq ft in 2026. Breaks down cost drivers by specialty type and Texas metro.",
+        "canonical": "https://www.maxxbuilders.com/medical-office-construction-costs-texas-2026-comprehensive-guide/"
+      },
+      "content_bytes": 50033,
+      "content_sha256": "4357aa9b16f1368321a61e93b2217ac420a3b64c49b02a9a041f9845f69701d1"
+    }
+  ]
+}

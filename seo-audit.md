@@ -42,7 +42,7 @@ Fix: enable PageSpeed Insights API and Chrome UX Report API on the key's GCP pro
 
 **F-2 · Double H1 on priority pages — second H1 contains the raw URL slug.**
 Affected (9 pages, re-verified by live fetch of all 239 sitemap URLs): `/cost-per-square-foot-build-warehouse-texas/`, `/medical-office-construction-costs-texas-2026-comprehensive-guide/`, `/importance-of-mock-up-rooms-in-the-hospitality-industry/`, `/guide-commercial-construction-bids/`, `/10-steps-to-build-an-apartment-complex/`, and 4 location pages (The Woodlands, Irving, Arlington, San Antonio). On the three money pages the second H1 is the slug itself (e.g. `importance-of-mock-up-rooms-…`), which points to a template or builder-module bug rather than content.
-Fix: find the source (theme/page-builder block outputting `post_name` as H1), fix at template level. Needs theme access; outside the WP REST pack.
+Root cause confirmed for two pages from the 2026-10-08 export (see F-16): the WP post title field is the slug (post 300, 5913), which the theme renders as the page H1, and the post body also starts with its own `<h1>`. For those two the fix is REST-only: set the real post title and remove the body `<h1>`. For the other 7 pages the source is unverified, so theme/builder access may still be needed.
 
 **F-3 · Org schema is site-wide, not homepage-only.**
 `Organization/Place/GeneralContractor` (with OfferCatalog, OpeningHours, ContactPoint) appears on all 234 HTML pages in the sitemap (re-verified; the 235th 200 URL is `locations.kml`). Violates the "Organization on homepage only; LocalBusiness per location" rule and bloats every page.
@@ -66,6 +66,13 @@ Author is "Maxx Builders"; only 7 name a person (Harris Khan). Breaches the name
 Fix: rewrite title/description to lead with the query intent (`/metadata-generate`, safe-class; apply via `wp:apply`). The build-outs guide absorbed a 301 (F-9), so its snippet should be checked first. Note the `restaurant…2024` slug and year in title likely depress CTR.
 
 **F-6 · Two priority pages have no meta description** (same as July): `/design-build-construction-houston-2/` (the service/transactional page) and `/importance-of-mock-up-rooms-in-the-hospitality-industry/`. `/metadata-generate`, then `wp:apply`.
+
+**F-16 · Draft front-matter published inside the post body (3 priority pages).**
+Found via `scripts/wp-backup-export.mjs` (export in `change_set/backup-2026-10-08-batch-1/`, post IDs 300, 5913, 7429).
+- `/importance-of-mock-up-rooms-in-the-hospitality-industry/` (300): body opens with `<h1>` plus a visible "Slug / Title (53 chars) / Meta description (150 chars) / Canonical / Last Updated" block. Post title field is the slug.
+- `/medical-office-construction-costs-texas-2026-comprehensive-guide/` (5913): same pattern ("Slug / Meta description / Canonical / Last Updated / Author"). Post title field is the slug.
+- `/design-build-construction-houston-2/` (7429): lighter case, a "Last Updated | Author" line only. Post title is `Design-Build Construction Houston | Maxx Builders`, so the rendered `<title>` repeats the brand ("… | Maxx Builders | Maxx Builders").
+Impact: duplicate H1 and visible junk text on a money page and its neighbours; Yoast also has no title/description set on 300 and 7429, so the slug becomes the SERP title. Fix: edit `post_title` and `post_content` through the REST pack (`post_content` is a supported `wp:apply` field), one page at a time with the batch-1 backup in hand. Needs approval per page; this is a live body edit.
 
 ## Medium
 
@@ -118,5 +125,10 @@ robots.txt (Yoast, `Disallow:` empty, sitemap declared) · 0 noindex pages · 0 
 
 ## Needs a platform pack or operator decision
 - **`wp:apply` (safe-class):** F-5, F-6, F-8, F-9 link updates, F-3 if done through Yoast meta/schema fields. No staging exists, so each batch needs a backup/export first.
-- **Theme/builder access (not covered by the pack):** F-2, F-14.
+- **Theme/builder access (not covered by the pack):** F-2 for the 7 pages not yet traced, F-14. F-2 on posts 300 and 5913 and all of F-16 are REST-fixable.
 - **Gated, operator decision:** F-4 (author attribution), F-10 and F-11 (merges, redirects, retiring pages), anything on the homepage.
+
+## Open questions (operator)
+1. Theme/builder access for the 7 double-H1 pages not yet traced (F-2). Posts 300 and 5913 no longer need it.
+2. Which statewide-cost URL stays: `/texas-commercial-construction-cost-2025-2026/` or `/comprehensive-guide-to-commercial-construction-costs-per-square-foot-in-texas-2025/` (F-9, F-10).
+3. Is the `/choose-a-commercial-contractor/` → `/services/architectural-design-and-engineering/` redirect intended (F-9)?
