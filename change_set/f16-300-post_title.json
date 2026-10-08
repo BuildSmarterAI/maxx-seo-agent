@@ -1,0 +1,28 @@
+{
+  "skill": "f16-front-matter-cleanup",
+  "generated_at": "2026-10-08T22:01:15.479Z",
+  "platform": "wordpress",
+  "page_id": "300",
+  "url": "https://www.maxxbuilders.com/importance-of-mock-up-rooms-in-the-hospitality-industry/",
+  "status": "pending",
+  "risk_class": "gated",
+  "change_type": null,
+  "field": "post_title",
+  "base_value": "importance-of-mock-up-rooms-in-the-hospitality-industry",
+  "new_value": "Mock-Up Rooms in Hotel Construction: Why They Matter",
+  "rollback_source": "change_set/backup-2026-10-08-batch-1/posts-300.json",
+  "rollback_sha256": "b983511c1f0da9e43c261e58fa4cfe3ac56492bcf8940e2c212f88e7560d3c9e",
+  "review": {
+    "h1_after": "exactly 1 (theme renders post_title; body H1 removed)",
+    "removed_h1": "Mock-Up Rooms in Hotel Construction: Why They Matter",
+    "removed_front_matter": "<h1>Mock-Up Rooms in Hotel Construction: Why They Matter</h1>\n<p><strong>Slug:</strong> <code>importance-of-mock-up-rooms-in-the-hospitality-industry</code>\n<strong>Title (53 chars):</strong> Mock-Up Rooms in Hotel Construction: Why They Matter\n<strong>Meta description (150 chars):</strong> Learn how mock-up rooms reduce risk and cost in hotel construction. Two-stage process, brand approval, ADA compliance, and Texas project benchmarks.\n<strong>Canonical:</strong> <a href=\"https://www.maxxbuilders.com/importance-of-mock-up-rooms-in-the-hospitality-industry/\">https://www.maxxbuilders.com/importance-of-mock-up-rooms-in-the-hospitality-industry/</a>\n<strong>Last Updated:</strong> June 25, 2026</p>\n<hr>",
+    "removed_trailing_last_updated": 1,
+    "kept_author_byline": false,
+    "bytes_before": 20113,
+    "bytes_after": 19352,
+    "links_removed": [
+      "canonical <a> inside the front-matter block"
+    ],
+    "backup_content_sha256": "2c592aa1be073939c2d24db9b032d41cce82422c828a6b22a0d7a5fa19f8a3aa"
+  }
+}

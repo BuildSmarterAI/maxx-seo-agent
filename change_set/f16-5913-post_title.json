@@ -1,0 +1,28 @@
+{
+  "skill": "f16-front-matter-cleanup",
+  "generated_at": "2026-10-08T22:01:15.500Z",
+  "platform": "wordpress",
+  "page_id": "5913",
+  "url": "https://www.maxxbuilders.com/medical-office-construction-costs-texas-2026-comprehensive-guide/",
+  "status": "pending",
+  "risk_class": "gated",
+  "change_type": null,
+  "field": "post_title",
+  "base_value": "medical-office-construction-costs-texas-2026-comprehensive-guide",
+  "new_value": "Medical Office Construction Costs Texas 2026",
+  "rollback_source": "change_set/backup-2026-10-08-batch-1/posts-5913.json",
+  "rollback_sha256": "719ab1bd42b8ea69799a3435cdcb61da2efb67801b5a175ecdb2be6223811af6",
+  "review": {
+    "h1_after": "exactly 1 (theme renders post_title; body H1 removed)",
+    "removed_h1": "Medical Office Construction Costs Texas 2026",
+    "removed_front_matter": "<h1>Medical Office Construction Costs Texas 2026</h1>\n<p><strong>Slug:</strong> medical-office-construction-costs-texas-2026-comprehensive-guide\n<strong>Meta description:</strong> Medical office construction in Texas costs $200–$450/sq ft in 2026. This guide breaks down cost drivers, market ranges, and how to budget for your project.\n<strong>Canonical:</strong> <a href=\"https://www.maxxbuilders.com/medical-office-construction-costs-texas-2026-comprehensive-guide/\">https://www.maxxbuilders.com/medical-office-construction-costs-texas-2026-comprehensive-guide/</a>\n<strong>Last Updated:</strong> 2026-06-24\n<strong>Author:</strong> Harris Khan, Founder — Maxx Builders (<a href=\"https://www.linkedin.com/in/maxxbuildersharris/\">LinkedIn</a>)</p>\n<hr>",
+    "removed_trailing_last_updated": 0,
+    "kept_author_byline": true,
+    "bytes_before": 50033,
+    "bytes_after": 49424,
+    "links_removed": [
+      "canonical <a> inside the front-matter block"
+    ],
+    "backup_content_sha256": "4357aa9b16f1368321a61e93b2217ac420a3b64c49b02a9a041f9845f69701d1"
+  }
+}
