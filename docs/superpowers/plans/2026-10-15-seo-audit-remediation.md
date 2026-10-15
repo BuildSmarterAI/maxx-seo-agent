@@ -54,6 +54,11 @@ approval.
     applies it or re-stages it after sign-off.
 - **The nightly `seo-apply-cms` cron (07:30 UTC) applies every `approved` row** (limit 200), so
   approval is the batch-size control. Approve **no more than 10 rows at a time**.
+  - **Before approving a batch, confirm the approved queue is empty.**
+    `select count(*) from change_set where status = 'approved';` must return 0. Otherwise the
+    cron applies the new batch plus every older approved row.
+  - A row still `approved` after a run did not apply. Investigate it; do not approve a new
+    batch on top of it.
 - `/` is in `do_not_touch`. Changing the homepage needs an explicit operator override.
 - One lane per wave: one branch, one worktree, one PR.
 - **Rendering mechanism decides the write path.** A `post_content` write does not render on an
