@@ -12,6 +12,9 @@ Three credential classes are in active use. Know what each one can do.
 
 Additional credentials (lower blast radius but still sensitive):
 - `SUPABASE_ACCESS_TOKEN` — personal access token for MCP; scoped to account, not project.
+  `.mcp.json` narrows the MCP connection to the `bsh-seo-agent` project (`--project-ref`,
+  no `branching`), but the token itself keeps account-wide permissions everywhere else.
+  That connection is read-write against **production**; see "Supabase MCP writes" below.
 - `WP_APP_PASSWORD` — WordPress Application Password; scoped to a single WP user role.
 - `WEBFLOW_API_TOKEN` — full Webflow site write access. Treat like service-role.
 
@@ -40,6 +43,20 @@ PowerShell — a stale Windows environment variable can override the Max token.
 
 The `MONTHLY_BUDGET_USD` guard in the orchestrator and the `control.paused` kill switch
 are the primary runaway-spend defenses. Check them before enabling any unattended run.
+
+## Supabase MCP writes
+
+The interactive Supabase MCP exposes `execute_sql`, `apply_migration` and
+`deploy_edge_function` against the production `bsh-seo-agent` project. There is no
+staging project. Scoping prevents cross-project access; it does not prevent damage to
+this project, including `control` and `do_not_touch`.
+
+- Reads (`list_tables`, `SELECT`, `get_logs`, `get_advisors`) are fine for inspection.
+- Any mutation needs explicit, individually named operator approval in the session,
+  a backup/export of the affected rows first, and a `decision_log` entry afterwards.
+- MCP writes never stand in for the repo's write paths: CMS changes go through
+  `change_set` → apply (ADR-005); schema changes go through `sql/schema.sql`.
+- Approval to fix or verify the MCP configuration is not approval to mutate data.
 
 ## CMS credential scope
 

@@ -2,7 +2,12 @@
   "mcpServers": {
     "supabase": {
       "command": "npx",
-      "args": ["-y", "@supabase/mcp-server-supabase@0.8.2"],
+      "args": [
+        "-y",
+        "@supabase/mcp-server-supabase@0.8.2",
+        "--project-ref=dzbbmfqyrhbszxhnyqbp",
+        "--features=docs,database,debugging,development,functions"
+      ],
       "env": { "SUPABASE_ACCESS_TOKEN": "${SUPABASE_ACCESS_TOKEN}" }
     },
     "analytics-mcp": {

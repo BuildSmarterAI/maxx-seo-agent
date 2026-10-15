@@ -55,12 +55,30 @@ Project-scoped `.mcp.json` at repo root (commits with the repo so CI and teammat
   "mcpServers": {
     "supabase": {
       "command": "npx",
-      "args": ["-y", "@supabase/mcp-server-supabase@latest", "--read-only=false"],
+      "args": [
+        "-y",
+        "@supabase/mcp-server-supabase@0.8.2",
+        "--project-ref=dzbbmfqyrhbszxhnyqbp",
+        "--features=docs,database,debugging,development,functions"
+      ],
       "env": { "SUPABASE_ACCESS_TOKEN": "${SUPABASE_ACCESS_TOKEN}" }
     }
   }
 }
 ```
+
+Keep this block identical to the committed `.mcp.json`. Notes on the flags (verified against the 0.8.2 package source):
+
+- **Pin the version.** Do not use `@latest`; flag parsing changes between releases.
+- **Read-write is the default.** `--read-only` is a boolean flag that takes no value. `--read-only=false` crashes the server at startup (`ERR_PARSE_ARGS_INVALID_OPTION_VALUE`), which Claude Code reports as `CONNECTION_CLOSED`. Omit the flag for read-write; pass bare `--read-only` for read-only.
+- **`--project-ref`** scopes the server to the `bsh-seo-agent` project: account tools (`list_projects`, `create_project`, `pause_project`, `restore_project`, cost tools) are not registered, and every project tool has `project_id` injected server-side and removed from its schema, so a caller cannot target another project.
+- **`--features` omits `branching`.** In 0.8.2, `delete_branch`, `merge_branch`, `reset_branch` and `rebase_branch` take a raw `branch_id` with no project check, so they would escape `--project-ref`. The repo does not use Supabase branching.
+
+**Boundaries that scoping does not change:**
+
+- Writes (`execute_sql`, `apply_migration`, `deploy_edge_function`) still hit **production** for this project, including `control` (kill switch, spend cap) and `do_not_touch`. There is no staging project.
+- `--project-ref` limits this MCP connection only. `SUPABASE_ACCESS_TOKEN` keeps its full account-wide permissions anywhere else it is used.
+- Direct MCP writes do not replace the repo's approval path: CMS changes go through `change_set` → apply (ADR-005), schema changes through `sql/schema.sql`, and production mutations need explicit, individually named operator approval, a backup/export first, and a `decision_log` entry.
 
 In an Agent SDK run, pass servers via the `mcpServers` option instead. Verify with `claude mcp list`.
 
