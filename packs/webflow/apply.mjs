@@ -9,7 +9,7 @@
 //
 // env: WEBFLOW_TOKEN  (Bearer)
 import { fileURLToPath } from "node:url";
-import { applyRows } from "../../orchestrator/lib/cms.mjs";
+import { applyRows, applyExitCode } from "../../orchestrator/lib/cms.mjs";
 import { wf } from "./http.mjs";
 
 // ---- Page SEO helpers ----
@@ -58,8 +58,10 @@ export const webflowAdapter = {
 };
 
 async function main() {
-  const { applied: staged, escalated, failed } = await applyRows(webflowAdapter);
-  console.log(`Webflow apply — staged ${staged}, escalated ${escalated}, failed ${failed}. Run publish.mjs to go live.`);
+  const tally = await applyRows(webflowAdapter);
+  const { applied: staged, escalated, failed, unrecorded } = tally;
+  console.log(`Webflow apply — staged ${staged}, escalated ${escalated}, failed ${failed}, staged-but-status-unrecorded ${unrecorded}. Run publish.mjs to go live.`);
+  process.exitCode = applyExitCode(tally);
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
