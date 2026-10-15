@@ -130,6 +130,18 @@ test("thrown write -> failed status + skip log", async () => {
   assert.match(store.calls.log.at(-1).reason, /fail: boom/);
 });
 
+test("snapshot rejection -> failed outcome, zero writes, failed status (no write without a rollback snapshot)", async () => {
+  const store = fakeStore();
+  store.snapshot = async () => { throw new Error("snapshot failed: permission denied for table snapshots"); };
+  const a = fakeAdapter({ read: async () => "old" });
+  const outcome = await applyRow({ id: 15, url: "/snap", field: "title", new_value: "n", base_value: "old", risk_class: "safe" }, a, store);
+  assert.equal(outcome, "failed");
+  assert.deepEqual(a.writes, []);
+  assert.equal(store.calls.status.at(-1).status, "failed");
+  assert.equal(store.calls.status.some((s) => s.status === "applied"), false);
+  assert.match(store.calls.log.at(-1).reason, /snapshot failed/);
+});
+
 // ---- do_not_touch apply-boundary gate (REC-5/AH1 sub-item c) ----
 test("protected url escalates at the boundary before read/snapshot/write", async () => {
   const store = fakeStore();
