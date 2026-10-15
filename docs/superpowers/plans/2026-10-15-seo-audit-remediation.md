@@ -122,7 +122,7 @@ Gutenberg. Consequences:
 | Fix | Skill / tool | Mechanism |
 |---|---|---|
 | Remove leaked scaffolding (see the target list below) | `restructure-for-citation` for mock-up and medical (merge with the existing `change_set/restructure-for-citation-*-2026.json`); a direct `post_content` edit for the rest (`change_type: null`) | `scripts/cms-read.mjs --field post_content` → edit → `npm run mem -- changeset --file payload.json` |
-| Repoint the 8 broken links | `internal-link-graph` | `post_content` rows, one per source page |
+| Repoint the 7 broken links | `internal-link-graph` | `post_content` rows, one per source page |
 | Repoint in-content links that hit 301s, on the top 20 pages by traffic first | `internal-link-graph` | `post_content` rows |
 | Set Person schema author on the medical, warehouse, and mock-up posts | Operator; prepare the Person spec with `entity-authority` | WP Admin: reassign the post author to the named expert's WP user |
 
@@ -151,7 +151,7 @@ The audit also named the building-types-2025-2027 and retail-rankings posts for 
   `ai-summary-heading` rule does not flag. They were treated as editorial headings and **not
   staged**.
 
-**Broken-link sources** (8 links):
+**Broken-link sources** (7 links):
 
 | Source page | Bad link |
 |---|---|
@@ -165,7 +165,7 @@ The audit also named the building-types-2025-2027 and retail-rankings posts for 
 The replacement targets are `/services/design-and-build/` and `/services/preconstruction/`.
 Remove the `/tag/` links.
 
-**Status 2026-10-15:** 6 links on 5 posts are staged via `change_set` (PR #107). The 2 on the
+**Status 2026-10-15:** 5 links on 5 posts are staged via `change_set` (PR #107). The 2 on the
 hotel guide are an **operator Elementor-editor task**, because that page is now Elementor.
 
 **Before approving any Wave 1 row:** the drift check skips `post_content` (see Hard
