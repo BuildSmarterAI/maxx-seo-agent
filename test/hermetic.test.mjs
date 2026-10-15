@@ -21,6 +21,26 @@ test("an un-mocked fetch to a remote host rejects before any network I/O", async
   await assert.rejects(() => fetch(new URL("https://www.maxxbuilders.com/wp-json/")), /hermetic/);
 });
 
+test("node:http/https requests to a remote host are blocked too (gaxios/googleapis use node-fetch, not global fetch)", async () => {
+  const https = await import("node:https");
+  const http = await import("node:http");
+  assert.throws(() => https.get("https://searchconsole.googleapis.com/"), /hermetic/);
+  assert.throws(() => https.request({ hostname: "oauth2.googleapis.com", path: "/token" }), /hermetic/);
+  assert.throws(() => http.get("http://169.254.169.254/computeMetadata/v1/"), /hermetic/);
+});
+
+test("Google credentials point at a non-existent file, so google-auth fails locally", () => {
+  assert.equal(process.env.GOOGLE_APPLICATION_CREDENTIALS, "hermetic-no-such-gcp.json");
+});
+
+test("spawned node subprocesses inherit the guard via NODE_OPTIONS", async () => {
+  const { spawnSync } = await import("node:child_process");
+  const r = spawnSync(process.execPath, ["-e",
+    "fetch('https://example.supabase.co/').then(()=>console.log('REACHED'),e=>console.log(String(e.message)))"],
+    { encoding: "utf8", timeout: 30000 });
+  assert.match(r.stdout, /hermetic/);
+});
+
 test("the Supabase client goes through the guarded fetch", async () => {
   const { db } = await import("../orchestrator/lib/client.mjs");
   const { error } = await db.from("change_set").select("id").limit(1);
