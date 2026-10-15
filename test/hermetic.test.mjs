@@ -52,6 +52,24 @@ test("node:http/https guard checks the EFFECTIVE host: options.hostname override
   }
 });
 
+test("loopback fetch never follows a redirect to a remote host", async () => {
+  const http = await import("node:http");
+  const server = http.createServer((_req, res) => {
+    res.writeHead(302, { Location: "http://192.0.2.1/" }).end();
+  });
+  await new Promise((r) => server.listen(0, "127.0.0.1", r));
+  try {
+    const { port } = server.address();
+    await assert.rejects(
+      () => fetch(`http://127.0.0.1:${port}/`, { signal: AbortSignal.timeout(2000) }),
+      (e) => /redirect/i.test(String(e?.cause?.message ?? "")),
+    );
+  } finally {
+    server.closeAllConnections?.();
+    await new Promise((r) => server.close(r));
+  }
+});
+
 test("Google credentials point at a non-existent file, so google-auth fails locally", () => {
   assert.equal(process.env.GOOGLE_APPLICATION_CREDENTIALS, "hermetic-no-such-gcp.json");
 });

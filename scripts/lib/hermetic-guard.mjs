@@ -8,7 +8,8 @@
 //    (supabase-js resolves the global fetch per call) and the WordPress/Webflow packs all
 //    go through global fetch, so an un-mocked call fails fast instead of going out.
 //    Tests that mock fetch assign globalThis.fetch and restore the saved value, which is
-//    this guard, so their mocks are unaffected.
+//    this guard, so their mocks are unaffected. Loopback requests are passed through with
+//    redirect: "error", so a loopback redirect cannot carry the request to a remote host.
 // 3. Blocks non-loopback node:http/https requests. googleapis (gaxios → node-fetch) and
 //    other non-fetch clients go through these modules, not global fetch. Google
 //    credentials point at a file that does not exist, so google-auth fails locally
@@ -40,7 +41,9 @@ const blocked = (where) =>
 const realFetch = globalThis.fetch;
 globalThis.fetch = async function hermeticFetch(input, init) {
   const url = new URL(typeof input === "string" || input instanceof URL ? input : input.url);
-  if (LOOPBACK.has(url.hostname)) return realFetch(input, init);
+  // redirect: "error" — a loopback server must not be able to bounce the request to a
+  // remote host (Undici follows redirects internally, past this guard).
+  if (LOOPBACK.has(url.hostname)) return realFetch(input, { ...init, redirect: "error" });
   throw blocked(url.origin);
 };
 
