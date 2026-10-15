@@ -38,9 +38,24 @@ branch), Wave 1.
 | `/financing-options-for-shopping-center-projects-ultimate-guide/` (2504) | Unlink `/tag/shopping-center-financing/` (anchor text kept) | `internal-link-graph` | Not Elementor (post_content renders) | bad href 1 → 0; new `[]` | 1 |
 | `/following-franchise-design-guidelines/` (2509) | Unlink `/tag/franchise-design/` | `internal-link-graph` | Not Elementor (post_content renders) | bad href 1 → 0; new `[]` | 1 |
 | `/picking-profitable-locations-warehouse-development/` (2440) | Unlink `/tag/warehouse-development/` | `internal-link-graph` | Not Elementor (post_content renders) | bad href 1 → 0; new `[]` | 1 |
+| `/picking-profitable-locations-warehouse-development/` (2440), same payload | Repoint the "Click here to request a quote" CTA from a ChatGPT conversation URL (`chat.openai.com/c/…#link-to-quote`) → `/commercial-construction-project-inquiry/` (anchor text and `target`/`rel` unchanged) | `internal-link-graph` | Not Elementor (re-checked 2026-10-15: no `data-elementor-type` container; body class `postid-2440`) | ChatGPT href 1 → 0; new `[]`; live `post_content` re-read equals `base_value` byte for byte | 1 |
 | `/selecting-prime-spots-for-shopping-centers/` (2505) | Unlink `/tag/shopping-center-construction/` | `internal-link-graph` | Not Elementor (post_content renders) | bad href 1 → 0; new `[]` | 1 |
 
 All rows: `platform: wordpress`, `field: post_content`, `risk_class: safe`, `page_id` set.
+The two 2440 rows are one payload file (one payload per page), with two `edits` entries.
+
+**Quote CTA target.** `https://www.maxxbuilders.com/commercial-construction-project-inquiry/`
+returned 200 with 0 redirects (title "Commercial Construction Project Inquiry | Maxx Builders",
+self-canonical, Contact Form 7 form). It is the `href` of the site header's "Get A Quote"
+button on every post. `/get-a-quote/` and `/contact/` both 301 to it. The same post body
+already links it twice ("Request a warehouse project consultation", "Request a project cost
+validation").
+
+**Edit logs replay exactly.** For every payload, replaying `edits` onto `base_value` (each
+`removed` → `replaced_with ?? ""`, in order, each anchor unique) reproduces `new_value`
+byte for byte. The mock-up and medical first edits now record `replaced_with: "<p>"`: the
+paragraph's opening tag moves onto the kept "Last Updated" line. Only their `edits` changed;
+their `base_value` and `new_value` are unchanged.
 Replacement target `/services/preconstruction/` returned 200 with 0 redirects
 (`/services/design-and-build/` likewise 200 with 0 redirects). The old URLs return 404.
 
@@ -118,9 +133,11 @@ Loan terms and pricing are gated, so no tables or figures were invented.
 
 ## Out-of-scope follow-ups noticed (not changed)
 
-- `/picking-profitable-locations-warehouse-development/`: the CTA "Click here to request a
-  quote" links to a ChatGPT conversation URL (`chat.openai.com/c/…#link-to-quote`). It is the
-  same defect class as the restaurant share links, but no replacement target was approved.
+- `/picking-profitable-locations-warehouse-development/`: the ChatGPT-URL quote CTA is now
+  staged (see the table). A scan of every lane payload's `base_value` found no other
+  ChatGPT/OpenAI link besides the restaurant share links, which are already removed.
+  `/cost-per-square-foot-build-warehouse-texas/` (3508) has none in its live `post_content`
+  or rendered HTML.
 - `/cost-efficient-strategies-restaurant-construction/`: an empty `<h3></h3>` remains.
 - The mock-up, medical and hotel bodies contain their own `<h1>`. Check for a duplicate H1
   alongside the theme title.

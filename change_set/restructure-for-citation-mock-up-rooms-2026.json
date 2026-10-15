@@ -12,8 +12,9 @@
   "mechanism_check": "public GET 2026-10-15: no data-elementor-type=wp-post|wp-page container whose data-elementor-id equals the postid body class -> Gutenberg/classic; post_content renders",
   "edits": [
     {
-      "description": "Remove the Slug / Title (53 chars) / Meta description (150 chars) / Canonical drafting lines; keep the 'Last Updated' line in the same paragraph",
-      "removed": "<p><strong>Slug:</strong> <code>importance-of-mock-up-rooms-in-the-hospitality-industry</code>\n<strong>Title (53 chars):</strong> Mock-Up Rooms in Hotel Construction: Why They Matter\n<strong>Meta description (150 chars):</strong> Learn how mock-up rooms reduce risk and cost in hotel construction. Two-stage process, brand approval, ADA compliance, and Texas project benchmarks.\n<strong>Canonical:</strong> <a href=\"https://www.maxxbuilders.com/importance-of-mock-up-rooms-in-the-hospitality-industry/\">https://www.maxxbuilders.com/importance-of-mock-up-rooms-in-the-hospitality-industry/</a>\n"
+      "description": "Remove the Slug / Title (53 chars) / Meta description (150 chars) / Canonical drafting lines; keep the 'Last Updated' line in the same paragraph. The paragraph's opening <p> tag is re-emitted (replaced_with) so it now opens on the kept 'Last Updated' line",
+      "removed": "<p><strong>Slug:</strong> <code>importance-of-mock-up-rooms-in-the-hospitality-industry</code>\n<strong>Title (53 chars):</strong> Mock-Up Rooms in Hotel Construction: Why They Matter\n<strong>Meta description (150 chars):</strong> Learn how mock-up rooms reduce risk and cost in hotel construction. Two-stage process, brand approval, ADA compliance, and Texas project benchmarks.\n<strong>Canonical:</strong> <a href=\"https://www.maxxbuilders.com/importance-of-mock-up-rooms-in-the-hospitality-industry/\">https://www.maxxbuilders.com/importance-of-mock-up-rooms-in-the-hospitality-industry/</a>\n",
+      "replaced_with": "<p>"
     },
     {
       "description": "Remove the 'Answer-First Intro' H2 drafting label; the answer paragraph under it is kept unchanged",
