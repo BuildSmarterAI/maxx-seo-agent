@@ -49,6 +49,11 @@ approval.
 - **Every `change_set` row must pass these gates** (`orchestrator/lib/cms.mjs` `applyRow`):
   `url` set → `do_not_touch` → `risk_class === "safe"` → supported field → drift check →
   snapshot → `scanPlaceholders`.
+  - **The drift check skips `post_content` rows.** The WordPress adapter sets
+    `driftCheckable: (row) => !isContent(row)` (`packs/wordpress/apply.mjs`), so a stale
+    content row overwrites any edit made since staging. Immediately before approving a
+    `post_content` row, the operator must re-read the live page and confirm it equals the
+    row's `base_value` byte for byte. If it differs, regenerate the row.
   - `change_type` must be a kit task or null (`orchestrator/lib/tasks.mjs`).
   - Gated work is staged as `risk_class: "gated"`. The gate escalates it, and an operator
     applies it or re-stages it after sign-off.
@@ -75,11 +80,19 @@ template.
 
 | Mechanism | Pages | Write path |
 |---|---|---|
-| **Elementor** | `/houston-commercial-contractors/`, `/dallas-tx/`, `/austin-tx/`, `/fort-worth-tx/`; all 5 `/industries/*`; `/services/` `architectural-design-and-engineering`, `design-and-build`, `general-contracting`, `preconstruction`, `tenant-improvement` | Operator, Elementor editor |
-| **Gutenberg/classic** | All blog and cluster posts checked (hotel, medical, warehouse, TX, Houston, Dallas cost guides, design-build, restaurant pair, car wash, retail rankings, mock-up, loans, financing); `/services/construction-management/`; **all 4 `/locations/*`** | `post_content` `change_set` rows |
+| **Elementor** | `/houston-commercial-contractors/`, `/dallas-tx/`, `/austin-tx/`, `/fort-worth-tx/`; all 5 `/industries/*`; `/services/` `architectural-design-and-engineering`, `design-and-build`, `general-contracting`, `preconstruction`, `tenant-improvement`; **hotel cost guide** `/the-ultimate-2026-hotel-construction-cost-guide-texas-edition/` (post 5975, re-verified 2026-10-15) | Operator, Elementor editor |
+| **Gutenberg/classic** | All other blog and cluster posts checked (medical, warehouse, TX, Houston, Dallas cost guides, design-build, restaurant pair, car wash, retail rankings, mock-up, loans, financing); `/services/construction-management/`; **all 4 `/locations/*`** | `post_content` `change_set` rows |
 
 **Note:** the original plan assumed `/locations/*` were Elementor. They are not, so their
 rewrite goes through `change_set`. Re-check any page not listed here before choosing its path.
+
+**Re-verified 2026-10-15 (Wave 1 staging):** the hotel cost guide is now Elementor-built. Its
+Elementor container is `wp-post:5975`, which matches `postid-5975`; on 2026-10-14 it read as
+Gutenberg. Consequences:
+- Its 2 broken links render from `_elementor_data`, not `post_content`, so they are an
+  **operator Elementor-editor task** (see Wave 1).
+- The existing `change_set/restructure-for-citation-hotel-2026.json` **cannot take effect**
+  through `post_content`. Its unrendered scaffolding is still in `post_content`.
 
 ## Wave 0: Preflight and safety
 
@@ -103,6 +116,9 @@ rewrite goes through `change_set`. Re-check any page not listed here before choo
 
 ## Wave 1: Quick safe content fixes (Gutenberg targets only)
 
+**Wave 1 payloads are staged in PR #107 (not inserted).** The manifest is
+`change_set/wave1-manifest-2026-10-15.md` on that branch.
+
 | Fix | Skill / tool | Mechanism |
 |---|---|---|
 | Remove leaked scaffolding (see the target list below) | `restructure-for-citation` for mock-up and medical (merge with the existing `change_set/restructure-for-citation-*-2026.json`); a direct `post_content` edit for the rest (`change_type: null`) | `scripts/cms-read.mjs --field post_content` → edit → `npm run mem -- changeset --file payload.json` |
@@ -114,14 +130,26 @@ rewrite goes through `change_set`. Re-check any page not listed here before choo
 - `/importance-of-mock-up-rooms-in-the-hospitality-industry/`: `Slug:`, `Title (N chars):`,
   `Meta description (N chars):`, `Canonical:`, and an "Answer-First Intro" H2.
 - `/medical-office-construction-costs-texas-2026-comprehensive-guide/`: the same labels.
+  - **Live 2026-10-15:** `Slug:`, `Meta description:` (no char count) and `Canonical:`; there is
+    no `Title (N chars):` line.
+  - **Pricing conflict:** the live page says $200–$450/sq ft; the 2026-06-24 restructure
+    proposal said $350–$800/SF. The June figure was kept out of the payload. Resolve it under
+    Blocker 6 (pricing reconciliation).
 - `/commercial-property-construction-loans-in-texas-2026-how-to-qualify-fast/`: three
   `[Insert Table: …]` placeholders, plus an "AI Summary (150 words)" heading.
+  - **Live 2026-10-15** it also had 1 `[Insert Chart: …]` placeholder and a writer note. All
+    were removed, not filled in; the visuals to commission are under Blockers.
 - `/financing-options-for-commercial-construction-projects/`: "AI Summary (150 words)".
 - `/cost-efficient-strategies-restaurant-construction/`: a "Social Sharing Buttons:" H2, plus
   share links that point to a ChatGPT conversation URL.
 
 The audit also named the building-types-2025-2027 and retail-rankings posts for "AI Summary".
-Re-check them live. `/blog/` and `/blog/page/2/` inherit the leaks through their excerpts.
+`/blog/` and `/blog/page/2/` inherit the leaks through their excerpts.
+- **Re-checked live 2026-10-15:** the building-types slug 404s; the post is now
+  `/top-commercial-building-types-in-demand-across-texas-2025-2027/`.
+- Both posts have a plain "AI Summary" heading over real prose, with no word count, which the
+  `ai-summary-heading` rule does not flag. They were treated as editorial headings and **not
+  staged**.
 
 **Broken-link sources** (8 links):
 
@@ -136,6 +164,13 @@ Re-check them live. `/blog/` and `/blog/page/2/` inherit the leaks through their
 
 The replacement targets are `/services/design-and-build/` and `/services/preconstruction/`.
 Remove the `/tag/` links.
+
+**Status 2026-10-15:** 6 links on 5 posts are staged via `change_set` (PR #107). The 2 on the
+hotel guide are an **operator Elementor-editor task**, because that page is now Elementor.
+
+**Before approving any Wave 1 row:** the drift check skips `post_content` (see Hard
+constraints). Re-read each page with `scripts/cms-read.mjs --field post_content` and confirm it
+equals the row's `base_value` byte for byte; regenerate the row if it differs.
 
 ## Wave 2: Metadata backlog (safe, batches of 10 or fewer)
 
@@ -272,6 +307,8 @@ Remove the `/tag/` links.
   - Run the validators for the artifact type.
   - `npm run mem -- dnt <url>` must return OK.
   - Confirm the export or backup exists.
+  - **`post_content` rows:** re-read the live page immediately before approving and compare it
+    to `base_value` byte for byte. `wp:apply` does not drift-check content rows.
 - **After each batch:**
   - Read the `wp:apply` tally. "applied N", where N is the approved count, counts as a pass;
     0 does not.
@@ -296,7 +333,11 @@ Remove the `/tag/` links.
 3. Reviewer and author names, with their credentials.
 4. Whether the Dallas and Austin offices are staffed, plus their NAP.
 5. Whether the car wash Dallas project claim is true.
-6. Pricing reconciliation.
+6. Pricing reconciliation. This includes the medical guide's $200–$450/sq ft (live) vs
+   $350–$800/SF (2026-06-24 proposal) conflict.
+   - **Content inputs:** the loans post's removed placeholders need real visuals. Commission a
+     Loan Options table, a loan volume by metro chart, a cost per sq ft table, and a debt
+     comparison table. Loan terms and pricing are gated.
 7. A homepage `do_not_touch` override (yes/no).
 8. WP-Admin, Elementor, and host access for Waves 3 and 6.
 9. **Live MCP surface.** The MCP Adapter default server is enabled on production, and which
