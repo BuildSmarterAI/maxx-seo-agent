@@ -463,3 +463,39 @@ test("rollbackRow throws on an unsupported field", async () => {
     /support/i,
   );
 });
+
+// ---- persistence failures must fail loudly (2026-10-14 WordPress integration audit) ----
+// supabase-js does not throw on a failed insert/select; it returns { error }. A swallowed
+// snapshot error means a live write with no rollback snapshot, and a swallowed select
+// error makes a broken run report "applied 0" as success.
+const { snapshot, approvedRows } = await import("../orchestrator/lib/cms.mjs");
+
+function fakeDb(result) {
+  const q = { select: () => q, eq: () => q, limit: async () => result, insert: async () => result };
+  return { from: () => q };
+}
+
+test("snapshot throws when the snapshots insert returns an error", async () => {
+  await assert.rejects(
+    () => snapshot({ platform: "wordpress", page_id: "1", url: "/a", field: "title" }, "old",
+      fakeDb({ error: { message: "permission denied for table snapshots" } })),
+    /snapshot.*permission denied/i,
+  );
+});
+
+test("snapshot resolves when the insert succeeds", async () => {
+  await snapshot({ platform: "wordpress", page_id: "1", url: "/a", field: "title" }, "old",
+    fakeDb({ error: null }));
+});
+
+test("approvedRows throws on a query error instead of returning [] (no vacuous 'applied 0')", async () => {
+  await assert.rejects(
+    () => approvedRows("wordpress", 200, fakeDb({ data: null, error: { message: "JWT expired" } })),
+    /approvedRows.*JWT expired/i,
+  );
+});
+
+test("approvedRows returns rows on success", async () => {
+  const rows = await approvedRows("wordpress", 200, fakeDb({ data: [{ id: 1 }], error: null }));
+  assert.deepEqual(rows, [{ id: 1 }]);
+});
