@@ -45,6 +45,9 @@ test("scanPlaceholders catches leaked editorial scaffold labels (2026-10-14 audi
     "<strong>Meta description (150 chars):</strong> Learn how mock-up rooms reduce risk",
     "<p><strong>Canonical:</strong> <a href=\"https://example.com/x/\">x</a></p>",
     "Meta description: Texas medical office costs for 2026.",
+    // Title without a char count, like Meta description above.
+    "<strong>Title:</strong> Draft heading",
+    "Title: Draft heading",
   ]) assert.ok(has(scanPlaceholders(t), "scaffold-label"), `flagged: ${t}`);
 });
 
@@ -59,6 +62,9 @@ test("scaffold rules do NOT flag prose, YAML front matter, or JSON keys", () => 
     "A canonical: self-referencing tag points to itself.",
     "---\nslug: hotel-cost-guide\ntitle: Hotel Cost Guide\n---",
     '{"canonical": "https://example.com/"}',
+    "Set the page title: keep it under 60 characters.",
+    "---\ntitle: x\n---",
+    '{"title": "Hotel Cost Guide"}',
     "<p>Canonical URLs matter for duplicate content.</p>",
     "<h2>Summary</h2><p>Share this guide with your team.</p>",
   ]) assert.equal(scanPlaceholders(t).length, 0, `not flagged: ${t}`);
