@@ -44,14 +44,22 @@ globalThis.fetch = async function hermeticFetch(input, init) {
   throw blocked(url.origin);
 };
 
-// request/get accept (url[, options][, cb]) or (options[, cb]); the target host is in
-// whichever of the first two arguments carries it.
-function hostOf(args) {
-  for (const a of args.slice(0, 2)) {
-    if (typeof a === "string" || a instanceof URL) return new URL(a).hostname;
-    if (a && typeof a === "object" && (a.hostname || a.host)) return String(a.hostname || a.host).replace(/:\d+$/, "");
+// request/get accept (url[, options][, cb]) or (options[, cb]). Resolve the EFFECTIVE
+// destination the way node does: a url is turned into options and then overlaid by an
+// options object (so `("https://localhost/", { hostname: "example.com" })` goes to
+// example.com), and hostname wins over host. Defaults to node's own "localhost".
+function hostOf([a0, a1]) {
+  let opts = {};
+  if (typeof a0 === "string" || a0 instanceof URL) {
+    const u = new URL(a0);
+    opts = { hostname: u.hostname.replace(/^\[(.*)\]$/, "$1"), host: u.host };
+    if (a1 && typeof a1 === "object") opts = { ...opts, ...a1 };
+  } else if (a0 && typeof a0 === "object") {
+    opts = a0;
   }
-  return "localhost";   // node's own default when no host is given
+  if (opts.hostname) return String(opts.hostname);
+  if (opts.host) return String(opts.host).replace(/:\d+$/, "");
+  return "localhost";
 }
 for (const mod of [http, https]) {
   for (const fn of ["request", "get"]) {
