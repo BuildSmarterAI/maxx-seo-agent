@@ -4,7 +4,7 @@
 nothing was applied. **Workflow:** `firecrawl-seo-audit`. Three parallel investigators covered
 structure/technical, on-page, and keyword/SERP, and their headline claims were re-checked
 against the live site before publication. **Scope:** 242 mapped URLs, all 238 sitemap URLs, and 173
-non-portfolio pages parsed. Firecrawl rendered 42 + 4 pages, 59 SERP/competitor pages were
+non-portfolio pages parsed. Firecrawl rendered 42 pages (the report also mentions 4 additional pages, which are not itemized in this report), 59 SERP/competitor pages were
 scraped, and 30 searches were run. About 170 Firecrawl credits were used.
 
 **Evidence labels:**
@@ -16,8 +16,11 @@ scraped, and 30 searches were run. About 170 Firecrawl credits were used.
 - **[J]** strategy judgment.
 
 **Risk class** follows `.claude/rules/workflow.md`. **safe** means the item can go through the
-normal `change_set` / PR flow. **gated** means it needs an operator decision; that covers merges,
-301s, noindexing page batches, pricing, and brand.
+normal `change_set` / PR flow. **gated** means it needs an operator decision; per workflow.md that covers
+brand/pricing/positioning, YMYL, new page batches above threshold, merges/deletes with backlinks,
+301 redirects, and GBP/NAP changes. This audit additionally escalates noindexing the portfolio and
+location batches. Other noindex items (taxonomy archives, utility pages, single thin or redirected
+posts) are labelled safe as sitemap hygiene because they are not portfolio or location batches.
 
 ---
 
@@ -33,7 +36,7 @@ normal `change_set` / PR flow. **gated** means it needs an operator decision; th
 
 **Top risks, ranked**
 
-1. **[V] Editorial scaffolding and placeholders are live on 9 URLs.** This is a quality and trust
+1. **[V] Editorial scaffolding and placeholders are live on 8 URLs (corrected from 9: the listed cases sum to at most 8).** This is a quality and trust
    defect that anyone can see, and none of it is in any queue.
    - The mock-up rooms page prints `Slug:`, `Meta description (150 chars):`, `Canonical:`, and an
      "Answer-First Intro" H2.
@@ -92,7 +95,7 @@ normal `change_set` / PR flow. **gated** means it needs an operator decision; th
 
 | Problem | URLs | Evidence | Fix | Risk |
 |---|---|---|---|---|
-| Sitemap posts that 301 | `/texas-commercial-building-costs-guide/`, `/dental-office-construction-cost-guide/`, `/the-cost-of-a-tenant-build-out-per-square-foot/`, `/choose-a-commercial-contractor/` | Single-hop 301s; unchanged since the July audit | Set each source post to noindex or Draft so it leaves `post-sitemap.xml`. The redirect rule keeps working. | safe (sitemap hygiene) |
+| Sitemap posts that 301 | `/texas-commercial-building-costs-guide/`, `/dental-office-construction-cost-guide/`, `/the-cost-of-a-tenant-build-out-per-square-foot/`, `/choose-a-commercial-contractor/` | Single-hop 301s; unchanged since the July audit | Set each source post to noindex or Draft so it leaves `post-sitemap.xml`. The redirect rule keeps working. | safe (sitemap hygiene; single posts, not a portfolio/location batch) |
 | Wrong redirect target | `/choose-a-commercial-contractor/` → `/services/architectural-design-and-engineering/` | Intent mismatch | Repoint to `/choosing-commercial-general-contractor-guide/` | gated (301) |
 | Canonical loop | `/latest-news-updates/` | [V] canonical = `/blog__trashed/latest-news-updates/`, which 301s back. The page has 8 words. | Re-parent it off the trashed `blog` page and clear the Yoast canonical, or noindex it | safe (noindex) |
 | `index, nofollow` | `/client-resources/project-planning-guide/` (15 words) | meta robots | Add content and set it to `index, follow`, or noindex it | safe |
@@ -308,12 +311,12 @@ Also Ask.
    - Hotel guide (and the other pages): `/design-build-services/` → `/services/design-and-build/`
      and `/preconstruction-services/` → `/services/preconstruction/`.
    - Remove the 4 `/tag/` links.
-   - Repoint the homepage's 7 redirecting links to their final URLs.
+   - Repoint the homepage's 7 redirecting links to their final URLs (`/` is `do_not_touch`: operator override needed).
    - Fix the blog-list widget so it stops linking the redirected zero-punch-list post.
    - Hide the date-archive links.
 3. **Take the thin taxonomy pages out of the index.** Set `project-type` and `project-attributes`
    to "Show in search results: Off" in Yoast (safe, sitemap hygiene; 19 URLs). Noindexing the
-   utility pages is also safe. Portfolio noindex vs enrichment is a **gated** decision.
+   utility pages is also safe (not a portfolio/location batch). Portfolio noindex vs enrichment is a **gated** decision.
 4. **Put a real person behind the content.** Replace "Reviewed by the Maxx Builders
    construction management team" with a named reviewer, and set the schema `author` to a Person
    on the 3 Harris Khan posts first.
@@ -330,13 +333,16 @@ Also Ask.
 7. **Apply the queued metadata backlog in small batches,** per the production-only policy:
    backup/export → small approved batch → verify rendering.
    - Batch 2 and the E/E-tail rows were generated 2026-07-06, so re-run the drift check first.
-     `wp:apply` escalates any row whose live value ≠ `base_value`.
+     `wp:apply` escalates a title/description row whose live value differs from `base_value`;
+     `post_content` rows (packs/wordpress/apply.mjs) and rows with a null `base_value` (for example
+     canonicals) are not drift-checked. This matters because the scaffolding removal is a
+     `post_content` edit.
    - Drop or rewrite the 2 queued titles that would deepen overlap: the warehouse and
      design-build streamlining rows.
 8. **Internal linking for money pages** (safe):
    - ≥3 contextual links per service and city page: service → industry pages and case studies;
      city → its city cost guide.
-   - Add `/industries/*` to the nav or homepage.
+   - Add `/industries/*` to the nav (the homepage is `do_not_touch`).
    - On the statewide guide, add a metro summary table linking each city cost page.
 9. **Rebuild the city and industry pages around delivered projects:**
    - project tiles with sq ft
@@ -362,10 +368,10 @@ Also Ask.
     general-contracting, hotel guide). Raise the WP Rocket cache lifetime and enable preload so
     crawlers rarely hit the origin. Field CWV was not measured here.
 15. Schema: keep the full Organization node on `/` only, and reference it by `@id` elsewhere
-    (currently it is on 241/241 pages). Give the kept location pages a GeneralContractor node
+    (currently it is on 241/241 pages; `/` is `do_not_touch`: operator override needed). Give the kept location pages a GeneralContractor node
     with NAP matching the visible text. Remove the duplicate FAQPage blocks there. Add
     FAQPage to design-build and mock-up.
-16. Filler: fix the homepage placeholder image and the Austin featured-image alt.
+16. Filler: fix the homepage placeholder image (`/` is `do_not_touch`: operator override needed) and the Austin featured-image alt.
 17. Car wash Dallas project claim: confirm it or remove it.
 
 ## Unverified / limits
@@ -386,7 +392,7 @@ Also Ask.
   `/sitemap_index.xml` plus 7 child sitemaps (238 URLs).
 - Throttled curl GETs of every sitemap URL and 111 additional link targets: status, redirects,
   canonical, robots, and TTFB.
-- 173 non-portfolio pages parsed from raw HTML, and 42 Firecrawl-rendered (home, services,
+- 173 non-portfolio pages parsed from raw HTML, and 42 Firecrawl-rendered (the 4 additional pages are not itemized in this report; home, services,
   industries, locations, city pages, the 12 cluster primaries, and utility pages).
 - 30 Firecrawl searches (15 target queries and 15 gap checks) and 59 scraped SERP pages,
   including terrapincg.com, jdj-consulting.com, hvs.com, arcodb.com, greystoneconstruction.com,
