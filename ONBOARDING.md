@@ -23,8 +23,8 @@ this system writes to over an API.
 | Sensing | Google Search Console (`googleapis`) + sitemap/CrUX diffs | [scripts/](scripts/) `sensor-*.mjs` |
 | Validation | `zod`, `marked`, hand-rolled deterministic guards | [scripts/validators/](scripts/validators/), [scripts/](scripts/) `check-*.mjs` |
 | CI/CD | 8 GitHub Actions workflows | [.github/workflows/](.github/workflows/) |
-| Model routing | Haiku (judge/sensors) · Sonnet (orchestrator) · Opus (planning) | Set via `ORCHESTRATOR_MODEL` env, **not** hardcoded |
-| Tests | Node's built-in `node:test` runner | `npm test` → 34 test files in [test/](test/) |
+| Model routing | Haiku 4.5 (eval judge) · Sonnet 4.6 (orchestrator, subagents, citation analyst) · Opus manual-only (ADR-003) | Hardcoded defaults; override via `ORCHESTRATOR_MODEL` / `JUDGE_MODEL` |
+| Tests | Node's built-in `node:test` runner | `npm test` → 32 test files in [test/](test/) |
 
 ## Architecture
 
@@ -130,7 +130,7 @@ Trace `npm run orchestrate`:
 
 - **Files:** kebab-case `.mjs`; module header comment explaining *why the seam exists*,
   not just what it does. Tests are `test/<module>.test.mjs` using `node:test`.
-- **Dependency injection:** functions take `(args, deps = {})` where `deps` defaults to
+- **Dependency injection:** functions take an injectable trailing argument (a `deps = {}` object in `run.mjs`/`preflight.mjs`; a single `exec`/`client` default in `git-delivery.mjs`/`supabase.mjs`) that defaults to
   real implementations — this is the dominant testability pattern; follow it for anything
   with I/O.
 - **Error handling:** never swallow. Every `.catch()` logs+exits or re-throws. Seam

@@ -62,8 +62,9 @@ See `.claude/rules/workflow.md` and `.claude/rules/technical-defaults.md`.
   (`node --test`). Tests live in `test/<module>.test.mjs` — one suite per module,
   matching the source file name.
 - **Dependency injection is the house style.** Modules with I/O (DB, git, network) take
-  an injectable second argument: `export async function fn(args, deps = {})` where `deps`
-  destructures to the real implementations by default and tests pass fakes. This is why
+  an injectable trailing argument that defaults to the real implementation and that tests
+  replace with fakes: a `deps = {}` object in `run.mjs`/`preflight.mjs`, a single
+  `exec`/`client` default in `git-delivery.mjs`/`supabase.mjs`. This is why
   `run.mjs`, `preflight.mjs`, `git-delivery.mjs`, and `supabase.mjs` are exercisable with
   no network or process exit. Follow this pattern for any new module that touches I/O —
   do not reach for global mocks.
