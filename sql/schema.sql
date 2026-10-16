@@ -18,7 +18,7 @@ create table if not exists work_queue (
   task        text,                         -- which kit skill to run
   risk_class  text default 'safe',          -- safe | gated
   priority    int  default 0,
-  status      text default 'pending',       -- pending | in_progress | done | escalated | skipped-dnt
+  status      text default 'pending',       -- pending | in_progress | done | escalated | cancelled | skipped-dnt
   source      text,                         -- gsc | sitemap | deploy | citation | manual
   created_at  timestamptz default now(),
   unique (url, task, status)
@@ -52,6 +52,12 @@ alter table decision_log add column if not exists change_type text;
 
 -- work_queue gains linear_issue_id so escalated items mirror to Linear idempotently (safe on re-run)
 alter table work_queue add column if not exists linear_issue_id text;
+
+-- work_queue gains linear_closed_at: the reverse idempotency guard for the queue→Linear
+-- close-path (close-escalations.mjs). A terminal-status row (done/cancelled) that carries a
+-- linear_issue_id has a stale Linear ticket; the close-path closes it once, then stamps this
+-- column so re-runs skip it — mirroring the linear_issue_id "already mirrored" guard. Safe on re-run.
+alter table work_queue add column if not exists linear_closed_at timestamptz;
 
 -- sitemap diff state
 create table if not exists sitemap_seen (
