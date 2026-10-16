@@ -70,8 +70,8 @@ See `.claude/rules/workflow.md` and `.claude/rules/technical-defaults.md`.
 - Never modify `.github/workflows/` or `sql/schema.sql` without stating why — both are
   shared infrastructure with downstream CI dependencies.
 - Never modify the orchestrator's goal prompt (`orchestrator/goal.mjs`) without
-  understanding the eval-gate judge criteria — the judge scores the diff; a prompt change can change what
-  the agent produces and fail the gate.
+  understanding the eval-gate judge criteria — the judge scores the diff; a prompt
+  change can change what the agent produces and fail the gate.
 - Always validate JSON-LD after any edit to `schema/*.jsonld`:
   `node scripts/validate-json.mjs schema/file.jsonld` (the path is passed as an argument,
   not interpolated into evaluated code — see the REC-1 command-injection fix).
