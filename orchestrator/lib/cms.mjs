@@ -7,9 +7,10 @@ import { logDecision, doNotTouch } from "./supabase.mjs";
 import { isProtected } from "./url.mjs";
 import { scanPlaceholders } from "../../scripts/validators/content-guards.mjs";
 
-// supabase-js returns { error } instead of throwing, so approvedRows and snapshot check it:
-// a swallowed select error would report a broken run as "applied 0", and a swallowed
-// snapshot error would let a live write proceed with no rollback snapshot.
+// supabase-js returns { error } instead of throwing, so every apply/recovery-path call
+// checks it: a swallowed select error would report a broken run as "applied 0" (or
+// "nothing staged"), a swallowed snapshot error would let a live write proceed with no
+// rollback snapshot, and a swallowed status update would leave a written row "approved".
 export async function approvedRows(platform, limit = 200, client = db) {
   const { data, error } = await client.from("change_set").select("*")
     .eq("platform", platform).eq("status", "approved").limit(limit);
@@ -17,9 +18,10 @@ export async function approvedRows(platform, limit = 200, client = db) {
   return data ?? [];
 }
 
-export async function stagedRows(platform, limit = 200) {   // webflow: applied-but-unpublished
-  const { data } = await db.from("change_set").select("*")
+export async function stagedRows(platform, limit = 200, client = db) {   // webflow: applied-but-unpublished
+  const { data, error } = await client.from("change_set").select("*")
     .eq("platform", platform).eq("status", "applied").limit(limit);
+  if (error) throw new Error(`stagedRows failed: ${error.message}`);
   return data ?? [];
 }
 
@@ -36,14 +38,17 @@ export function drifted(row, current) {
   return row.base_value != null && String(current) !== String(row.base_value);
 }
 
-export async function setStatus(id, status, extra = {}) {
-  await db.from("change_set").update({ status, ...extra }).eq("id", id);
+export async function setStatus(id, status, extra = {}, client = db) {
+  const { error } = await client.from("change_set").update({ status, ...extra }).eq("id", id);
+  if (error) throw new Error(`setStatus failed: ${error.message}`);
 }
 
-export async function latestSnapshot(platform, page_id, field) {
-  const { data } = await db.from("snapshots").select("old_value")
+// null means "no snapshot exists"; a read failure throws, so rollbackRow can't confuse the two.
+export async function latestSnapshot(platform, page_id, field, client = db) {
+  const { data, error } = await client.from("snapshots").select("old_value")
     .eq("platform", platform).eq("page_id", page_id).eq("field", field)
     .order("captured_at", { ascending: false }).limit(1).maybeSingle();
+  if (error) throw new Error(`latestSnapshot failed: ${error.message}`);
   return data?.old_value ?? null;
 }
 
@@ -69,8 +74,8 @@ const defaultStore = { snapshot, setStatus, logDecision, latestSnapshot, latestA
 // The apply loop body, run once per approved row. The adapter owns all platform I/O
 // (supports/read/write/verify) and the per-platform audit labels (narrate.*); this
 // owns the invariant lifecycle — snapshot → drift gate → write → status + decision-log —
-// with a single failure path. Returns "applied" | "escalated" | "failed" so the caller
-// can tally a summary.
+// with a single failure path. Returns "applied" | "escalated" | "failed" |
+// "applied_unrecorded" (written live, status update failed) so the caller can tally a summary.
 export async function applyRow(row, adapter, store = defaultStore, opts = {}) {
   try {
     // Apply-boundary do_not_touch gate (REC-5/AH1): even if a protected URL slips past the
@@ -134,7 +139,21 @@ export async function applyRow(row, adapter, store = defaultStore, opts = {}) {
     await adapter.write(row);
     if (adapter.verify) await adapter.verify(row);
 
-    await store.setStatus(row.id, "applied", { applied_at: new Date().toISOString() });
+    // SEO-14 decision point: the live write has happened, so a failure to record it must
+    // not fall through to the catch below and mark the row "failed" — that would tell the
+    // operator the page is unchanged when it isn't. Nor may it be swallowed as "applied".
+    // It is reported as "applied_unrecorded": decision_log says the change is live (if the
+    // log write gets through), stderr names the row, and applyExitCode fails the run.
+    // While the row stays "approved", the next seo-apply-cms run re-reads the now-written
+    // value, snapshots it (masking the true pre-change value for rollback), then the drift
+    // gate escalates the row (current !== base_value) — or, for a non-drift-checkable
+    // field, rewrites the same value. Hence the alert tells the operator to set the status
+    // by hand before then.
+    try {
+      await store.setStatus(row.id, "applied", { applied_at: new Date().toISOString() });
+    } catch (err) {
+      return recordUnrecorded(row, adapter, store, err, opts.error ?? console.error);
+    }
     await store.logDecision({ url: row.url, action: "applied", risk_class: "safe", ...adapter.narrate.applied(row) });
     return "applied";
   } catch (err) {
@@ -144,21 +163,46 @@ export async function applyRow(row, adapter, store = defaultStore, opts = {}) {
   }
 }
 
+// The write is live but change_set still says "approved". Alert on stderr first (the DB
+// may be the thing that's down), then best-effort record it in decision_log.
+async function recordUnrecorded(row, adapter, store, err, error) {
+  error(`APPLIED BUT STATUS UNRECORDED: change_set ${row.id} (${row.url} ${row.field}) was written live, ` +
+    `but its status is still 'approved' (${err.message}). Set it to 'applied' by hand before the next ` +
+    `seo-apply-cms run, or that run will re-snapshot the new value and escalate it as drift.`);
+  const applied = adapter.narrate.applied(row);
+  try {
+    await store.logDecision({
+      url: row.url, action: "applied", risk_class: "safe", ...applied,
+      reason: `${applied.reason}; status unrecorded: ${err.message}`,
+    });
+  } catch (logErr) {
+    error(`decision_log write also failed for change_set ${row.id}: ${logErr.message}`);
+  }
+  return "applied_unrecorded";
+}
+
 // Runs applyRow over every approved row for the adapter's platform and tallies the
 // outcomes. Each pack's main() prints its own platform-specific summary line.
 // rows + store are injectable so the loop is testable without a DB.
-export async function applyRows(adapter, { rows, store = defaultStore } = {}) {
+export async function applyRows(adapter, { rows, store = defaultStore, error } = {}) {
   const list = rows ?? await approvedRows(adapter.platform);
   // One do_not_touch lookup for the whole batch, threaded into each applyRow.
   const protectedUrls = await (store.doNotTouch ?? doNotTouch)();
-  const tally = { applied: 0, escalated: 0, failed: 0 };
+  const tally = { applied: 0, escalated: 0, failed: 0, unrecorded: 0 };
   for (const row of list) {
-    const outcome = await applyRow(row, adapter, store, { protectedUrls });
+    const outcome = await applyRow(row, adapter, store, { protectedUrls, error });
     if (outcome === "applied") tally.applied++;
     else if (outcome === "escalated") tally.escalated++;
+    else if (outcome === "applied_unrecorded") tally.unrecorded++;
     else tally.failed++;
   }
   return tally;
+}
+
+// A pack run exits non-zero when any live write went unrecorded: change_set no longer
+// matches what is live, and the next scheduled run would act on stale state.
+export function applyExitCode(tally) {
+  return tally.unrecorded > 0 ? 1 : 0;
 }
 
 // Restores a field to its snapshotted pre-change value through the adapter — so it

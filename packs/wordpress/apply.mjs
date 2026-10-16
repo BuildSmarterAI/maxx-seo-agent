@@ -8,7 +8,7 @@
 //
 // env: WP_BASE_URL, WP_USER, WP_APP_PASSWORD, SEO_PLUGIN=yoast|rankmath
 import { fileURLToPath } from "node:url";
-import { applyRows, logDecision } from "../../orchestrator/lib/cms.mjs";
+import { applyRows, applyExitCode, logDecision } from "../../orchestrator/lib/cms.mjs";
 import { wp, BASE, AUTH } from "./http.mjs";
 import { keysFor } from "./seo-keys.mjs";
 
@@ -75,8 +75,10 @@ export const wordpressAdapter = {
 };
 
 async function main() {
-  const { applied, escalated, failed } = await applyRows(wordpressAdapter);
-  console.log(`WordPress apply — applied ${applied}, escalated ${escalated}, failed ${failed}`);
+  const tally = await applyRows(wordpressAdapter);
+  const { applied, escalated, failed, unrecorded } = tally;
+  console.log(`WordPress apply — applied ${applied}, escalated ${escalated}, failed ${failed}, applied-but-status-unrecorded ${unrecorded}`);
+  process.exitCode = applyExitCode(tally);
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {

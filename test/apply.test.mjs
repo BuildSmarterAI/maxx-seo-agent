@@ -390,13 +390,13 @@ test("applyRows tallies applied / escalated / failed across injected rows", asyn
     { id: 3, url: "/c", field: "title", new_value: "c", base_value: "x", _throw: true, risk_class: "safe" },   // failed
   ];
   const tally = await applyRows(a, { rows, store });
-  assert.deepEqual(tally, { applied: 1, escalated: 1, failed: 1 });
+  assert.deepEqual(tally, { applied: 1, escalated: 1, failed: 1, unrecorded: 0 });
 });
 
 test("applyRows returns zero counts for an empty row set", async () => {
   const store = fakeStore();
   const tally = await applyRows(fakeAdapter(), { rows: [], store });
-  assert.deepEqual(tally, { applied: 0, escalated: 0, failed: 0 });
+  assert.deepEqual(tally, { applied: 0, escalated: 0, failed: 0, unrecorded: 0 });
 });
 
 test("applyRows fetches do_not_touch once for the batch and escalates protected rows", async () => {
@@ -409,7 +409,7 @@ test("applyRows fetches do_not_touch once for the batch and escalates protected 
     { id: 2, url: "/b", field: "title", new_value: "b", base_value: "x", risk_class: "safe" },   // protected -> escalated
   ];
   const tally = await applyRows(a, { rows, store });
-  assert.deepEqual(tally, { applied: 1, escalated: 1, failed: 0 });
+  assert.deepEqual(tally, { applied: 1, escalated: 1, failed: 0, unrecorded: 0 });
   assert.equal(dntCalls, 1);   // one lookup for the whole batch, not per row
 });
 
@@ -480,10 +480,14 @@ test("rollbackRow throws on an unsupported field", async () => {
 // supabase-js does not throw on a failed insert/select; it returns { error }. A swallowed
 // snapshot error means a live write with no rollback snapshot, and a swallowed select
 // error makes a broken run report "applied 0" as success.
-const { snapshot, approvedRows } = await import("../orchestrator/lib/cms.mjs");
+const { snapshot, approvedRows, setStatus, latestSnapshot, stagedRows, applyExitCode } =
+  await import("../orchestrator/lib/cms.mjs");
 
+// A thenable query builder: every chain method returns the builder, and awaiting it at
+// any point resolves to `result` — the same shape supabase-js builders have.
 function fakeDb(result) {
-  const q = { select: () => q, eq: () => q, limit: async () => result, insert: async () => result };
+  const q = { then: (res, rej) => Promise.resolve(result).then(res, rej) };
+  for (const m of ["select", "eq", "in", "order", "limit", "maybeSingle", "insert", "update"]) q[m] = () => q;
   return { from: () => q };
 }
 
@@ -510,4 +514,84 @@ test("approvedRows throws on a query error instead of returning [] (no vacuous '
 test("approvedRows returns rows on success", async () => {
   const rows = await approvedRows("wordpress", 200, fakeDb({ data: [{ id: 1 }], error: null }));
   assert.deepEqual(rows, [{ id: 1 }]);
+});
+
+// ---- SEO-14: setStatus / latestSnapshot / stagedRows fail closed ----
+test("setStatus throws on an update error (a live write must not leave the row 'approved' silently)", async () => {
+  await assert.rejects(
+    () => setStatus(1, "applied", {}, fakeDb({ error: { message: "connection reset" } })),
+    /^Error: setStatus failed: connection reset$/,
+  );
+});
+
+test("setStatus resolves when the update succeeds", async () => {
+  await setStatus(1, "applied", {}, fakeDb({ error: null }));
+});
+
+test("latestSnapshot throws on a read error instead of returning null ('no snapshot' would be a lie)", async () => {
+  await assert.rejects(
+    () => latestSnapshot("wordpress", "1", "title", fakeDb({ data: null, error: { message: "JWT expired" } })),
+    /^Error: latestSnapshot failed: JWT expired$/,
+  );
+});
+
+test("latestSnapshot returns old_value, or null when there is genuinely no snapshot", async () => {
+  assert.equal(await latestSnapshot("wordpress", "1", "title", fakeDb({ data: { old_value: "OLD" }, error: null })), "OLD");
+  assert.equal(await latestSnapshot("wordpress", "1", "title", fakeDb({ data: null, error: null })), null);
+});
+
+test("stagedRows throws on a read error instead of returning [] (no vacuous 'nothing staged')", async () => {
+  await assert.rejects(
+    () => stagedRows("webflow", 200, fakeDb({ data: null, error: { message: "JWT expired" } })),
+    /^Error: stagedRows failed: JWT expired$/,
+  );
+});
+
+test("stagedRows returns rows on success", async () => {
+  assert.deepEqual(await stagedRows("webflow", 200, fakeDb({ data: [{ id: 7 }], error: null })), [{ id: 7 }]);
+});
+
+test("rollbackRow: a snapshot READ failure is reported as such, not as 'no snapshot found', and writes nothing", async () => {
+  const store = fakeStore();
+  store.latestSnapshot = (p, id, f) => latestSnapshot(p, id, f, fakeDb({ data: null, error: { message: "JWT expired" } }));
+  const a = fakeAdapter();
+  await assert.rejects(
+    () => rollbackRow(a, { page_id: "p1", field: "title" }, store),
+    (err) => /latestSnapshot failed: JWT expired/.test(err.message) && !/no snapshot/i.test(err.message),
+  );
+  assert.deepEqual(a.writes, []);
+});
+
+test("applyRow: setStatus failing AFTER the live write -> 'applied_unrecorded', never 'failed' and never silent 'applied'", async () => {
+  const store = fakeStore();
+  const real = store.setStatus;
+  store.setStatus = async (id, status, extra) => {
+    if (status === "applied") return setStatus(id, status, extra, fakeDb({ error: { message: "connection reset" } }));
+    return real(id, status, extra);
+  };
+  const errs = [];
+  const a = fakeAdapter({ read: async () => "old" });
+  const row = { id: 21, url: "/u", field: "title", new_value: "new", base_value: "old", risk_class: "safe" };
+  const outcome = await applyRow(row, a, store, { error: (m) => errs.push(m) });
+  assert.equal(outcome, "applied_unrecorded");
+  assert.deepEqual(a.writes, ["new"]);                                    // the write DID happen
+  assert.equal(store.calls.status.some((s) => s.status === "failed"), false); // not mislabelled failed
+  const log = store.calls.log.at(-1);
+  assert.equal(log.action, "applied");                                    // audit trail says it is live
+  assert.match(log.reason, /status unrecorded.*setStatus failed: connection reset/);
+  assert.match(errs.join("\n"), /change_set 21.*still 'approved'/);       // operator alert on stderr
+});
+
+test("applyRows tallies applied_unrecorded and applyExitCode makes the run exit non-zero", async () => {
+  const store = fakeStore();
+  store.setStatus = async (id, status) => { if (status === "applied" && id === 2) throw new Error("setStatus failed: x"); };
+  const a = fakeAdapter({ read: async (row) => row.base_value });
+  const rows = [
+    { id: 1, url: "/a", field: "title", new_value: "a", base_value: "x", risk_class: "safe" },
+    { id: 2, url: "/b", field: "title", new_value: "b", base_value: "x", risk_class: "safe" },
+  ];
+  const tally = await applyRows(a, { rows, store, error: () => {} });
+  assert.deepEqual(tally, { applied: 1, escalated: 0, failed: 0, unrecorded: 1 });
+  assert.equal(applyExitCode(tally), 1);
+  assert.equal(applyExitCode({ applied: 3, escalated: 1, failed: 1, unrecorded: 0 }), 0);
 });
