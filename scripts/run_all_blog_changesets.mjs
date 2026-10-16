@@ -56,9 +56,11 @@ for (const post of POSTS) {
     base_value: null,
     new_value: html,
     change_type: 'blog-write',
-    // M3: stage pending, not approved. post_content is not drift-checkable, and the nightly
-    // apply-cms cron auto-applies APPROVED rows to a no-staging prod site — so a human must
-    // flip these to approved (the ADR-005 gate) before they can go live.
+    // M3: stage pending, not approved. post_content rows are compared raw-to-raw at apply
+    // time (cms.applyRow), and this script stages them with base_value null, so they will
+    // escalate as "missing baseline" until a raw baseline is captured. The nightly apply-cms
+    // cron auto-applies APPROVED rows to a no-staging prod site, so a human must flip these
+    // to approved (the ADR-005 gate) before they can go live.
     status: 'pending',
   });
   console.log(`  ✓ ${post.page_id} → ${post.slug}`);

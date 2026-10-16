@@ -23,8 +23,9 @@ opens with "In today's market..." gives them nothing to lift.
 4. Place it immediately under the H1, above any existing intro. Format as a short paragraph,
    optionally followed by a tight bulleted breakdown if the answer has parts.
 5. Preserve everything below — this is additive restructuring, not a rewrite.
-6. Emit a `change_set` row: `platform`, `page_id`, `field='content'`, `base_value` = current
-   intro (drift baseline), `new_value` = answer block + original body.
+6. Emit a `change_set` row: `platform`, `page_id`, `field='post_content'`, `base_value` = the
+   unmodified full `content.raw` captured in step 1 (copy it mechanically from the read output;
+   do not retype it), `new_value` = the full edited body.
 
 ## Hard rules
 - Never change the H1 or URL.
