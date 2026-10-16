@@ -93,7 +93,7 @@ v0.7.0, **bundling the adapter as a Composer library is deprecated: install the 
 ([installation.md](https://github.com/WordPress/mcp-adapter/blob/trunk/docs/getting-started/installation.md)):
 
 ```bash
-wp plugin install https://github.com/WordPress/mcp-adapter/releases/latest/download/mcp-adapter.zip --activate
+wp plugin install https://github.com/WordPress/mcp-adapter/releases/download/v0.7.0/mcp-adapter.zip --activate
 ```
 
 On activation the plugin creates the **default server** (ID `mcp-adapter-default-server`) at
@@ -376,13 +376,13 @@ say `wp mcp serve`. The registration code and the guide both say `mcp-adapter`, 
 3. Use **local-scope** Claude Code config only. Never add it to the committed `.mcp.json`
    (see Fit below). Deny `mcp__wordpress-ro__mcp-adapter-execute-ability` until the mu-plugin
    has been verified.
-4. Pin the adapter and proxy versions. Re-run `wp mcp-adapter list` and a `discover` call after
+4. Pin the adapter and proxy versions. Re-run an authenticated `discover` call after
    every plugin update, to re-check what is exposed.
 
 ## Live probe (2026-10-14, unauthenticated GET only)
 
 Method: `curl` GETs against public routes, without credentials. No POST requests were sent
-and the MCP endpoint was not called.
+and the MCP endpoint received only an unauthenticated GET.
 
 | Probe | Result |
 |---|---|
@@ -398,13 +398,13 @@ Recommendation 1 below ("do not install") is therefore about the current state, 
 choice. It is unknown who enabled it, whether it is the `mcp-adapter` plugin or a feature
 bundled with WP 7.x, and which abilities it exposes. All of that needs an authenticated read.
 Anyone holding an Editor-or-higher Application Password may already be able to run any
-MCP-public ability, including `yoast-seo/update-post-seo-data` if Yoast ≥ 28.6. That
+MCP-public ability whose permission_callback an Editor passes, including `yoast-seo/update-post-seo-data` if Yoast ≥ 28.6. That
 outcome is an inference and is unverified.
 
-**Read-only verification (an operator runs this; the credential never enters Claude Code):**
+**Read-only partial check: lists only show_in_rest abilities; MCP-only abilities need an authenticated mcp-adapter-discover-abilities call (an operator runs this; the credential never enters Claude Code):**
 
 ```bash
-node --env-file=.env -e "const b=process.env.WP_BASE_URL.replace(/[/]$/,''),h={Authorization:'Basic '+Buffer.from(process.env.WP_USER+':'+process.env.WP_APP_PASSWORD).toString('base64')};fetch(b+'/wp-json/wp-abilities/v1/abilities?per_page=100',{headers:h}).then(async r=>{const j=await r.json();console.log(r.status);if(Array.isArray(j))for(const a of j)console.log(a.name,'readonly='+Boolean(a.meta?.annotations?.readonly),'mcp_public='+Boolean(a.meta?.mcp?.public))})"
+node --env-file=.env -e "const b=process.env.WP_BASE_URL.replace(/[/]$/,''),h={Authorization:'Basic '+Buffer.from(process.env.WP_USER+':'+process.env.WP_APP_PASSWORD).toString('base64')};fetch(b+'/wp-json/wp-abilities/v1/abilities?per_page=100',{headers:h}).then(async r=>{const j=await r.json();console.log(r.status);if(Array.isArray(j))for(const a of j)console.log(a.name,'readonly='+Boolean(a.meta?.annotations?.readonly),'mcp_public='+Boolean(a.meta?.mcp?.public ?? a.meta?.public))})"
 ```
 
 Then a WP Admin (not the Editor credential) checks **Plugins** for "MCP Adapter" and confirms
@@ -422,7 +422,7 @@ batches. The site is production-only (root `CLAUDE.md`).
 - **It would bypass it.** An MCP client calling `execute-ability` →
   `yoast-seo/update-post-seo-data` writes straight to production. There is no `change_set`
   row, no pre-write export, no batch limit, and no `rollback.mjs` snapshot. This is the same
-  class of action that `workflow.md` classifies as "safe but PR-gated". MCP has **no
+  class of action that `workflow.md` classifies as `safe` and that ADR-005 routes through `change_set` approval. MCP has **no
   human-approval step on the WordPress side**; the only gate is Claude Code's per-tool prompt,
   and auto mode or headless runs can skip it.
 - **A related finding that matters now, even without MCP.** Because Yoast 28.6+ marks
@@ -432,7 +432,8 @@ batches. The site is production-only (root `CLAUDE.md`).
   documented write surface for Yoast meta beside `seo-rest-bridge.php`. **This is an inference
   from source only.** It depends on the live site's Yoast version and was not probed. A
   read-only `GET /wp-json/wp-abilities/v1/abilities` with the existing credential would
-  confirm it. If it holds, it may be a cleaner, Yoast-documented replacement for the custom
+  show whether it is registered for REST; whether the Editor passes its permission_callback
+  stays unverified. If it holds, it may be a cleaner, Yoast-documented replacement for the custom
   bridge, which fits ADR-008's "documented Yoast surfaces only" rule. That is worth its own
   spike.
 - **The headless trap.** The orchestrator runs the Agent SDK with
@@ -449,7 +450,8 @@ batches. The site is production-only (root `CLAUDE.md`).
 **Recommendation:**
 
 1. **Now:** the adapter endpoint is already live (see the Live probe). Run the read-only
-   abilities listing. Have a WP Admin confirm whether the adapter was enabled on purpose. If
+   abilities listing (a partial check: REST-registered abilities only; add an authenticated
+   `discover` call for MCP-only abilities). Have a WP Admin confirm whether the adapter was enabled on purpose. If
    not, deactivate it or restrict it to read-only abilities via `wp_register_ability_args`.
    Deactivating is a production change: back up first, per root `CLAUDE.md`. Keep
    `change_set` → `npm run wp:apply` as the only write path.
