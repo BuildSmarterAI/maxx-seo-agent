@@ -82,11 +82,11 @@ See `.claude/rules/workflow.md` and `.claude/rules/technical-defaults.md`.
 ## Parallel Session Operating Model
 
 **Scope: interactive sessions.** Skip this section when `orchestrator/run.mjs` started
-you: your prompt says "You are the SEO orchestrator", or you are its subagent assigned
-one queue URL. Your goal prompt and `.claude/rules/workflow.md` govern you. Where present,
-`~/.claude/docs/parallel-session-doctrine.md` (preflight detail, completion contract,
-lane utilities) and `~/.claude/docs/review-doctrine.md` (review ownership, finding
-disposition) add detail; the rules below stand without them.
+you: you are the SEO orchestrator working the `work_queue`, or a subagent it dispatched
+to fix one URL. Your goal prompt and `.claude/rules/workflow.md` govern you. Where
+present, read `~/.claude/docs/parallel-session-doctrine.md` before starting or closing a
+lane, and `~/.claude/docs/review-doctrine.md` before judging merge readiness; the rules
+below stand without them.
 
 ### Repository boundary
 
@@ -103,10 +103,12 @@ disposition) add detail; the rules below stand without them.
 ### Lanes
 
 - A **lane** is one Linear `SEO` ticket, one implementation owner, one branch
-  (`<type>/seo-<n>-<slug>`), one worktree (`C:\dev\wt-maxx-seo-agent-<slug>`), one PR.
-  The orchestrator's `seo/auto-*` branches are its own; interactive lanes never use that
-  prefix. The main checkout is the **control plane**: coordination, inspection,
-  integration.
+  (`<type>/seo-<n>-<slug>`; research lanes `research/<slug>`), one worktree
+  (`C:\dev\wt-maxx-seo-agent-<slug>`), one PR. The `seo/auto-*` prefix belongs to the
+  orchestrator alone. The main checkout is the **control plane**: coordination,
+  inspection, integration.
+- The coordinator claims an implementation ticket (assign, move to `In Progress`) before
+  its branch is cut.
 - Before an implementation session's first edit, read toplevel, branch,
   `git status --short`, HEAD and `git worktree list`. Stop and report when the toplevel is
   the control plane, the branch is `main`, dirty files are unexplained, or another live
@@ -129,7 +131,7 @@ disposition) add detail; the rules below stand without them.
 | Coordinator (control plane) | Assignments, dependencies, blockers, Linear status, integration order; one implementation owner per ticket | Feature code; dismissing a review finding without a recorded disposition |
 | Planner / Architect | Evidence-backed plans, contracts, task boundaries, acceptance criteria, validation steps | Implementing, dispatching, merging, applying; changing an active worker's scope |
 | Worker | One lane: implementation, its tests, a reviewable handoff | Other worktrees, merging, applying; scope growth not raised with the coordinator |
-| Reviewer | Independent review of a named base..head SHA; findings with evidence; unverified behavior named | Editing the implementation, merging, applying |
+| Reviewer | Independent review of a named base..head SHA for requirements, correctness, security, regression risk and validation evidence; findings with evidence; unverified behavior named | Editing the implementation, merging, applying |
 | QA / Release verifier | Integrated behavior, critical flows, integration boundaries | Production writes, applying, fixing code, unless separately authorized |
 | Research (planner or specialist) | Sourced findings and recommendations | Application code, assigning work |
 
@@ -140,12 +142,13 @@ is an apply.
 ### Tracking
 
 - Linear team `SEO` owns assignments, decisions, dependencies and ticket status. The
-  GitHub PR owns the diff, reviews and validation evidence. Link both ways: `SEO-<n>` in
-  branch and PR title, PR URL on the ticket. Tracker conventions:
-  `docs/agents/issue-tracker.md` (added by PR #103).
-- The PR description records: ticket, owner and role, plan reference, base and head SHA,
-  scope and dependencies, acceptance criteria, validation commands with the output read,
-  review dispositions, blockers, next action.
+  GitHub PR owns the diff, reviews and validation evidence. Link implementation tickets
+  both ways: `SEO-<n>` in branch and PR title, PR URL on the ticket. `wayfinder:*`
+  tickets have no PR, and a `wayfinder:map` issue stays out of branches, PRs and commits.
+  Conventions: `docs/agents/issue-tracker.md`.
+- The PR description records: repository and ticket, owner and role, plan reference and
+  version, base and head SHA, scope and dependencies, acceptance criteria, validation
+  commands with the output read, review dispositions, blockers, next action.
 
 ### Review, integration, authority
 
@@ -154,7 +157,8 @@ is an apply.
 - The coordinator owns integration: order, readiness disposition, and re-running
   `npm test` on `main` after each merge. Green branches do not prove the combination.
 - Execution of a merge, CMS apply or publish follows existing policy (`main` branch
-  protection, `seo-auto-merge` for `seo-auto` PRs, ADR-0002, root `CLAUDE.md` apply rules)
+  protection, `seo-auto-merge` for `seo-auto` PRs,
+  `docs/adr/0002-human-gate-policy-for-live-actions.md`, root `CLAUDE.md` apply rules)
   and Harris's authorization. A standing authorization covers the actions it names until
   withdrawn; ask again only for actions outside it.
 - Claims that tests passed or an apply succeeded cite the command and the output read
@@ -175,7 +179,7 @@ is an apply.
 
 Everything in this section is behavioral; repository boundary, messaging, roles and one
 writer per worktree have no technical enforcement. The technical controls are narrow:
-`main` protection (required `test` and `eval-gate` checks; admins exempt; no required
-reviews), `guard-publish.sh` (pattern denylist on the Bash tool only; hooks fail open),
-and per-machine `permissions.deny` rules. A blocked spelling does not mean an equivalent
-action is blocked.
+`main` protection requires CI checks but not reviews, and admins can bypass it (as of
+2026-10-16); `guard-publish.sh` in interactive mode is a pattern denylist on the Bash
+tool only, and hooks fail open; `permissions.deny` rules are per machine. A blocked
+spelling does not mean an equivalent action is blocked.
