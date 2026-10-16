@@ -67,6 +67,8 @@ test("enqueue fetches do_not_touch itself when no protectedSet is passed", async
 
 // Returns injectable deps plus the retire/log spy logs, so tests can assert that dropped
 // rows are actually written back (cross-review 56-2) — not just filtered from the window.
+// Queue rows carry risk_class: "safe" like real pendingQueue rows (DB default) — the A8
+// dispatch risk gate escalates anything else, which is not what this section exercises.
 const okDeps = (queueRows, protectedUrls) => {
   const retired = [];
   const logged = [];
@@ -84,8 +86,8 @@ const okDeps = (queueRows, protectedUrls) => {
 
 test("preflight drops a now-protected row from the dispatch queue", async () => {
   const { deps } = okDeps(
-    [{ id: 1, url: "https://www.x.com/a", task: "seo-audit" },
-     { id: 2, url: "https://www.x.com/legal/", task: "seo-audit" }],
+    [{ id: 1, url: "https://www.x.com/a", task: "seo-audit", risk_class: "safe" },
+     { id: 2, url: "https://www.x.com/legal/", task: "seo-audit", risk_class: "safe" }],
     ["https://x.com/legal"]
   );
   const res = await check(100, 25, deps);
@@ -95,7 +97,7 @@ test("preflight drops a now-protected row from the dispatch queue", async () => 
 
 test("preflight stops when every pending row is do_not_touch", async () => {
   const { deps } = okDeps(
-    [{ id: 1, url: "https://x.com/legal/", task: "seo-audit" }],
+    [{ id: 1, url: "https://x.com/legal/", task: "seo-audit", risk_class: "safe" }],
     ["https://x.com/legal"]
   );
   const res = await check(100, 25, deps);
@@ -104,7 +106,7 @@ test("preflight stops when every pending row is do_not_touch", async () => {
 });
 
 test("preflight passes an unprotected queue through unchanged", async () => {
-  const rows = [{ id: 1, url: "https://x.com/a", task: "seo-audit" }];
+  const rows = [{ id: 1, url: "https://x.com/a", task: "seo-audit", risk_class: "safe" }];
   const { deps, retired } = okDeps(rows, []);
   const res = await check(100, 25, deps);
   assert.equal(res.ok, true);
@@ -118,8 +120,8 @@ test("preflight parks dropped rows as skipped-dnt + logs the decision (cross-rev
   // do_not_touch is the system's canonical sequence), and escalated rows get mirrored to
   // Linear with a "resolve in WordPress" narrative — an instruction to edit the protected page.
   const { deps, retired, logged } = okDeps(
-    [{ id: 7, url: "https://x.com/legal/", task: "seo-audit" },
-     { id: 8, url: "https://x.com/a", task: "seo-audit" }],
+    [{ id: 7, url: "https://x.com/legal/", task: "seo-audit", risk_class: "safe" },
+     { id: 8, url: "https://x.com/a", task: "seo-audit", risk_class: "safe" }],
     ["https://x.com/legal"]
   );
   const res = await check(100, 25, deps);
@@ -135,8 +137,8 @@ test("preflight retires the whole window when every row is protected (bulk-add s
   // every future run fetch the same rows, filter to zero, and exit — rows below the window
   // were never dispatched. Retiring the dropped rows lets the next run see a fresh window.
   const { deps, retired } = okDeps(
-    [{ id: 1, url: "https://x.com/legal/", task: "seo-audit" },
-     { id: 2, url: "https://x.com/terms/", task: "seo-audit" }],
+    [{ id: 1, url: "https://x.com/legal/", task: "seo-audit", risk_class: "safe" },
+     { id: 2, url: "https://x.com/terms/", task: "seo-audit", risk_class: "safe" }],
     ["https://x.com/legal", "https://x.com/terms"]
   );
   const res = await check(100, 25, deps);
@@ -149,7 +151,7 @@ test("a failing retire write is loud but never fatal and never logs a phantom de
   // the row simply stays pending and keeps being filtered (pre-fix behavior for that row
   // alone) — and decision_log must not record a retirement that didn't happen.
   const { deps, logged } = okDeps(
-    [{ id: 7, url: "https://x.com/legal/", task: "seo-audit" }],
+    [{ id: 7, url: "https://x.com/legal/", task: "seo-audit", risk_class: "safe" }],
     ["https://x.com/legal"]
   );
   deps.setQueueStatusById = async () => { throw new Error("duplicate key value violates unique constraint"); };

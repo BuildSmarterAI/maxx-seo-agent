@@ -10,11 +10,32 @@ import { query } from "@anthropic-ai/claude-agent-sdk";
 import { addSpend } from "./lib/supabase.mjs";
 import { check } from "./lib/preflight.mjs";
 import { startBranch, openPR, rollback } from "./lib/git-delivery.mjs";
-import { GOAL_REPO, goalCms } from "./goal.mjs";
+import { GOAL_REPO, goalCms, queueAllowlist } from "./goal.mjs";
 
 const BUDGET_USD = Number(process.env.MONTHLY_BUDGET_USD || 50);
 const PLATFORM = (process.env.SITE_PLATFORM || "repo").toLowerCase();
 const IS_CMS = PLATFORM === "wordpress" || PLATFORM === "webflow";
+
+// Hard turn ceiling for one run (SDK maxTurns). A full queue is 25 rows at a handful of
+// orchestrator turns each (dispatch, log write, mem log, mem status), so a legitimate run
+// sits well under 150 turns; 200 leaves headroom while still stopping a crash-looping
+// agent that the monthly budget would otherwise only catch on the NEXT run's preflight.
+const MAX_TURNS = Number(process.env.ORCHESTRATOR_MAX_TURNS || 200);
+
+// The SDK stops a run that crosses maxBudgetUsd and reports it as one of these result
+// subtypes. Either cap firing means the queue was NOT fully processed — treat it exactly
+// like an agent crash (rollback in repo mode), never deliver half-processed work as a PR.
+const CAP_SUBTYPES = new Set(["error_max_budget_usd", "error_max_turns"]);
+
+// Only pass maxBudgetUsd when there is a real finite headroom: preflight already refuses
+// to run at/over budget, but main() may be bypassed (tests, manual runs) and the SDK must
+// never see Infinity.
+function capOptions(headroomUsd) {
+  return {
+    maxTurns: MAX_TURNS,
+    ...(Number.isFinite(headroomUsd) ? { maxBudgetUsd: headroomUsd } : {}),
+  };
+}
 
 // Mark this process tree as the guarded autonomous agent so the PreToolUse hooks
 // (.claude/hooks/guard-publish.sh, guard-write.sh) enforce their strict allowlist + write
@@ -22,7 +43,7 @@ const IS_CMS = PLATFORM === "wordpress" || PLATFORM === "webflow";
 // set this, so a developer's own session stays unrestricted.
 process.env.SEO_AGENT_GUARDED = "1";
 
-export async function runRepo(queue, deps = {}) {
+export async function runRepo(queue, deps = {}, headroomUsd = Infinity) {
   const {
     query: runQuery = query,
     addSpend: recordSpend = addSpend,
@@ -35,16 +56,18 @@ export async function runRepo(queue, deps = {}) {
   const branch = beginBranch();
   let costUsd = 0;
   let agentFailed = false;
+  let capStopped = null;
 
   // Agent failure: roll back the branch and bail — nothing useful was produced.
   try {
     for await (const msg of runQuery({
-      prompt: GOAL_REPO,
+      prompt: GOAL_REPO + queueAllowlist(queue),
       options: {
         model: process.env.ORCHESTRATOR_MODEL || "claude-sonnet-4-6",
         allowedTools: ["Read", "Write", "Edit", "Glob", "Grep", "Bash", "Agent"],
         permissionMode: "acceptEdits",
         settingSources: ["project"],
+        ...capOptions(headroomUsd),
         agents: {
           "seo-fixer": {
             description: "Runs ONE kit skill against ONE url and validates the result.",
@@ -57,8 +80,16 @@ export async function runRepo(queue, deps = {}) {
       },
     })) {
       if (typeof msg?.total_cost_usd === "number") costUsd = msg.total_cost_usd;
+      if (CAP_SUBTYPES.has(msg?.subtype)) {
+        // Keep the SDK's own error detail (errors: string[]) for the thrown message —
+        // "which cap" alone is a poor on-call diagnostic.
+        capStopped = [msg.subtype, ...(msg.errors ?? [])].join(": ");
+      }
       if ("result" in msg) console.log(msg.result);
     }
+    // A cap stop ends the loop normally, not with a throw — rethrow it into the failure
+    // path so the branch rolls back instead of delivering half-processed work as a PR.
+    if (capStopped) throw new Error(`run stopped by SDK cap (${capStopped})`);
   } catch (err) {
     console.error("orchestrator failed, rolling back:", err?.message || err);
     revert(branch);
@@ -91,7 +122,7 @@ export async function runRepo(queue, deps = {}) {
   }
 }
 
-export async function runCms(queue, deps = {}) {
+export async function runCms(queue, deps = {}, headroomUsd = Infinity) {
   const {
     query: runQuery = query,
     addSpend: recordSpend = addSpend,
@@ -100,9 +131,13 @@ export async function runCms(queue, deps = {}) {
 
   let costUsd = 0;
   let failed = false;
+  let capStopped = null;
   console.log(`CMS mode (${PLATFORM}): writing change_set rows for ${queue.length} pending items.`);
 
   try {
+    // No queueAllowlist here (deliberate asymmetry with runRepo): a race-fetched row in
+    // CMS mode can at worst stage an extra pending change_set row, which the deterministic
+    // risk_class + do_not_touch gates in cms.mjs applyRow re-check before any live write.
     for await (const msg of runQuery({
       prompt: goalCms(PLATFORM),
       options: {
@@ -110,6 +145,7 @@ export async function runCms(queue, deps = {}) {
         allowedTools: ["Read", "Write", "Bash", "Agent"],
         permissionMode: "acceptEdits",
         settingSources: ["project"],
+        ...capOptions(headroomUsd),
         agents: {
           "seo-fixer": {
             description: "Resolves page_id + base_value via cms-read.mjs, generates the new value, writes a JSON payload FILE, returns its path. Never builds shell strings from data; never writes to the CMS directly.",
@@ -150,8 +186,17 @@ Never write to the CMS directly. Never create git branches.`,
       },
     })) {
       if (typeof msg?.total_cost_usd === "number") costUsd = msg.total_cost_usd;
+      if (CAP_SUBTYPES.has(msg?.subtype)) {
+        // Keep the SDK's own error detail (errors: string[]) for the thrown message —
+        // "which cap" alone is a poor on-call diagnostic.
+        capStopped = [msg.subtype, ...(msg.errors ?? [])].join(": ");
+      }
       if ("result" in msg) console.log(msg.result);
     }
+    // A cap stop means the queue was not fully processed: exit non-zero so the run reads
+    // as abnormal. change_set rows already written are fine to keep — they stay pending
+    // behind the human approval gate regardless.
+    if (capStopped) throw new Error(`run stopped by SDK cap (${capStopped})`);
   } catch (err) {
     // The Agent SDK emits "Claude Code process exited with code 1" as a normal
     // shutdown signal after the query loop completes — not a real failure. Any
@@ -176,10 +221,14 @@ async function main() {
   const decision = await check(BUDGET_USD);
   if (!decision.ok) { console.log(decision.reason); process.exit(0); }
 
+  // What's left of the monthly budget bounds THIS run via the SDK's maxBudgetUsd — before
+  // A8 the budget only gated the NEXT run's preflight, so a single run could overshoot
+  // MONTHLY_BUDGET_USD without limit.
+  const headroomUsd = BUDGET_USD - decision.spent;
   if (IS_CMS) {
-    await runCms(decision.queue);
+    await runCms(decision.queue, {}, headroomUsd);
   } else {
-    await runRepo(decision.queue);
+    await runRepo(decision.queue, {}, headroomUsd);
   }
 }
 
