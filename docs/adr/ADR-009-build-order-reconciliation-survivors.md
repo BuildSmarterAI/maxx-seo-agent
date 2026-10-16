@@ -22,7 +22,7 @@ verified in Phase 2.
 - **R2 — `yoast/v1/get_head` as a page-aware, fail-soft verify** alongside
   `yoast_head_json`. `get_head` verified reachable (200) for any URL. Gated by ADR-008.
 - **R3 — Two-way Linear close-sync** (Linear done → `work_queue` done). Extends the
-  one-directional escalation mirror (ADR-007).
+  one-directional escalation mirror (ADR-010).
 
 ## Decision
 
