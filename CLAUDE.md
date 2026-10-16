@@ -76,3 +76,17 @@ Known cannibalization risk: restaurant cluster has two pages targeting overlappi
 - `.env`, secrets, API tokens, lockfiles, CI credentials
 - Production data without explicit instruction
 - Live publishing without showing a manifest first
+
+## Agent skills
+
+### Issue tracker
+
+Linear, team **Seo Agent** (`SEO`), team-level issues, no project. GitHub Issues is not the tracker. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Five default triage roles as team-scoped labels on `SEO` (no Triage state, so `needs-triage` is a label). See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context: `CONTEXT.md` is the glossary (no `GLOSSARY.md`), ADRs in `docs/adr/`. See `docs/agents/domain.md`.
