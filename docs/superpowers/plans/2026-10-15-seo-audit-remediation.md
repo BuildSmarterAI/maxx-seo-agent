@@ -49,15 +49,34 @@ approval.
 - **Every `change_set` row must pass these gates** (`orchestrator/lib/cms.mjs` `applyRow`):
   `url` set → `do_not_touch` → `risk_class === "safe"` → supported field → read live value →
   snapshot → drift check → `scanPlaceholders` → write.
-  - **The drift check skips `post_content` rows.** The WordPress adapter sets
-    `driftCheckable: (row) => !isContent(row)` (`packs/wordpress/apply.mjs`), so a stale
-    content row overwrites any edit made since staging. Immediately before approving a
-    `post_content` row, the operator must re-read the live page and confirm it equals the
-    row's `base_value` byte for byte. If it differs, regenerate the row.
-  - **Known open risk:** that manual pre-approval comparison does not protect against edits made
-    after approval and before the apply run. A compare-before-write control is being built in
-    a separate lane (`fix/content-drift-check`) and does not exist yet. Until it merges,
-    `post_content` rows must not stay approved overnight: approve and apply them the same day.
+  - **`post_content` rows are drift-checked raw-to-raw (implemented in lane
+    `fix/content-drift-check`; not yet merged or deployed).** The WordPress adapter marks
+    content rows with `isContent` and `cms.applyRow` compares the live `content.raw`
+    (REST `context=edit`) against the row's staged `base_value`. Both sides are raw; the only
+    normalization is CRLF to LF on both, with no trimming, whitespace collapsing or HTML/block
+    re-serialization. Outcomes:
+    - equal: applies; `""` against `""` is valid (intentionally empty content).
+    - different, including a one-character change: escalated with the drift reason, no write.
+    - `base_value` null/undefined or not a string: escalated with a "missing baseline" reason,
+      no write.
+    - live value unavailable (no `content.raw`, null, non-string): escalated with a "missing live
+      value" reason, no write, no snapshot. A thrown read ends `failed`, no write.
+    - `scripts/fix-base-values.mjs` refuses `post_content` rows: a content baseline is never
+      refreshed automatically. A mismatch means regenerate the row and re-approve it.
+    - Webflow already drift-checks every field and is unchanged.
+  - **RACE WINDOW (remaining risk, not closed).** The comparison uses the value `adapter.read`
+    returned at the start of `applyRow`. A Supabase snapshot insert and the placeholder scan
+    run after it, then the POST. An edit saved in WordPress during that interval is
+    overwritten. WordPress core REST has no conditional-write precondition (no `If-Match` or
+    `If-Unmodified-Since` on `POST /wp/v2/posts/{id}`), so this narrows the window; it is NOT
+    atomic protection. A manual pre-approval comparison does not protect against edits made
+    after approval. Fully closing it needs a server-side check (for example store
+    `modified_gmt` at staging and enforce it in a mu-plugin). **Follow-up, not built.**
+    Until then keep `post_content` rows approved for as short a time as possible.
+  - **Live double-read not yet confirmed.** That `scripts/cms-read.mjs` returns byte-identical
+    `content.raw` on two reads of the same untouched page has been proven only against mocked
+    responses. Before approving Wave 1 content rows, run the read-only read twice per page
+    (use `--out` to a scratch path outside `change_set/`) and compare the two `base_value`s.
   - `change_type` must be a kit task or null (`orchestrator/lib/tasks.mjs`).
   - Gated work is staged as `risk_class: "gated"`. The gate escalates it, and an operator
     applies it or re-stages it after sign-off.
@@ -175,9 +194,12 @@ Remove the `/tag/` links.
 **Status 2026-10-15:** 5 links on 5 posts are staged via `change_set` (PR #107). The 2 on the
 hotel guide are an **operator Elementor-editor task**, because that page is now Elementor.
 
-**Before approving any Wave 1 row:** the drift check skips `post_content` (see Hard
-constraints). Re-read each page with `scripts/cms-read.mjs --field post_content` and confirm it
-equals the row's `base_value` byte for byte; regenerate the row if it differs.
+**Before approving any Wave 1 row:** `post_content` rows are drift-checked raw-to-raw once the
+`fix/content-drift-check` lane merges (see Hard constraints, including the remaining race
+window). Until then, and as a pre-approval check regardless, re-read each page with
+`scripts/cms-read.mjs --field post_content` and confirm it equals the row's `base_value` byte
+for byte; regenerate the row if it differs. A missing or unreadable value now escalates
+rather than writes.
 
 ## Wave 2: Metadata backlog (safe, batches of 10 or fewer)
 
@@ -315,7 +337,7 @@ equals the row's `base_value` byte for byte; regenerate the row if it differs.
   - `npm run mem -- dnt <url>` must return OK.
   - Confirm the export or backup exists.
   - **`post_content` rows:** re-read the live page immediately before approving and compare it
-    to `base_value` byte for byte. `wp:apply` does not drift-check content rows.
+    to `base_value` byte for byte. Once the content-drift lane merges, `wp:apply` also compares content raw-to-raw at apply time (race window remains: see Hard constraints).
 - **After each batch:**
   - Read the `wp:apply` tally. "applied N", where N is the approved count, counts as a pass;
     0 does not.
