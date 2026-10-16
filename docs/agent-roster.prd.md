@@ -16,8 +16,8 @@
 
 This PRD was drafted on 2026-06-24 and sat unmerged on the `docs/agent-roster-prd` branch for
 ~110 commits. It is salvaged here because agents **A (CMO Reporter)**, **C (Link Prospector)**,
-and **D (GBP Agent)** remain unbuilt and their designs still fit `main`'s architecture. Two
-sections were factually wrong by the time of salvage and have been corrected in place rather
+and **D (GBP Agent)** remain unbuilt and their designs still fit `main`'s architecture. Four claims, in two
+sections, were factually wrong by the time of salvage and have been corrected in place rather
 than left to mislead a future session:
 
 | Was | Now |

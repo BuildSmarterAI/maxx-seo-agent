@@ -3,8 +3,8 @@
 > **This file is not authoritative. Do not read it for repo state.**
 >
 > It previously carried a 2026-07-03 handoff that opened with *"This supersedes ALL earlier
-> handoff versions."* That claim outlived its truth: the authoritative handoff moved to the
-> repo root on 2026-07-09. A stale file asserting supremacy is a cross-machine trap, so the
+> handoff versions."* That claim outlived its truth: the authoritative handoff has lived at the
+> repo root since 2026-07-07 (#74). A stale file asserting supremacy is a cross-machine trap, so the
 > content was replaced with this signpost on **2026-07-10**. The old text is preserved in git
 > history (`git show 7598266:.claude/SESSION_HANDOFF.md`).
 

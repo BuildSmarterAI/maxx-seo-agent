@@ -122,9 +122,8 @@ Ahead of `origin/main` by 1 commit at session start, 2 after checkpoint:
 
 1. **Open the PR** for `docs/agent-roster-prd-salvage` → `main` (docs-only, zero risk) and let CI
    run. *(Authorized and executed this session — verify it exists rather than re-creating it.)*
-2. **Decide merge order against the 3 other open PRs** — #92 (citation self-domain + NaN guards),
-   #93 (A8 repo risk gate), #94 (ADR-010 escalation mirror). They touch disjoint files; this PR
-   touches only `docs/` + `.claude/handoffs/`, so it conflicts with none.
+2. **Decide merge order against the other open PRs** — list them with `gh pr list`. This PR
+   touches only `docs/` + `.claude/handoffs/`; check each other PR's files for overlap.
 3. **Merge this PR** (human merge — never self-merge per repo constraints).
 4. **Then plan Phase 1 — Agent A (CMO Reporter)**, the PRD's P0 keystone: read-only weekly-digest
    observer, Haiku, no `work_queue` rows, no gate. Start with a brainstorming pass.
@@ -196,8 +195,8 @@ gh pr list --state open
 npm test
 ```
 
-Expected: `HEAD` == `@{upstream}`, clean tree, no stashes, `npm test` 388/388, and 4 open PRs
-(#92, #93, #94, plus this branch's PR).
+Expected: `HEAD` == `@{upstream}`, clean tree, no stashes, `npm test` 388/388, and this branch's PR (#95)
+open; verify the rest with `gh pr list`.
 
 > `.env` and `gcp.json` are gitignored and **do not transfer**. Recreate them before running any
 > `node --env-file=.env` script (`npm run validate:metadata`, `npm run mem`, sensors). `npm test`
