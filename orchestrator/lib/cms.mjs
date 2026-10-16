@@ -7,9 +7,13 @@ import { logDecision, doNotTouch } from "./supabase.mjs";
 import { isProtected } from "./url.mjs";
 import { scanPlaceholders } from "../../scripts/validators/content-guards.mjs";
 
-export async function approvedRows(platform, limit = 200) {
-  const { data } = await db.from("change_set").select("*")
+// supabase-js returns { error } instead of throwing, so approvedRows and snapshot check it:
+// a swallowed select error would report a broken run as "applied 0", and a swallowed
+// snapshot error would let a live write proceed with no rollback snapshot.
+export async function approvedRows(platform, limit = 200, client = db) {
+  const { data, error } = await client.from("change_set").select("*")
     .eq("platform", platform).eq("status", "approved").limit(limit);
+  if (error) throw new Error(`approvedRows failed: ${error.message}`);
   return data ?? [];
 }
 
@@ -19,11 +23,12 @@ export async function stagedRows(platform, limit = 200) {   // webflow: applied-
   return data ?? [];
 }
 
-export async function snapshot(row, current) {
-  await db.from("snapshots").insert({
+export async function snapshot(row, current, client = db) {
+  const { error } = await client.from("snapshots").insert({
     platform: row.platform, page_id: row.page_id, url: row.url,
     field: row.field, old_value: current ?? null,
   });
+  if (error) throw new Error(`snapshot failed: ${error.message}`);
 }
 
 // drift = a human edited the live value since the agent generated this change.

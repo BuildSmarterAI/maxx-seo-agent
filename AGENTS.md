@@ -30,7 +30,10 @@ This repo's real spec is split across three places that a non-Claude agent won't
 
 - **Windows + PowerShell is primary.** Run scripts via `node --env-file=.env <script>` — there is no
   `dotenv` dependency, the env file is loaded by Node. Use the `npm run *` aliases (see `package.json`).
-- **Tests:** `npm test` → `node --test` (Node's built-in runner; no Jest/Vitest).
+- **Tests:** `npm test` → `node --import ./scripts/lib/hermetic-guard.mjs --test` (Node's built-in
+  runner; no Jest/Vitest). Always use `npm test`: the preload forces dummy service credentials and
+  blocks real network (fetch, http/https, spawned node subprocesses). A bare `node --test` skips
+  it, and `test/hermetic.test.mjs` then fails.
 - **PowerShell + Supabase Mgmt API SQL:** do NOT `ConvertTo-Json` the SQL string when POSTing to the
   `database/query` endpoint — it serializes the query as an object and returns 400. Pass the raw body.
 - **Supabase has two credential paths:** interactive sessions use `SUPABASE_ACCESS_TOKEN` via MCP;

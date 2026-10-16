@@ -23,6 +23,18 @@ const PLACEHOLDER_RULES = [
     message: "WordPress default 'master' author byline" },
   { rule: "todo-marker",        re: /\b(?:TODO|FIXME|TKTK)\b/,
     message: "unresolved TODO/FIXME/TKTK marker" },
+  // Drafting labels that shipped live in the 2026-10-14 audit ("Slug:", "Title:" /
+  // "Title (53 chars):", "Meta description:" / "Meta description (150 chars):",
+  // "Canonical:"). Anchored to the start of a line or an HTML text node and case-sensitive,
+  // so prose ("your meta description: …"), YAML front matter ("slug: …", "title: …") and
+  // JSON keys ('"canonical":') do not match.
+  { rule: "scaffold-label",
+    re: /(?:^|>)[ \t]*(?:Slug|Canonical|Title(?: \(\d+ chars?\))?|Meta description(?: \(\d+ chars?\))?)[ \t]*:/m,
+    message: "leaked editorial scaffold label (Slug/Title/Meta description/Canonical)" },
+  { rule: "ai-summary-heading", re: /\bAI Summary \(\d+ words?\)/i,
+    message: "leaked 'AI Summary (N words)' drafting heading" },
+  { rule: "social-sharing-heading", re: /\bSocial Sharing Buttons\s*:/i,
+    message: "leaked 'Social Sharing Buttons:' drafting heading" },
 ];
 
 // One short context window around a match, for a readable violation message.
