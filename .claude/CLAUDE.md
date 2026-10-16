@@ -58,21 +58,128 @@ See `.claude/rules/workflow.md` and `.claude/rules/technical-defaults.md`.
 
 ## Constraints
 
-- Never push to `main` directly. All changes go through a `seo/auto-*` branch → PR →
-  human merge (or auto-merge when all CI checks pass).
+- Never push to `main` directly; every change reaches it through a PR. Orchestrator runs
+  use `seo/auto-*` branches and `seo-auto`-labelled PRs that auto-merge when checks pass;
+  interactive lanes use their own branches (see Parallel Session Operating Model).
 - Never commit `.env`, `gcp.json`, or any credential file. All three are gitignored.
 - Never delete `drafts/`, `schema/`, or `change_set/` files without explicit
   instruction — they are artifacts the orchestrator and packs depend on.
 - Never call `wp post delete`, emit a `301`, or `DELETE FROM` a live table. The
-  `guard-publish.sh` hook will deny the tool call (exit 2), but don't attempt it.
+  `guard-publish.sh` hook denies common spellings on the Bash tool (exit 2); treat that
+  as a backstop, not the control.
 - Never modify `.github/workflows/` or `sql/schema.sql` without stating why — both are
   shared infrastructure with downstream CI dependencies.
-- Never modify the orchestrator's goal prompt in `run.mjs` without understanding the
-  eval-gate judge criteria — the judge scores the diff; a prompt change can change what
-  the agent produces and fail the gate.
+- Never modify the orchestrator's goal prompt (`orchestrator/goal.mjs`) without
+  understanding the eval-gate judge criteria — the judge scores the diff; a prompt
+  change can change what the agent produces and fail the gate.
 - Always validate JSON-LD after any edit to `schema/*.jsonld`:
   `node scripts/validate-json.mjs schema/file.jsonld` (the path is passed as an argument,
   not interpolated into evaluated code — see the REC-1 command-injection fix).
 - Always run `npm run validate:metadata` after editing `metadata-changes.csv`.
 - Budget awareness: check `select month, spend_usd from control where id = 1;` in
   Supabase before starting any loop that will make multiple API calls.
+
+## Parallel Session Operating Model
+
+**Scope: interactive sessions.** Skip this section when `orchestrator/run.mjs` started
+you: you are the SEO orchestrator working the `work_queue`, or a subagent it dispatched
+to fix one URL. Your goal prompt and `.claude/rules/workflow.md` govern you. Where
+present, read `~/.claude/docs/parallel-session-doctrine.md` before starting or closing a
+lane, and `~/.claude/docs/review-doctrine.md` before judging merge readiness; the rules
+below stand without them.
+
+### Repository boundary
+
+- Sessions here work for `BuildSmarterAI/maxx-seo-agent` only. Confirm identity with
+  `gh repo view --json nameWithOwner -q .nameWithOwner` and `git rev-parse --show-toplevel`
+  at startup and before dispatching an agent, messaging, opening a PR, merging, or
+  applying to a CMS. Print remote URLs only in sanitized form.
+- Message a session only after verifying it belongs to this repository; unknown ownership
+  means do not send. Address recipients individually, never a global channel or another
+  repository's coordinator or workers.
+- Report cross-repository dependencies to Harris in the current session. Contacting
+  another repository takes Harris's explicit authorization naming destination and purpose.
+
+### Lanes
+
+- A **lane** is one Linear `SEO` ticket, one implementation owner, one branch
+  (`<type>/seo-<n>-<slug>`; research lanes `research/<slug>`), one worktree
+  (`C:\dev\wt-maxx-seo-agent-<slug>`), one PR. The `seo/auto-*` prefix belongs to the
+  orchestrator alone. The main checkout is the **control plane**: coordination,
+  inspection, integration.
+- The coordinator claims an implementation ticket (assign, move to `In Progress`) before
+  its branch is cut.
+- Before an implementation session's first edit, read toplevel, branch,
+  `git status --short`, HEAD and `git worktree list`. Stop and report when the toplevel is
+  the control plane, the branch is `main`, dirty files are unexplained, or another live
+  lane holds the same ticket or surface.
+- One writer per worktree. Conversations share one filesystem, and a worktree isolates
+  git state only: credentials (`.env`, `gcp.json`), production Supabase, CMS hosts and
+  messaging stay shared.
+- Shared contracts (`sql/schema.sql`, `orchestrator/lib/supabase.mjs`,
+  `orchestrator/goal.mjs`, `.github/workflows/`, `change_set/` and `metadata-changes.csv`
+  formats, `packs/`) take one owner at a time; serialize lanes that overlap them.
+- Preserve unrelated changes and every listed worktree.
+- Declare at startup and in each handoff: repository; session name (`maxx-seo-agent` for
+  the coordinator, else `maxx-seo-agent:<role>:<ticket|workstream|release>`); ticket;
+  branch, worktree and HEAD; scope and authorized actions.
+
+### Roles
+
+| Role | Owns | Leaves to others |
+|---|---|---|
+| Coordinator (control plane) | Assignments, dependencies, blockers, Linear status, integration order; one implementation owner per ticket | Feature code; dismissing a review finding without a recorded disposition |
+| Planner / Architect | Evidence-backed plans, contracts, task boundaries, acceptance criteria, validation steps | Implementing, dispatching, merging, applying; changing an active worker's scope |
+| Worker | One lane: implementation, its tests, a reviewable handoff | Other worktrees, merging, applying; scope growth not raised with the coordinator |
+| Reviewer | Independent review of a named base..head SHA for requirements, correctness, security, regression risk and validation evidence; findings with evidence; unverified behavior named | Editing the implementation, merging, applying |
+| QA / Release verifier | Integrated behavior, critical flows, integration boundaries | Production writes, applying, fixing code, unless separately authorized |
+| Research (planner or specialist) | Sourced findings and recommendations | Application code, assigning work |
+
+QA has no staging: WordPress and the documented Supabase project are production. Its
+isolated environment is `npm test` plus read-only inspection; any CMS or Supabase write
+is an apply.
+
+### Tracking
+
+- Linear team `SEO` owns assignments, decisions, dependencies and ticket status. The
+  GitHub PR owns the diff, reviews and validation evidence. Link implementation tickets
+  both ways: `SEO-<n>` in branch and PR title, PR URL on the ticket. `wayfinder:*`
+  tickets have no PR, and a `wayfinder:map` issue stays out of branches, PRs and commits.
+  Conventions: `docs/agents/issue-tracker.md`.
+- The PR description records: repository and ticket, owner and role, plan reference and
+  version, base and head SHA, scope and dependencies, acceptance criteria, validation
+  commands with the output read, review dispositions, blockers, next action.
+
+### Review, integration, authority
+
+- Workers self-check (`npm test`, validators in `rules/workflow.md`) before review. A
+  review names its head SHA; a material change after review gets that change reviewed.
+- The coordinator owns integration: order, readiness disposition, and re-running
+  `npm test` on `main` after each merge. Green branches do not prove the combination.
+- Execution of a merge, CMS apply or publish follows existing policy (`main` branch
+  protection, `seo-auto-merge` for `seo-auto` PRs,
+  `docs/adr/0002-human-gate-policy-for-live-actions.md`, root `CLAUDE.md` apply rules)
+  and Harris's authorization. A standing authorization covers the actions it names until
+  withdrawn; ask again only for actions outside it.
+- Claims that tests passed or an apply succeeded cite the command and the output read
+  this session.
+
+### Communication and stop conditions
+
+- Send actionable updates only: handoff complete, blocker, scope conflict, failed
+  validation, decision required. Wait for replies rather than polling.
+- Workers raise plan gaps to the coordinator; the coordinator routes material
+  architecture questions to the planner.
+- When repository identity, ownership, authorization or a safe task boundary cannot be
+  established, stop that action, report which check failed, and continue other
+  authorized work.
+- Spawn agents only when the session's assignment authorizes delegation.
+
+### Controls are partial
+
+Everything in this section is behavioral; repository boundary, messaging, roles and one
+writer per worktree have no technical enforcement. The technical controls are narrow:
+`main` protection requires CI checks but not reviews, and admins can bypass it (as of
+2026-10-16); `guard-publish.sh` in interactive mode is a pattern denylist on the Bash
+tool only, and hooks fail open; `permissions.deny` rules are per machine. A blocked
+spelling does not mean an equivalent action is blocked.
