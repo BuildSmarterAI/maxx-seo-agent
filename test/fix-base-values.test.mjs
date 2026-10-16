@@ -150,3 +150,42 @@ test("returns updated:0 and makes no writes when the batch has no approved rows"
   assert.equal(res.updated, 0);
   assert.equal(client.updates.length, 0);
 });
+
+test("never refreshes a post_content baseline: refused with a logged reason, base_value untouched", async () => {
+  const client = fakeClient([
+    { id: 1, batch: "b1", page_id: 10, field: "post_content", status: "approved", base_value: "STAGED RAW" },
+  ]);
+  const logs = [];
+  const realLog = console.log;
+  console.log = (...a) => logs.push(a.join(" "));
+  let res;
+  try {
+    res = await syncBaseValues("b1", { client, fetchMeta: fakeFetchMeta("LIVE (possibly human-edited)") });
+  } finally { console.log = realLog; }
+
+  assert.equal(res.updated, 0);
+  assert.equal(res.contentRefused, 1);
+  assert.equal(client.updates.length, 0);                    // no write attempted at all
+  assert.equal(client.rows.get(1).base_value, "STAGED RAW"); // baseline preserved
+  assert.equal(client.rows.get(1).status, "approved");
+  assert.ok(logs.some((l) => /refused id=1/.test(l) && /post_content/.test(l) && /regenerate/.test(l)), "logs the reason");
+});
+
+test("mixed batch: metadata rows still sync, post_content rows are refused, live content is never even fetched for them", async () => {
+  const client = fakeClient([
+    { id: 1, batch: "b1", page_id: 10, field: "title", status: "approved", base_value: "old" },
+    { id: 2, batch: "b1", page_id: 11, field: "post_content", status: "approved", base_value: "STAGED RAW" },
+  ]);
+  const fetched = [];
+  const fetchMeta = async (pageId, field) => { fetched.push(field); return "Live Title"; };
+  const realLog = console.log;
+  console.log = () => {};
+  let res;
+  try { res = await syncBaseValues("b1", { client, fetchMeta }); } finally { console.log = realLog; }
+
+  assert.equal(res.updated, 1);
+  assert.equal(res.contentRefused, 1);
+  assert.equal(client.rows.get(1).base_value, "Live Title");
+  assert.equal(client.rows.get(2).base_value, "STAGED RAW");
+  assert.deepEqual(fetched, ["title"]);
+});

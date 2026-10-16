@@ -89,10 +89,10 @@ test("drift escalates and does NOT write", async () => {
   assert.equal(store.calls.log.at(-1).reason, "drift: live value changed since generation");
 });
 
-test("driftCheckable=false skips the drift gate and writes", async () => {
+test("driftCheckable=false skips the drift gate for a non-content field and writes", async () => {
   const store = fakeStore();
   const a = fakeAdapter({ driftCheckable: () => false, read: async () => "LIVE-CHANGED" });
-  const outcome = await applyRow({ id: 3, url: "/c", field: "post_content", new_value: "n", base_value: "ORIGINAL", risk_class: "safe" }, a, store);
+  const outcome = await applyRow({ id: 3, url: "/c", field: "canonical", new_value: "n", base_value: "ORIGINAL", risk_class: "safe" }, a, store);
   assert.equal(outcome, "applied");
   assert.deepEqual(a.writes, ["n"]);
 });
@@ -243,12 +243,245 @@ test("risk_class gate precedes the supports() check (fail-closed ordering)", asy
   assert.match(store.calls.log.at(-1).reason, /risk_class/);   // risk_class reason, not "unsupported"
 });
 
+// ---- post_content drift (raw-to-raw, fail closed on missing values) ----
+// Race window, stated plainly: the comparison uses the value adapter.read returned at the
+// start of applyRow; the Supabase snapshot insert, the placeholder scan and the POST come
+// after it. These tests prove the comparison logic only. They do not (and cannot) prove
+// that the write is atomic: WordPress core REST has no conditional-write precondition.
+const contentRow = (over = {}) => ({
+  id: 100, url: "/c", field: "post_content", page_id: 7, risk_class: "safe",
+  new_value: "NEW BODY", base_value: "BODY", ...over,
+});
+const contentAdapter = (live, over = {}) => fakeAdapter({
+  isContent: (row) => row.field === "post_content",
+  read: typeof live === "function" ? live : async () => live,
+  ...over,
+});
+
+test("content drift (i): unchanged post_content (live == base) applies with exactly 1 write", async () => {
+  const store = fakeStore();
+  const a = contentAdapter("<!-- wp:paragraph --><p>x</p><!-- /wp:paragraph -->");
+  const outcome = await applyRow(contentRow({ base_value: "<!-- wp:paragraph --><p>x</p><!-- /wp:paragraph -->" }), a, store);
+  assert.equal(outcome, "applied");
+  assert.deepEqual(a.writes, ["NEW BODY"]);
+});
+
+test("content drift (ii): edited post_content (live != base) escalates with 0 writes", async () => {
+  const store = fakeStore();
+  const a = contentAdapter("BODY edited by a human");
+  const outcome = await applyRow(contentRow(), a, store);
+  assert.equal(outcome, "escalated");
+  assert.deepEqual(a.writes, []);
+  assert.equal(store.calls.status.at(-1).status, "escalated");
+  assert.equal(store.calls.log.at(-1).reason, "drift: live value changed since generation");
+});
+
+test("content drift (iii): missing baseline (null/undefined) escalates fail-closed with 0 writes and a distinct reason", async () => {
+  for (const base_value of [null, undefined]) {
+    const store = fakeStore();
+    const a = contentAdapter("BODY");
+    const row = contentRow({ base_value });
+    if (base_value === undefined) delete row.base_value;
+    const outcome = await applyRow(row, a, store);
+    assert.equal(outcome, "escalated");
+    assert.deepEqual(a.writes, []);
+    assert.equal(store.calls.status.at(-1).status, "escalated");
+    assert.match(store.calls.log.at(-1).reason, /missing baseline/);
+    assert.notEqual(store.calls.log.at(-1).reason, "drift: live value changed since generation");
+  }
+});
+
+test("content drift (iv): missing/unavailable live value escalates, 0 writes, never treated as empty string", async () => {
+  for (const live of [undefined, null, 42, { raw: "x" }]) {
+    for (const base_value of ["BODY", ""]) {
+      const store = fakeStore();
+      const a = contentAdapter(live);
+      const outcome = await applyRow(contentRow({ base_value }), a, store);
+      assert.equal(outcome, "escalated", `live=${JSON.stringify(live)} base=${JSON.stringify(base_value)}`);
+      assert.deepEqual(a.writes, []);
+      assert.match(store.calls.log.at(-1).reason, /missing live value/);
+      // An unreadable value must not poison rollback history with a null snapshot.
+      assert.equal(store.calls.snapshots.length, 0);
+    }
+  }
+});
+
+test("content drift (iv): a throwing read ends failed with 0 writes", async () => {
+  const store = fakeStore();
+  const a = contentAdapter(async () => { throw new Error("WP 503"); });
+  const outcome = await applyRow(contentRow(), a, store);
+  assert.equal(outcome, "failed");
+  assert.deepEqual(a.writes, []);
+  assert.equal(store.calls.status.at(-1).status, "failed");
+});
+
+test("content drift (v): intentionally empty content is a value, not a missing value", async () => {
+  // base "" and live "" -> applies
+  let store = fakeStore();
+  let a = contentAdapter("");
+  assert.equal(await applyRow(contentRow({ base_value: "" }), a, store), "applied");
+  assert.deepEqual(a.writes, ["NEW BODY"]);
+  // base "" vs live non-empty -> drift
+  store = fakeStore();
+  a = contentAdapter("someone added text");
+  assert.equal(await applyRow(contentRow({ base_value: "" }), a, store), "escalated");
+  assert.deepEqual(a.writes, []);
+  assert.equal(store.calls.log.at(-1).reason, "drift: live value changed since generation");
+  // base non-empty vs live "" -> drift
+  store = fakeStore();
+  a = contentAdapter("");
+  assert.equal(await applyRow(contentRow({ base_value: "BODY" }), a, store), "escalated");
+  assert.deepEqual(a.writes, []);
+  assert.equal(store.calls.log.at(-1).reason, "drift: live value changed since generation");
+});
+
+test("content drift (vi): CRLF-only difference applies (CRLF->LF on both sides, nothing else)", async () => {
+  let store = fakeStore();
+  let a = contentAdapter("line1\r\nline2\r\n");
+  assert.equal(await applyRow(contentRow({ base_value: "line1\nline2\n" }), a, store), "applied");
+  assert.equal(a.writes.length, 1);
+  // symmetric: base has CRLF, live has LF
+  store = fakeStore();
+  a = contentAdapter("line1\nline2\n");
+  assert.equal(await applyRow(contentRow({ base_value: "line1\r\nline2\r\n" }), a, store), "applied");
+  // no trim: a trailing newline is a real difference
+  store = fakeStore();
+  a = contentAdapter("line1\nline2");
+  assert.equal(await applyRow(contentRow({ base_value: "line1\nline2\n" }), a, store), "escalated");
+  assert.deepEqual(a.writes, []);
+});
+
+test("content drift (vii): a one-space or one-character real change escalates", async () => {
+  for (const live of ["BODY ", "BODy", "BOD", "BODY ", "B ODY"]) {
+    const store = fakeStore();
+    const a = contentAdapter(live);
+    assert.equal(await applyRow(contentRow(), a, store), "escalated", JSON.stringify(live));
+    assert.deepEqual(a.writes, []);
+  }
+});
+
+test("content drift: the check runs even if driftCheckable is false (content flag is authoritative)", async () => {
+  const store = fakeStore();
+  const a = contentAdapter("LIVE-CHANGED", { driftCheckable: () => false });
+  assert.equal(await applyRow(contentRow(), a, store), "escalated");
+  assert.deepEqual(a.writes, []);
+});
+
+test("non-content regression: canonical with null base_value still skips drift; title drift still escalates; null live metadata is unchanged", async () => {
+  // canonical rows are staged with a null base_value on purpose -> no drift check
+  let store = fakeStore();
+  let a = fakeAdapter({ isContent: (row) => row.field === "post_content", read: async () => "https://live/" });
+  const canon = { id: 200, url: "/k", field: "canonical", new_value: "https://new/", base_value: null, risk_class: "safe" };
+  assert.equal(await applyRow(canon, a, store), "applied");
+  assert.deepEqual(a.writes, ["https://new/"]);
+  // title with a real base still drifts, with the original reason
+  store = fakeStore();
+  a = fakeAdapter({ isContent: (row) => row.field === "post_content", read: async () => "CHANGED" });
+  assert.equal(await applyRow({ id: 201, url: "/t", field: "title", new_value: "n", base_value: "ORIG", risk_class: "safe" }, a, store), "escalated");
+  assert.equal(store.calls.log.at(-1).reason, "drift: live value changed since generation");
+  // non-content semantics unchanged: a null live metadata value is snapshotted and compared, not rejected
+  store = fakeStore();
+  a = fakeAdapter({ isContent: (row) => row.field === "post_content", read: async () => null });
+  assert.equal(await applyRow({ id: 202, url: "/m", field: "description", new_value: "n", base_value: "ORIG", risk_class: "safe" }, a, store), "escalated");
+  assert.equal(store.calls.log.at(-1).reason, "drift: live value changed since generation");
+  assert.equal(store.calls.snapshots.length, 1);
+});
+
+// ---- raw-content verification (gate before the comparison is trusted) ----
+function wpFetchFake(routes, seen = []) {
+  return async (url, init = {}) => {
+    seen.push({ url: String(url), method: init.method ?? "GET", body: init.body });
+    const hit = routes.find((r) => r.match.test(String(url)) && (r.method ?? "GET") === (init.method ?? "GET"));
+    if (!hit) return { ok: false, status: 404, json: async () => ({}), text: async () => "not found" };
+    return { ok: true, status: 200, json: async () => hit.body, text: async () => "" };
+  };
+}
+
+test("raw verification (a): wordpressAdapter content read requests context=edit and returns content.raw, never rendered", async () => {
+  const seen = [];
+  const realFetch = globalThis.fetch;
+  globalThis.fetch = wpFetchFake([
+    { match: /\/posts\/9\?context=edit/, body: { content: { raw: "<!-- wp:html -->RAW<!-- /wp:html -->", rendered: "<p>RENDERED</p>" } } },
+  ], seen);
+  try {
+    const v = await wordpressAdapter.read({ page_id: 9, field: "post_content" });
+    assert.equal(v, "<!-- wp:html -->RAW<!-- /wp:html -->");
+    assert.notEqual(v, "<p>RENDERED</p>");
+    assert.ok(seen.every((s) => /context=edit/.test(s.url)), "every read must use context=edit");
+  } finally { globalThis.fetch = realFetch; }
+});
+
+test("raw verification (a): scripts/cms-read.mjs readWordpress requests context=edit and returns content.raw, never rendered", async () => {
+  const { readWordpress } = await import("../scripts/cms-read.mjs");
+  const seen = [];
+  const realFetch = globalThis.fetch;
+  globalThis.fetch = wpFetchFake([
+    { match: /\/posts\?slug=my-post/, body: [{ id: 9 }] },
+    { match: /\/posts\/9\?context=edit/, body: { content: { raw: "RAW BODY", rendered: "<p>RENDERED BODY</p>" } } },
+  ], seen);
+  try {
+    const r = await readWordpress("https://www.example.com/my-post/", "post_content");
+    assert.equal(r.base_value, "RAW BODY");
+    assert.equal(r.page_id, "9");
+    assert.match(seen.at(-1).url, /posts\/9\?context=edit/);
+  } finally { globalThis.fetch = realFetch; }
+});
+
+test("raw verification (b): response without content.raw is UNAVAILABLE (null), not empty; empty raw stays ''", async () => {
+  const { readWordpress } = await import("../scripts/cms-read.mjs");
+  const bodies = [
+    { content: { rendered: "<p>only rendered</p>" } },   // raw absent
+    { content: {} },
+    {},                                                   // content missing
+    { content: { raw: "", rendered: "" } },               // intentionally empty
+  ];
+  const expected = [null, null, null, ""];
+  const realFetch = globalThis.fetch;
+  try {
+    for (const [i, body] of bodies.entries()) {
+      globalThis.fetch = wpFetchFake([
+        { match: /\/posts\/11\?context=edit/, body },
+        { match: /\/posts\?slug=p/, body: [{ id: 11 }] },
+      ]);
+      assert.strictEqual(await wordpressAdapter.read({ page_id: 11, field: "post_content" }), expected[i], `adapter case ${i}`);
+      assert.strictEqual((await readWordpress("https://x.example/p/", "post_content")).base_value, expected[i], `cms-read case ${i}`);
+    }
+  } finally { globalThis.fetch = realFetch; }
+});
+
+test("end to end (mocked fetch): real wordpressAdapter applies unchanged raw content, escalates an edit and an unavailable raw, one POST at most", async () => {
+  const realFetch = globalThis.fetch;
+  const run = async (body, base_value) => {
+    const seen = [];
+    globalThis.fetch = wpFetchFake([{ match: /\/posts\/13/, body }, { match: /\/posts\/13/, method: "POST", body: {} }], seen);
+    const store = fakeStore();
+    const outcome = await applyRow(contentRow({ page_id: 13, base_value }), wordpressAdapter, store);
+    return { outcome, posts: seen.filter((s) => s.method === "POST"), store };
+  };
+  try {
+    let r = await run({ content: { raw: "RAW", rendered: "<p>RAW</p>" } }, "RAW");
+    assert.equal(r.outcome, "applied");
+    assert.equal(r.posts.length, 1);
+    assert.deepEqual(JSON.parse(r.posts[0].body), { content: { raw: "NEW BODY" } });
+    r = await run({ content: { raw: "RAW edited", rendered: "<p>RAW</p>" } }, "RAW");
+    assert.equal(r.outcome, "escalated");
+    assert.equal(r.posts.length, 0);
+    r = await run({ content: { rendered: "<p>RAW</p>" } }, "<p>RAW</p>");   // staged from rendered by mistake
+    assert.equal(r.outcome, "escalated");
+    assert.equal(r.posts.length, 0);
+    assert.match(r.store.calls.log.at(-1).reason, /missing live value/);
+  } finally { globalThis.fetch = realFetch; }
+})
+;
+
 // ---- real adapter wiring (mock fetch) ----
 test("wordpressAdapter: supports + driftCheckable field rules", () => {
   assert.equal(wordpressAdapter.supports({ field: "post_content" }), true);
   assert.equal(wordpressAdapter.supports({ field: "title" }), true);
   assert.equal(wordpressAdapter.supports({ field: "bogus" }), false);
-  assert.equal(wordpressAdapter.driftCheckable({ field: "post_content" }), false);
+  assert.equal(wordpressAdapter.driftCheckable({ field: "post_content" }), true);
+  assert.equal(wordpressAdapter.isContent({ field: "post_content" }), true);
+  assert.equal(wordpressAdapter.isContent({ field: "title" }), false);
   assert.equal(wordpressAdapter.driftCheckable({ field: "title" }), true);
 });
 
