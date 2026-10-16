@@ -47,20 +47,27 @@ approval.
     widgets have **no automated path**. They are operator WP-Admin checklists.
   - The `guard-publish` hook forbids the agent from emitting 301s.
 - **Every `change_set` row must pass these gates** (`orchestrator/lib/cms.mjs` `applyRow`):
-  `url` set → `do_not_touch` → `risk_class === "safe"` → supported field → drift check →
-  snapshot → `scanPlaceholders`.
+  `url` set → `do_not_touch` → `risk_class === "safe"` → supported field → read live value →
+  snapshot → drift check → `scanPlaceholders` → write.
   - **The drift check skips `post_content` rows.** The WordPress adapter sets
     `driftCheckable: (row) => !isContent(row)` (`packs/wordpress/apply.mjs`), so a stale
     content row overwrites any edit made since staging. Immediately before approving a
     `post_content` row, the operator must re-read the live page and confirm it equals the
     row's `base_value` byte for byte. If it differs, regenerate the row.
+  - **Known open risk:** that manual pre-approval comparison does not protect against edits made
+    after approval and before the apply run. A compare-before-write control is being built in
+    a separate lane (`fix/content-drift-check`) and does not exist yet. Until it merges,
+    `post_content` rows must not stay approved overnight: approve and apply them the same day.
   - `change_type` must be a kit task or null (`orchestrator/lib/tasks.mjs`).
   - Gated work is staged as `risk_class: "gated"`. The gate escalates it, and an operator
     applies it or re-stages it after sign-off.
 - **The nightly `seo-apply-cms` cron (07:30 UTC) applies every `approved` row** (limit 200), so
   approval is the batch-size control. Approve **no more than 10 rows at a time**.
-  - **Before approving a batch, confirm the approved queue is empty.**
-    `select count(*) from change_set where status = 'approved';` must return 0. Otherwise the
+  - **Before approving a batch, confirm the approved WordPress queue is empty.** The cron
+    selects `platform = 'wordpress' and status = 'approved'` (`approvedRows` in
+    `orchestrator/lib/cms.mjs`).
+    `select count(*) from change_set where platform = 'wordpress' and status = 'approved';`
+    must return 0. Otherwise the
     cron applies the new batch plus every older approved row.
   - A row still `approved` after a run did not apply. Investigate it; do not approve a new
     batch on top of it.
@@ -317,7 +324,7 @@ equals the row's `base_value` byte for byte; regenerate the row if it differs.
 - **Rollback path:** `npm run wp:rollback -- --page-id <id> --field <f>`.
 - **Wave exit:** re-run `/firecrawl-seo-audit` (or its scripts) and confirm the counts dropped:
   - scaffolding 9 → 0
-  - 404 links 8 → 0
+  - 404 links 7 → 0
   - indexable thin pages 78 → ≤10
   - the `/locations/*` uniqueness is ≥0.5
 - **4–8 weeks later:** `npm run learn`, and compare GSC positions against the July baseline.
