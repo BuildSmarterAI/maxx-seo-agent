@@ -237,8 +237,15 @@ export async function insertChangeset(row) {
   if (error) throw new Error(`insertChangeset failed: ${error.message}`);
 }
 
-export async function setPriority(id, priority) {
-  await db.from("work_queue").update({ priority }).eq("id", id);
+// priority must be finite: JSON.stringify({ priority: NaN }) serializes to null, which
+// would silently null work_queue.priority in prod. Errors throw loudly, like
+// insertChangeset. Client is injectable for tests (cf. addSpend).
+export async function setPriority(id, priority, client = db) {
+  if (!Number.isFinite(priority)) {
+    throw new Error(`setPriority: priority must be a finite number for work_queue id=${id}, got ${priority}`);
+  }
+  const { error } = await client.from("work_queue").update({ priority }).eq("id", id);
+  if (error) throw new Error(`setPriority failed: ${error.message}`);
 }
 
 // ---- AutoResearch Phase A: experiment + eval registry (write paths) ----
