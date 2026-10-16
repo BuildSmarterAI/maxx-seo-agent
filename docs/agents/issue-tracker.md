@@ -49,11 +49,13 @@ there and never treat a GitHub issue number as a work item.
    though `needs-research` exists. Never prove absence with a partial name.
 3. ⛔ **Same-named labels on other teams are not ours.** `BUI` and `BUI2` also own
    `ready-for-agent`, `needs-info`, `wontfix` and `wayfinder:*`. Applying one of theirs to a
-   SEO issue hides it from every label-filtered query here. Use the ids in this file.
+   SEO issue hides it from every label-filtered query here. Use the SEO ids recorded in
+   [`triage-labels.md`](./triage-labels.md).
 4. **Label groups are mutually exclusive.** One `Work Type` label per issue.
 5. ⛔ **A discharged blocking edge is never retracted** (observed in `BUI2`). Compute
-   "blocked" from `blockedBy` edges whose blocker is **not** in a completed state, never from
-   edge existence.
+   "blocked" from `blockedBy` edges whose blocker is still **open**, never from edge existence.
+   A blocker is **closed** (edge discharged) when its state type is `completed` (`Done`),
+   `canceled` (`Canceled`) or `duplicate` (`Duplicate`); every other state keeps it open.
 6. ⛔ **A description is not the issue; read `comments` too.** Decisions, corrections and
    shipped-PR evidence land in comments.
 
@@ -89,8 +91,8 @@ There is no `Blocked` or `Ready` status. Both are derived.
 
 | Concept | How it is expressed | ⛔ Not this |
 |---|---|---|
-| **Ready** | state `Todo` **and** label `ready-for-agent` **and** no live `blockedBy` edge **and** unassigned | the label alone |
-| **Blocked** | ≥1 `blockedBy` edge whose blocker is not completed | the `blocked-internal` / `blocked-external` workspace labels (human planning only) |
+| **Ready** | state `Todo` **and** label `ready-for-agent` **and** no `blockedBy` edge to an open blocker **and** unassigned | the label alone |
+| **Blocked** | ≥1 `blockedBy` edge whose blocker is open (not closed; see gotcha 5) | the `blocked-internal` / `blocked-external` workspace labels (human planning only) |
 | **Human input required** | label `ready-for-human` | a workflow state |
 
 | Ticket class | Claim |
@@ -113,10 +115,10 @@ There is no `Blocked` or `Ready` status. Both are derived.
 | **Ticket types** | `wayfinder:research` (AFK) · `wayfinder:grilling` (HITL, default) · `wayfinder:prototype` (HITL) · `wayfinder:task` (either). |
 | **Blocking** | Linear's **native** `blocks` / `blockedBy` relation (`save_issue` `blockedBy`), never a body convention. |
 | **Claim** | **Assign the ticket** before any work. Open + unassigned = unclaimed. Do not move it to `In Progress`. |
-| **Frontier** | `list_issues(parentId: <map>)`, open, then drop any with an assignee or with a `blockedBy` edge to an issue not in a completed state (`get_issue(includeRelations: true)`). First in map order wins. |
+| **Frontier** | `list_issues(parentId: <map>)`, open, then drop any with an assignee or with a `blockedBy` edge to an open issue (gotcha 5; `get_issue(includeRelations: true)`). First in map order wins. |
 | **Resolution** | Post the answer as a **resolution comment**, close the issue (`Done`), then append a one-line gist + link to the map's *Decisions so far*. |
 | **Assets** | Linked from the issue, never pasted. Research findings go on a throwaway `research/<slug>` branch in its own worktree (`C:\dev\wt-maxx-seo-agent-<slug>`); prototypes on a pushed `prototype/seo-<n>-<slug>` branch; long-form map output under `docs/wayfinder/<map-id>/`. |
-| **Out of scope** | Close the ticket (`Canceled` + `wontfix`) and record one line in the map's *Out of scope*, never in *Decisions so far*. |
+| **Out of scope** | Close the ticket (`Canceled` + the SEO `wontfix`, id `32b95665-3427-4a00-8cf9-3b809c528847`) and record one line in the map's *Out of scope*, never in *Decisions so far*. |
 
 ### ⛔ A map is never driven through the implementation lifecycle
 

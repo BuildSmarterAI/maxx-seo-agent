@@ -21,7 +21,9 @@ id from this table.
 can return their ids. Use the ids above.
 
 **If Linear's `Triage` state is later enabled for `SEO`:** map `needs-triage` to that state,
-stop applying the label, and update this file in the same change.
+stop applying the label, and in the same change update this file, the team-configuration
+table in [`issue-tracker.md`](./issue-tracker.md), and the *Agent skills* block in root
+`CLAUDE.md`, all of which state that `SEO` has no Triage state.
 
 ## Wayfinder labels (not triage roles)
 
