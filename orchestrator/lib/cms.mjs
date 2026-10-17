@@ -85,10 +85,8 @@ const contentReason = (adapter, row, current) =>
 
 // An unreadable content value is not a pre-change state: recording a null snapshot would
 // become the "latest" snapshot and hide the last real one from rollbackRow.
-async function snapshotUnlessUnavailable(adapter, store, row, current) {
-  if (adapter.isContent?.(row) && typeof current !== "string") return;
-  await store.snapshot(row, current);
-}
+// A content gate escalates an unreadable value first, so applyRow never snapshots it (SEO-23:
+// the snapshot is taken after every gate, immediately before the write).
 const PROTECTED_REASON = "do_not_touch: URL is protected — apply blocked at boundary";
 const NO_URL_REASON = "do_not_touch: row has no url — cannot verify protection, blocked at boundary";
 const RISK_CLASS_REASON = "risk_class: row is not safe-class — apply blocked at boundary";
@@ -139,7 +137,7 @@ export async function applyRow(row, adapter, store = defaultStore, opts = {}) {
     }
 
     const current = await adapter.read(row);
-    await snapshotUnlessUnavailable(adapter, store, row, current);
+    /* The pre-change snapshot is taken after every gate, just before the write (SEO-23). */
 
     // Content rows: raw-to-raw compare, fail closed on a missing baseline or live value.
     // RACE WINDOW: `current` is what adapter.read returned at the top of this function. A
@@ -175,8 +173,19 @@ export async function applyRow(row, adapter, store = defaultStore, opts = {}) {
       return "escalated";
     }
 
+    // Snapshot LAST, after every gate (drift, content-drift, placeholder scan): a row a gate
+    // escalates must leave no snapshot, or that copy of the live value becomes the "latest"
+    // snapshot and rollbackRow restores it instead of the true pre-change value (SEO-23).
+    // Content rows are guaranteed string live values by the content gate above. A snapshot
+    // insert failure throws -> "failed", and nothing is written.
+    await store.snapshot(row, current);
     await adapter.write(row);
     if (adapter.verify) await adapter.verify(row);
+
+    // SEO-23: the snapshot precedes the write, so a re-run after an applied_unrecorded row does
+    // not re-snapshot the written value for a drift-checkable row (its drift gate escalates
+    // first). The comment below describes the residual: a null-baseline METADATA row has no
+    // drift gate and still re-snapshots the already-written value on the next run.
 
     // SEO-14 decision point: the live write has happened, so a failure to record it must
     // not fall through to the catch below and mark the row "failed" — that would tell the
