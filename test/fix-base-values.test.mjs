@@ -151,6 +151,44 @@ test("returns updated:0 and makes no writes when the batch has no approved rows"
   assert.equal(client.updates.length, 0);
 });
 
+// Count contract: approved = updated (synced) + skipped + contentRefused.
+function captureLogs() {
+  const logs = [];
+  const realLog = console.log;
+  console.log = (...a) => logs.push(a.join(" "));
+  return { logs, restore: () => { console.log = realLog; } };
+}
+
+test("all-post_content approved batch: accurate 'refused' message, never 'No approved rows found', counts reconcile", async () => {
+  const client = fakeClient([
+    { id: 1, batch: "b1", page_id: 10, field: "post_content", status: "approved", base_value: "A" },
+    { id: 2, batch: "b1", page_id: 11, field: "post_content", status: "approved", base_value: "B" },
+    { id: 3, batch: "b1", page_id: 12, field: "title", status: "pending" },
+  ]);
+  const cap = captureLogs();
+  let res;
+  try { res = await syncBaseValues("b1", { client, fetchMeta: fakeFetchMeta("LIVE") }); } finally { cap.restore(); }
+
+  const text = cap.logs.join("\n");
+  assert.equal(/No approved rows found/.test(text), false, "misleading text must be absent");
+  assert.ok(cap.logs.some((l) => /2 approved row\(s\) refused \(post_content\), none eligible to sync/.test(l)), text);
+  assert.deepEqual(res, { approved: 2, updated: 0, skipped: 0, contentRefused: 2, notApproved: 1 });
+  assert.equal(res.approved, res.updated + res.skipped + res.contentRefused);
+  assert.equal(client.updates.length, 0);
+});
+
+test("mixed batch counts reconcile: approved = updated + skipped + contentRefused", async () => {
+  const client = fakeClient([
+    { id: 1, batch: "b1", page_id: 10, field: "title", status: "approved", base_value: "old" },
+    { id: 2, batch: "b1", page_id: 11, field: "post_content", status: "approved", base_value: "STAGED" },
+  ]);
+  const cap = captureLogs();
+  let res;
+  try { res = await syncBaseValues("b1", { client, fetchMeta: fakeFetchMeta("L") }); } finally { cap.restore(); }
+  assert.equal(res.approved, 2);
+  assert.equal(res.approved, res.updated + res.skipped + res.contentRefused);
+});
+
 test("never refreshes a post_content baseline: refused with a logged reason, base_value untouched", async () => {
   const client = fakeClient([
     { id: 1, batch: "b1", page_id: 10, field: "post_content", status: "approved", base_value: "STAGED RAW" },

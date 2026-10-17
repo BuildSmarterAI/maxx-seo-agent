@@ -253,11 +253,22 @@ export async function rollbackRow(adapter, { page_id, field, collection_id }, st
   const row = { platform: adapter.platform, page_id, field, collection_id };
   if (!adapter.supports(row)) throw new Error(`rollback: unsupported field ${field} for ${adapter.platform}`);
 
+  // Only null/undefined mean "no snapshot"; "" is a valid restore target (intentionally empty content).
   const old = await store.latestSnapshot(adapter.platform, page_id, field);
   if (old == null) throw new Error(`rollback: no snapshot found for ${adapter.platform} ${page_id}/${field}`);
 
+  // Fail closed: the pre-rollback state MUST be captured before anything is written, so the
+  // rollback itself is reversible. A thrown read propagates. For a content field a non-string
+  // live value (null/undefined/non-string) is "unavailable", not a state we can snapshot, so
+  // the rollback is refused BEFORE any snapshot insert or write (a null snapshot would also
+  // become the "latest" and hide the last real one). "" is a valid value and proceeds. A
+  // metadata field's null live value means "unset" and is snapshotted as null. If the
+  // snapshot insert rejects, the error propagates and nothing is written.
   const current = await adapter.read(row);
-  await snapshotUnlessUnavailable(adapter, store, row, current);
+  if (adapter.isContent?.(row) && typeof current !== "string") {
+    throw new Error(`rollback: refusing to roll back content field ${field} on ${adapter.platform} ${page_id}: live value is not a string (unavailable), so the pre-rollback state cannot be snapshotted`);
+  }
+  await store.snapshot(row, current);
 
   const restoreRow = { ...row, new_value: old };
   await adapter.write(restoreRow);

@@ -315,6 +315,27 @@ test("content drift (iv): a throwing read ends failed with 0 writes", async () =
   assert.equal(store.calls.status.at(-1).status, "failed");
 });
 
+// Precedence is pinned, not incidental: contentDriftReason checks the LIVE value before the
+// baseline, so when BOTH are missing the reason is 'missing live value' (not 'missing baseline').
+test("content drift (vi): BOTH base_value and live value missing -> escalated, 0 writes, 0 snapshots, reason is 'missing live value' (live is checked first)", async () => {
+  const MISSING_LIVE = "content-drift: missing live value (unavailable or not a string) — cannot verify live content, blocked at boundary";
+  for (const live of [undefined, null]) {
+    for (const base_value of [null, undefined]) {
+      const store = fakeStore();
+      const a = contentAdapter(live);
+      const row = contentRow({ base_value });
+      if (base_value === undefined) delete row.base_value;
+      const outcome = await applyRow(row, a, store);
+      const tag = `live=${String(live)} base=${String(base_value)}`;
+      assert.equal(outcome, "escalated", tag);
+      assert.deepEqual(a.writes, [], tag);
+      assert.equal(store.calls.snapshots.length, 0, tag);
+      assert.equal(store.calls.status.at(-1).status, "escalated", tag);
+      assert.equal(store.calls.log.at(-1).reason, MISSING_LIVE, tag);
+    }
+  }
+});
+
 test("content drift (v): intentionally empty content is a value, not a missing value", async () => {
   // base "" and live "" -> applies
   let store = fakeStore();
@@ -707,6 +728,101 @@ test("rollbackRow throws on an unsupported field", async () => {
     () => rollbackRow(a, { page_id: "p1", field: "weird" }, store),
     /support/i,
   );
+});
+
+// ---- rollbackRow fail-closed: refuse before ANY write when pre-rollback state is not captured ----
+// Every refusal below must leave the adapter untouched (0 writes, 0 verifies) and the store
+// untouched (no status change, no 'rolledback' log).
+function rollbackFixture({ live, snapshotValue = "OLD", content = false, adapterOver = {}, storeOver = {} } = {}) {
+  const store = fakeStore();
+  store.latestSnapshot = async () => snapshotValue;
+  store.latestAppliedRow = async () => ({ id: 99 });
+  Object.assign(store, storeOver);
+  const verifies = [];
+  const a = fakeAdapter({
+    isContent: (row) => content && row.field === "post_content",
+    read: typeof live === "function" ? live : async () => live,
+    verify: async (row) => { verifies.push(row.new_value); },
+    ...adapterOver,
+  });
+  return { store, a, verifies, field: content ? "post_content" : "title" };
+}
+function assertRollbackUntouched({ store, a, verifies }) {
+  assert.equal(a.writes.length, 0, "adapter.write must not be called");
+  assert.equal(verifies.length, 0, "adapter.verify must not be called");
+  assert.equal(store.calls.status.length, 0, "no status change");
+  assert.equal(store.calls.log.some((l) => l.action === "rolledback"), false, "no rolledback log");
+}
+
+test("rollbackRow REFUSES a content field whose live value is not a string: no snapshot, no write, no verify, no status, no log", async () => {
+  for (const live of [undefined, null, 42, { raw: "x" }]) {
+    const fx = rollbackFixture({ live, content: true });
+    await assert.rejects(
+      () => rollbackRow(fx.a, { page_id: "7", field: fx.field }, fx.store),
+      /rollback: refusing .*post_content.*live value is not a string/,
+      `live=${JSON.stringify(live)}`,
+    );
+    assert.equal(fx.store.calls.snapshots.length, 0, "refusal happens before any snapshot insert");
+    assertRollbackUntouched(fx);
+  }
+});
+
+test("rollbackRow: a throwing adapter.read propagates; 0 snapshots, 0 writes, 0 verifies, no status, no log", async () => {
+  for (const content of [true, false]) {
+    const fx = rollbackFixture({ content, live: async () => { throw new Error("WP 503"); } });
+    await assert.rejects(() => rollbackRow(fx.a, { page_id: "7", field: fx.field }, fx.store), /WP 503/);
+    assert.equal(fx.store.calls.snapshots.length, 0);
+    assertRollbackUntouched(fx);
+  }
+});
+
+test("rollbackRow REFUSES when the pre-rollback snapshot cannot be saved: error propagates, 0 writes, 0 verifies, no status, no log", async () => {
+  for (const content of [true, false]) {
+    const fx = rollbackFixture({
+      content, live: "CURRENT",
+      storeOver: { snapshot: async () => { throw new Error("snapshot failed: permission denied"); } },
+    });
+    await assert.rejects(
+      () => rollbackRow(fx.a, { page_id: "7", field: fx.field }, fx.store),
+      /snapshot failed: permission denied/,
+    );
+    assertRollbackUntouched(fx);
+  }
+});
+
+test("rollbackRow: intentionally empty live content (\"\") is a valid value: snapshotted, then rollback proceeds", async () => {
+  const fx = rollbackFixture({ live: "", content: true, snapshotValue: "OLD BODY" });
+  await rollbackRow(fx.a, { page_id: "7", field: fx.field }, fx.store);
+  assert.deepEqual(fx.store.calls.snapshots.map((s) => s.current), [""]);
+  assert.deepEqual(fx.a.writes, ["OLD BODY"]);
+  assert.deepEqual(fx.verifies, ["OLD BODY"]);
+  assert.deepEqual(fx.store.calls.status.at(-1), { id: 99, status: "rolledback" });
+  assert.equal(fx.store.calls.log.at(-1).action, "rolledback");
+});
+
+test("rollbackRow: a stored snapshot old_value of \"\" is a valid restore target (only null/undefined means no snapshot)", async () => {
+  const fx = rollbackFixture({ live: "CURRENT BODY", content: true, snapshotValue: "" });
+  const res = await rollbackRow(fx.a, { page_id: "7", field: fx.field }, fx.store);
+  assert.deepEqual(fx.a.writes, [""]);
+  assert.equal(res.restored, "");
+  assert.deepEqual(fx.store.calls.status.at(-1), { id: 99, status: "rolledback" });
+  // undefined is also "no snapshot"
+  const none = rollbackFixture({ live: "x", storeOver: { latestSnapshot: async () => undefined } });
+  await assert.rejects(() => rollbackRow(none.a, { page_id: "7", field: none.field }, none.store), /no snapshot/i);
+  assertRollbackUntouched(none);
+});
+
+test("latestSnapshot returns \"\" (not null) for a stored empty old_value", async () => {
+  assert.equal(await latestSnapshot("wordpress", "7", "post_content", fakeDb({ data: { old_value: "" }, error: null })), "");
+  assert.equal(await latestSnapshot("wordpress", "7", "post_content", fakeDb({ data: null, error: null })), null);
+});
+
+test("rollbackRow METADATA: a null live meta value means 'unset' - snapshotted as null, rollback proceeds", async () => {
+  const fx = rollbackFixture({ live: null, content: false, snapshotValue: "OLD TITLE" });
+  await rollbackRow(fx.a, { page_id: "7", field: fx.field }, fx.store);
+  assert.deepEqual(fx.store.calls.snapshots.map((s) => s.current), [null]);
+  assert.deepEqual(fx.a.writes, ["OLD TITLE"]);
+  assert.deepEqual(fx.store.calls.status.at(-1), { id: 99, status: "rolledback" });
 });
 
 // ---- persistence failures must fail loudly (2026-10-14 WordPress integration audit) ----

@@ -57,11 +57,20 @@ export async function syncBaseValues(batch, deps = {}) {
   }
   const rows = approved.filter((r) => r.field !== "post_content");
   const notApproved = (allRows?.length ?? 0) - approved.length;
+  // Result fields: `approved` = rows in the batch with status "approved";
+  // `updated` = base_value refreshed; `skipped` = de-approved mid-run (no write);
+  // `contentRefused` = post_content rows refused. Invariant: approved = updated + skipped + contentRefused.
+  // `notApproved` = rows in the batch that were never approved (outside the invariant).
 
   if (!rows.length) {
-    console.log(`No approved rows found for batch: ${batch}` +
+    // Approved rows exist but every one is post_content (all refused): say so, rather than
+    // the misleading "No approved rows found".
+    const refusedNote = contentRows.length
+      ? `${contentRows.length} approved row(s) refused (post_content), none eligible to sync`
+      : `No approved rows found`;
+    console.log(`${refusedNote} for batch: ${batch}` +
       (notApproved ? ` (${notApproved} row(s) present but not approved)` : ""));
-    return { updated: 0, skipped: 0, notApproved, contentRefused: contentRows.length };
+    return { approved: approved.length, updated: 0, skipped: 0, notApproved, contentRefused: contentRows.length };
   }
   if (notApproved) {
     console.log(`Batch ${batch}: ${rows.length} approved, ${notApproved} not approved ` +
@@ -92,7 +101,7 @@ export async function syncBaseValues(batch, deps = {}) {
   }
   console.log(`\nDone — ${updated} approved row(s) synced` +
     (skipped ? `, ${skipped} skipped (de-approved mid-run)` : "") + ". Run npm run wp:apply.");
-  return { updated, skipped, notApproved, contentRefused: contentRows.length };
+  return { approved: approved.length, updated, skipped, notApproved, contentRefused: contentRows.length };
 }
 
 async function main() {
