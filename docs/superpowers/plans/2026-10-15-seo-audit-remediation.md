@@ -62,7 +62,16 @@ approval.
     - live value unavailable (no `content.raw`, null, non-string): escalated with a "missing live
       value" reason, no write, no snapshot. A thrown read ends `failed`, no write.
     - `scripts/fix-base-values.mjs` refuses `post_content` rows: a content baseline is never
-      refreshed automatically. A mismatch means regenerate the row and re-approve it.
+      refreshed automatically. A mismatch means regenerate the row and re-approve it. When every
+      approved row in a batch is `post_content`, it logs "N approved row(s) refused
+      (post_content), none eligible to sync" (not "No approved rows found"); the returned counts
+      reconcile as `approved = updated + skipped + contentRefused`.
+    - `rollbackRow` fails closed. It snapshots the current live value BEFORE it writes, and
+      refuses (throws, no snapshot insert, no write, no verify, no status change, no `rolledback`
+      log) when a content field's live value is not a string. A thrown `adapter.read` propagates.
+      If the pre-rollback snapshot insert rejects, the error propagates and nothing is written.
+      `""` is a valid live value and a valid stored restore target; only null/undefined mean "no
+      snapshot". For metadata fields a null live value means "unset" and is snapshotted as null.
     - Webflow already drift-checks every field and is unchanged.
   - **RACE WINDOW (remaining risk, not closed).** The comparison uses the value `adapter.read`
     returned at the start of `applyRow`. A Supabase snapshot insert and the placeholder scan
