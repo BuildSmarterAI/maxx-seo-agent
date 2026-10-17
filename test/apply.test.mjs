@@ -400,12 +400,12 @@ test("non-content regression: canonical with null base_value still skips drift; 
   a = fakeAdapter({ isContent: (row) => row.field === "post_content", read: async () => "CHANGED" });
   assert.equal(await applyRow({ id: 201, url: "/t", field: "title", new_value: "n", base_value: "ORIG", risk_class: "safe" }, a, store), "escalated");
   assert.equal(store.calls.log.at(-1).reason, "drift: live value changed since generation");
-  // non-content semantics unchanged: a null live metadata value is snapshotted and compared, not rejected
+  // non-content semantics unchanged: a null live metadata value is compared (drift), not rejected
   store = fakeStore();
   a = fakeAdapter({ isContent: (row) => row.field === "post_content", read: async () => null });
   assert.equal(await applyRow({ id: 202, url: "/m", field: "description", new_value: "n", base_value: "ORIG", risk_class: "safe" }, a, store), "escalated");
   assert.equal(store.calls.log.at(-1).reason, "drift: live value changed since generation");
-  assert.equal(store.calls.snapshots.length, 0); // SEO-23: escalated by the drift gate, so nothing is snapshotted (this line used to pin 1 under the old snapshot-before-gates order)
+  assert.equal(store.calls.snapshots.length, 0); // SEO-23: drift-escalated, so no snapshot (was 1 before)
 });
 
 // ---- raw-content verification (gate before the comparison is trusted) ----
@@ -791,7 +791,7 @@ test("SEO-23 (e): snapshot insert failure -> zero adapter.write calls and outcom
   }
 });
 
-test("SEO-23 (f): snapshot is taken after every gate (read, drift, scan) and immediately before write", async () => {
+test("SEO-23 (f): call order is read, drift check, placeholder scan, snapshot, write, verify", async () => {
   const order = [];
   const store = fakeStore();
   store.snapshot = async () => { order.push("snapshot"); };
@@ -801,11 +801,29 @@ test("SEO-23 (f): snapshot is taken after every gate (read, drift, scan) and imm
     write: async () => { order.push("write"); },
     verify: async () => { order.push("verify"); },
   });
-  await applyRow({ id: 306, url: "/s6", field: "title", new_value: "n", base_value: "old", risk_class: "safe" }, a, store);
-  assert.deepEqual(order, ["read", "driftCheckable", "snapshot", "write", "verify"]);
+  // scanPlaceholders reads new_value, so the getter marks where the scan runs.
+  const row = { id: 306, url: "/s6", field: "title", base_value: "old", risk_class: "safe",
+    get new_value() { order.push("scan"); return "n"; } };
+  await applyRow(row, a, store);
+  assert.deepEqual(order, ["read", "driftCheckable", "scan", "snapshot", "write", "verify"]);
 });
 
-;
+test("SEO-23 (g): every early-return path (no url, protected, non-safe, unsupported, null live content) inserts zero snapshots and zero writes", async () => {
+  const cases = [
+    ["no url", { id: 401, field: "title", new_value: "n", base_value: "old", risk_class: "safe" }, {}, {}],
+    ["protected url", { id: 402, url: "/p", field: "title", new_value: "n", base_value: "old", risk_class: "safe" }, {}, { doNotTouch: async () => new Set(["/p"]) }],
+    ["non-safe risk_class", { id: 403, url: "/g", field: "title", new_value: "n", base_value: "old", risk_class: "gated" }, {}, {}],
+    ["unsupported field", { id: 404, url: "/u", field: "weird", new_value: "n", base_value: "old", risk_class: "safe" }, { supports: () => false }, {}],
+    ["content row with null live value", contentRow({ id: 405 }), { isContent: () => true, read: async () => null }, {}],
+  ];
+  for (const [name, row, adapterOver, storeOver] of cases) {
+    const store = Object.assign(fakeStore(), storeOver);
+    const a = fakeAdapter(adapterOver);
+    assert.equal(await applyRow(row, a, store), "escalated", name);
+    assert.equal(store.calls.snapshots.length, 0, name);
+    assert.deepEqual(a.writes, [], name);
+  }
+});
 
 test("rollbackRow throws on an unsupported field", async () => {
   const store = fakeStore();
