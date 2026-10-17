@@ -6,6 +6,7 @@
         "-y",
         "@supabase/mcp-server-supabase@0.8.2",
         "--project-ref=dzbbmfqyrhbszxhnyqbp",
+        "--read-only",
         "--features=docs,database,debugging,development,functions"
       ],
       "env": { "SUPABASE_ACCESS_TOKEN": "${SUPABASE_ACCESS_TOKEN}" }

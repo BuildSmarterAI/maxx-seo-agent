@@ -14,7 +14,7 @@ Additional credentials (lower blast radius but still sensitive):
 - `SUPABASE_ACCESS_TOKEN` — personal access token for MCP; scoped to account, not project.
   `.mcp.json` narrows the MCP connection to the `bsh-seo-agent` project (`--project-ref`,
   no `branching`), but the token itself keeps account-wide permissions everywhere else.
-  That connection is read-write against **production**; see "Supabase MCP writes" below.
+  That connection is read-only against **production**; see "Supabase MCP access" below.
 - `WP_APP_PASSWORD` — WordPress Application Password; scoped to a single WP user role.
 - `WEBFLOW_API_TOKEN` — full Webflow site write access. Treat like service-role.
 
@@ -44,19 +44,19 @@ PowerShell — a stale Windows environment variable can override the Max token.
 The `MONTHLY_BUDGET_USD` guard in the orchestrator and the `control.paused` kill switch
 are the primary runaway-spend defenses. Check them before enabling any unattended run.
 
-## Supabase MCP writes
+## Supabase MCP access
 
-The interactive Supabase MCP exposes `execute_sql`, `apply_migration` and
-`deploy_edge_function` against the production `bsh-seo-agent` project. There is no
-staging project. Scoping prevents cross-project access; it does not prevent damage to
-this project, including `control` and `do_not_touch`.
+The interactive Supabase MCP connects to the production `bsh-seo-agent` project with
+`--read-only`. It is for inspection only. `apply_migration` and `deploy_edge_function`
+refuse, and `execute_sql` runs as a read-only Postgres user.
 
-- Reads (`list_tables`, `SELECT`, `get_logs`, `get_advisors`) are fine for inspection.
-- Any mutation needs explicit, individually named operator approval in the session,
-  a backup/export of the affected rows first, and a `decision_log` entry afterwards.
-- MCP writes never stand in for the repo's write paths: CMS changes go through
-  `change_set` → apply (ADR-005); schema changes go through `sql/schema.sql`.
-- Approval to fix or verify the MCP configuration is not approval to mutate data.
+- Never remove `--read-only` from this entry or point a writable entry at this project.
+- Development writes are unavailable: the repo designates no development project. A
+  write connection needs that project named here first, its own `--project-ref` entry,
+  and authorization for the specific task. Never create or guess a project.
+- Scoping limits this connection only; `SUPABASE_ACCESS_TOKEN` stays account-wide.
+- Schema changes land as reviewed schema files in `sql/` through a PR; CMS changes go
+  through `change_set` → apply (ADR-005). The MCP stands in for neither.
 
 ## CMS credential scope
 
