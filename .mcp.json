@@ -7,8 +7,7 @@
     },
     "analytics-mcp": {
       "command": "uvx",
-      "args": ["analytics-mcp"],
-      "env": { "GOOGLE_APPLICATION_CREDENTIALS": "${GOOGLE_APPLICATION_CREDENTIALS:-gcp.json}" }
+      "args": ["analytics-mcp@0.7.0"]
     }
   }
 }
