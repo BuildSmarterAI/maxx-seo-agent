@@ -55,9 +55,12 @@ const isContent = (row) => row.field === "post_content";
 export const wordpressAdapter = {
   platform: "wordpress",
   supports: (row) => isContent(row) || Boolean(KEYS?.[row.field]),
-  // post_content drift is unreliable (Gutenberg block wrappers); the approval gate is
-  // the safety net for full-body rewrites. Metadata fields are drift-checked.
-  driftCheckable: (row) => !isContent(row),
+  // Content rows are compared raw-to-raw by cms.applyRow (isContent marks them): the staged
+  // base_value and the live value are both content.raw (context=edit), and a missing baseline
+  // or live value fails closed. See contentDriftReason in orchestrator/lib/cms.mjs. That
+  // narrows, but does not close, the read-to-write race window (documented there).
+  isContent,
+  driftCheckable: () => true,
   read: (row) => isContent(row) ? readContent(row.page_id) : readMeta(row.page_id, KEYS[row.field]),
   write: (row) => isContent(row)
     ? writeContent(row.page_id, row.new_value)

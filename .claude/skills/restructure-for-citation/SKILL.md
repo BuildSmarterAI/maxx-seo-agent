@@ -16,15 +16,16 @@ thing. AI engines extract self-contained answer blocks near the top. A 2,000-wor
 opens with "In today's market..." gives them nothing to lift.
 
 ## Procedure
-1. Read the live page body (via WP REST API `content.rendered` or the CMS adapter).
+1. Read the live page body as RAW content with `node --env-file=.env scripts/cms-read.mjs --url <U> --platform wordpress --field post_content` (REST `context=edit`, `content.raw`). Never use `content.rendered`: a `base_value` staged from rendered HTML can never equal the raw value `wp:apply` compares against, so the row would always escalate as drift.
 2. Identify the exact question the page should answer (from the `ai_queries.query` that missed).
 3. Extract or compose a **direct answer block**: 2–4 sentences, self-contained, leads with the
    specific fact (number, range, yes/no, definition). No "it depends" opener.
 4. Place it immediately under the H1, above any existing intro. Format as a short paragraph,
    optionally followed by a tight bulleted breakdown if the answer has parts.
 5. Preserve everything below — this is additive restructuring, not a rewrite.
-6. Emit a `change_set` row: `platform`, `page_id`, `field='content'`, `base_value` = current
-   intro (drift baseline), `new_value` = answer block + original body.
+6. Emit a `change_set` row: `platform`, `page_id`, `field='post_content'`, `base_value` = the
+   unmodified full `content.raw` captured in step 1 (copy it mechanically from the read output;
+   do not retype it), `new_value` = the full edited body.
 
 ## Hard rules
 - Never change the H1 or URL.

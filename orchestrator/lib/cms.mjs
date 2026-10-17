@@ -64,6 +64,31 @@ export async function latestAppliedRow(platform, page_id, field) {
 }
 
 const DRIFT_REASON = "drift: live value changed since generation";
+const MISSING_BASELINE_REASON = "content-drift: missing baseline (base_value is not a string) — cannot verify live content, blocked at boundary";
+const MISSING_LIVE_REASON = "content-drift: missing live value (unavailable or not a string) — cannot verify live content, blocked at boundary";
+
+// Content fields (adapter.isContent(row)) are compared raw-to-raw and fail CLOSED. The
+// metadata path above treats a null base_value as "skip" and coerces with String(); neither
+// is safe for a full-body rewrite, where "undefined"/"null" text would compare as content and
+// a null baseline would silently disable the check. Here a missing value (null, undefined,
+// non-string) is distinct from "" (intentionally empty content, a valid value). Normalization
+// is CRLF -> LF only, applied identically to both sides: no trim, no whitespace collapsing, no
+// HTML/block re-serialization. Returns null (proceed) or the escalation reason.
+const lf = (s) => s.replace(/\r\n/g, "\n");
+export function contentDriftReason(row, current) {
+  if (typeof current !== "string") return MISSING_LIVE_REASON;
+  if (typeof row.base_value !== "string") return MISSING_BASELINE_REASON;
+  return lf(current) === lf(row.base_value) ? null : DRIFT_REASON;
+}
+const contentReason = (adapter, row, current) =>
+  adapter.isContent?.(row) ? contentDriftReason(row, current) : null;
+
+// An unreadable content value is not a pre-change state: recording a null snapshot would
+// become the "latest" snapshot and hide the last real one from rollbackRow.
+async function snapshotUnlessUnavailable(adapter, store, row, current) {
+  if (adapter.isContent?.(row) && typeof current !== "string") return;
+  await store.snapshot(row, current);
+}
 const PROTECTED_REASON = "do_not_touch: URL is protected — apply blocked at boundary";
 const NO_URL_REASON = "do_not_touch: row has no url — cannot verify protection, blocked at boundary";
 const RISK_CLASS_REASON = "risk_class: row is not safe-class — apply blocked at boundary";
@@ -114,9 +139,23 @@ export async function applyRow(row, adapter, store = defaultStore, opts = {}) {
     }
 
     const current = await adapter.read(row);
-    await store.snapshot(row, current);
+    await snapshotUnlessUnavailable(adapter, store, row, current);
 
-    if (adapter.driftCheckable(row) && drifted(row, current)) {
+    // Content rows: raw-to-raw compare, fail closed on a missing baseline or live value.
+    // RACE WINDOW: `current` is what adapter.read returned at the top of this function. A
+    // Supabase snapshot insert and the placeholder scan run between this comparison and the
+    // POST, and WordPress core REST has no conditional-write precondition (no If-Match /
+    // If-Unmodified-Since on POST /wp/v2/posts/{id}). An edit saved in that interval is
+    // overwritten. This narrows the window; it is NOT atomic protection. Closing it needs a
+    // server-side check (e.g. modified_gmt stored at staging, enforced by a mu-plugin).
+    const contentIssue = contentReason(adapter, row, current);
+    if (contentIssue) {
+      await store.setStatus(row.id, "escalated");
+      await store.logDecision({ url: row.url, action: "escalate", risk_class: "gated", reason: contentIssue, ...adapter.narrate.drift(row) });
+      return "escalated";
+    }
+
+    if (!adapter.isContent?.(row) && adapter.driftCheckable(row) && drifted(row, current)) {
       await store.setStatus(row.id, "escalated");
       await store.logDecision({ url: row.url, action: "escalate", risk_class: "gated", reason: DRIFT_REASON, ...adapter.narrate.drift(row) });
       return "escalated";
@@ -214,10 +253,21 @@ export async function rollbackRow(adapter, { page_id, field, collection_id }, st
   const row = { platform: adapter.platform, page_id, field, collection_id };
   if (!adapter.supports(row)) throw new Error(`rollback: unsupported field ${field} for ${adapter.platform}`);
 
+  // Only null/undefined mean "no snapshot"; "" is a valid restore target (intentionally empty content).
   const old = await store.latestSnapshot(adapter.platform, page_id, field);
   if (old == null) throw new Error(`rollback: no snapshot found for ${adapter.platform} ${page_id}/${field}`);
 
+  // Fail closed: the pre-rollback state MUST be captured before anything is written, so the
+  // rollback itself is reversible. A thrown read propagates. For a content field a non-string
+  // live value (null/undefined/non-string) is "unavailable", not a state we can snapshot, so
+  // the rollback is refused BEFORE any snapshot insert or write (a null snapshot would also
+  // become the "latest" and hide the last real one). "" is a valid value and proceeds. A
+  // metadata field's null live value means "unset" and is snapshotted as null. If the
+  // snapshot insert rejects, the error propagates and nothing is written.
   const current = await adapter.read(row);
+  if (adapter.isContent?.(row) && typeof current !== "string") {
+    throw new Error(`rollback: refusing to roll back content field ${field} on ${adapter.platform} ${page_id}: live value is not a string (unavailable), so the pre-rollback state cannot be snapshotted`);
+  }
   await store.snapshot(row, current);
 
   const restoreRow = { ...row, new_value: old };
