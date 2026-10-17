@@ -14,6 +14,12 @@ Additional credentials (lower blast radius but still sensitive):
 - `SUPABASE_ACCESS_TOKEN` — personal access token for MCP; scoped to account, not project.
 - `WP_APP_PASSWORD` — WordPress Application Password; scoped to a single WP user role.
 - `WEBFLOW_API_TOKEN` — full Webflow site write access. Treat like service-role.
+- Google user ADC (`gcloud auth application-default login`, stored in
+  `%APPDATA%\gcloud\application_default_credentials.json`, outside the repo) — used only
+  by the interactive `analytics-mcp` server. gcloud requires the `cloud-platform` scope
+  alongside `analytics.readonly`, so the token reaches every Google Cloud resource the
+  logged-in account can access, not only GA4. Never copy it into the repo or CI. Revoke with
+  `gcloud auth application-default revoke`.
 
 ## Hard rules
 
