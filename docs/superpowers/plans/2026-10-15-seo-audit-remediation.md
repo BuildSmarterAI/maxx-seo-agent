@@ -48,7 +48,20 @@ approval.
   - The `guard-publish` hook forbids the agent from emitting 301s.
 - **Every `change_set` row must pass these gates** (`orchestrator/lib/cms.mjs` `applyRow`):
   `url` set → `do_not_touch` → `risk_class === "safe"` → supported field → read live value →
-  snapshot → drift check → `scanPlaceholders` → write.
+  drift check → `scanPlaceholders` → snapshot → write.
+  - **The snapshot is taken only after every gate, immediately before the write (SEO-23,
+    verified by tests).** A row escalated by the metadata drift gate, the content-drift gate or
+    the placeholder scan inserts zero snapshots, so a rejected update can never become the
+    "latest snapshot" and make `rollbackRow` restore the live value instead of the true
+    pre-change value. A snapshot insert failure still means zero writes and outcome `failed`.
+  - **Residual (not fixed in SEO-23):** a null-baseline METADATA row (for example `canonical`,
+    staged with `base_value: null`, so no drift gate) that ends `applied_unrecorded` stays
+    `approved`; the next run re-reads the already-written value and re-snapshots it, masking
+    the true pre-change value. Drift-checkable rows are not affected, because their drift gate
+    now escalates before any snapshot. A null-baseline metadata row with a null live value
+    also still records a null snapshot (not a regression: the old guard covered content rows
+    only). See the `applied_unrecorded` comment in
+    `orchestrator/lib/cms.mjs`; related tickets SEO-18 and SEO-22.
   - **`post_content` rows are drift-checked raw-to-raw (implemented in lane
     `fix/content-drift-check`; not yet merged or deployed).** The WordPress adapter marks
     content rows with `isContent` and `cms.applyRow` compares the live `content.raw`

@@ -400,12 +400,12 @@ test("non-content regression: canonical with null base_value still skips drift; 
   a = fakeAdapter({ isContent: (row) => row.field === "post_content", read: async () => "CHANGED" });
   assert.equal(await applyRow({ id: 201, url: "/t", field: "title", new_value: "n", base_value: "ORIG", risk_class: "safe" }, a, store), "escalated");
   assert.equal(store.calls.log.at(-1).reason, "drift: live value changed since generation");
-  // non-content semantics unchanged: a null live metadata value is snapshotted and compared, not rejected
+  // non-content semantics unchanged: a null live metadata value is compared (drift), not rejected
   store = fakeStore();
   a = fakeAdapter({ isContent: (row) => row.field === "post_content", read: async () => null });
   assert.equal(await applyRow({ id: 202, url: "/m", field: "description", new_value: "n", base_value: "ORIG", risk_class: "safe" }, a, store), "escalated");
   assert.equal(store.calls.log.at(-1).reason, "drift: live value changed since generation");
-  assert.equal(store.calls.snapshots.length, 1);
+  assert.equal(store.calls.snapshots.length, 0); // SEO-23: drift-escalated, so no snapshot (was 1 before)
 });
 
 // ---- raw-content verification (gate before the comparison is trusted) ----
@@ -718,6 +718,111 @@ test("rollbackRow throws when no snapshot exists", async () => {
     () => rollbackRow(fakeAdapter(), { page_id: "p1", field: "title" }, store),
     /no snapshot/i,
   );
+});
+
+// ---- SEO-23: snapshot only after every gate, immediately before the write ----
+// latestSnapshot/rollbackRow pick the newest snapshot, so a snapshot left by a row that a
+// gate then rejected (a copy of the live value) would shadow the true pre-change value.
+test("SEO-23 (a): metadata drift escalation inserts ZERO snapshots", async () => {
+  const store = fakeStore();
+  const a = fakeAdapter({ read: async () => "LIVE-CHANGED" });
+  const outcome = await applyRow({ id: 301, url: "/s1", field: "title", new_value: "n", base_value: "ORIGINAL", risk_class: "safe" }, a, store);
+  assert.equal(outcome, "escalated");
+  assert.equal(store.calls.snapshots.length, 0);
+  assert.deepEqual(a.writes, []);
+});
+
+test("SEO-23 (b): content drift escalation (post_content, differing base) inserts ZERO snapshots", async () => {
+  const store = fakeStore();
+  const a = contentAdapter("EDITED LIVE BODY");
+  const outcome = await applyRow(contentRow({ base_value: "BODY" }), a, store);
+  assert.equal(outcome, "escalated");
+  assert.equal(store.calls.snapshots.length, 0);
+  assert.deepEqual(a.writes, []);
+});
+
+test("SEO-23 (c): placeholder-scan escalation inserts ZERO snapshots", async () => {
+  const store = fakeStore();
+  const a = fakeAdapter({ read: async () => "old" });
+  const outcome = await applyRow({ id: 303, url: "/s3", field: "title", new_value: "Lorem ipsum dolor sit amet", base_value: "old", risk_class: "safe" }, a, store);
+  assert.equal(outcome, "escalated");
+  assert.match(store.calls.log.at(-1).reason, /^content-guard:/);
+  assert.equal(store.calls.snapshots.length, 0);
+  assert.deepEqual(a.writes, []);
+});
+
+test("SEO-23 (d): a gate-escalated row never shadows the pre-change snapshot: rollbackRow restores S1, not the live value", async () => {
+  // Store whose latestSnapshot returns the most recently inserted snapshot (newest wins).
+  const inserted = [];
+  const store = fakeStore();
+  store.snapshot = async (row, current) => { inserted.push(current); };
+  store.latestSnapshot = async () => (inserted.length ? inserted.at(-1) : null);
+  store.latestAppliedRow = async () => ({ id: 1 });
+  let live = "PRE-CHANGE";
+  const a = fakeAdapter({ read: async () => live, write: async (row) => { a.writes.push(row.new_value); live = row.new_value; } });
+
+  // Row A applies: S1 = "PRE-CHANGE", then the live value becomes "A-NEW".
+  const A = { id: 1, url: "/s4", field: "title", page_id: "9", new_value: "A-NEW", base_value: "PRE-CHANGE", risk_class: "safe" };
+  assert.equal(await applyRow(A, a, store), "applied");
+  assert.deepEqual(inserted, ["PRE-CHANGE"]);
+
+  // Row B escalates on metadata drift (base differs from live "A-NEW"), then row C on the placeholder scan.
+  const B = { id: 2, url: "/s4", field: "title", page_id: "9", new_value: "B-NEW", base_value: "SOMETHING-ELSE", risk_class: "safe" };
+  assert.equal(await applyRow(B, a, store), "escalated");
+  const C = { id: 3, url: "/s4", field: "title", page_id: "9", new_value: "Lorem ipsum dolor", base_value: "A-NEW", risk_class: "safe" };
+  assert.equal(await applyRow(C, a, store), "escalated");
+  assert.deepEqual(inserted, ["PRE-CHANGE"], "escalated rows left no snapshot");
+
+  await rollbackRow(a, { page_id: "9", field: "title", url: "/s4" }, store);
+  assert.equal(a.writes.at(-1), "PRE-CHANGE", "rollback restored the true pre-change value, not the live A-NEW");
+});
+
+test("SEO-23 (e): snapshot insert failure -> zero adapter.write calls and outcome 'failed' (content row too)", async () => {
+  for (const [row, a] of [
+    [{ id: 305, url: "/s5", field: "title", new_value: "n", base_value: "old", risk_class: "safe" }, fakeAdapter({ read: async () => "old" })],
+    [contentRow({ base_value: "BODY" }), contentAdapter("BODY")],
+  ]) {
+    const store = fakeStore();
+    store.snapshot = async () => { throw new Error("snapshot failed: boom"); };
+    const outcome = await applyRow(row, a, store);
+    assert.equal(outcome, "failed", row.field);
+    assert.deepEqual(a.writes, [], row.field);
+    assert.equal(store.calls.status.at(-1).status, "failed", row.field);
+  }
+});
+
+test("SEO-23 (f): call order is read, drift check, placeholder scan, snapshot, write, verify", async () => {
+  const order = [];
+  const store = fakeStore();
+  store.snapshot = async () => { order.push("snapshot"); };
+  const a = fakeAdapter({
+    read: async () => { order.push("read"); return "old"; },
+    driftCheckable: () => { order.push("driftCheckable"); return true; },
+    write: async () => { order.push("write"); },
+    verify: async () => { order.push("verify"); },
+  });
+  // scanPlaceholders reads new_value, so the getter marks where the scan runs.
+  const row = { id: 306, url: "/s6", field: "title", base_value: "old", risk_class: "safe",
+    get new_value() { order.push("scan"); return "n"; } };
+  await applyRow(row, a, store);
+  assert.deepEqual(order, ["read", "driftCheckable", "scan", "snapshot", "write", "verify"]);
+});
+
+test("SEO-23 (g): every early-return path (no url, protected, non-safe, unsupported, null live content) inserts zero snapshots and zero writes", async () => {
+  const cases = [
+    ["no url", { id: 401, field: "title", new_value: "n", base_value: "old", risk_class: "safe" }, {}, {}],
+    ["protected url", { id: 402, url: "/p", field: "title", new_value: "n", base_value: "old", risk_class: "safe" }, {}, { doNotTouch: async () => new Set(["/p"]) }],
+    ["non-safe risk_class", { id: 403, url: "/g", field: "title", new_value: "n", base_value: "old", risk_class: "gated" }, {}, {}],
+    ["unsupported field", { id: 404, url: "/u", field: "weird", new_value: "n", base_value: "old", risk_class: "safe" }, { supports: () => false }, {}],
+    ["content row with null live value", contentRow({ id: 405 }), { isContent: () => true, read: async () => null }, {}],
+  ];
+  for (const [name, row, adapterOver, storeOver] of cases) {
+    const store = Object.assign(fakeStore(), storeOver);
+    const a = fakeAdapter(adapterOver);
+    assert.equal(await applyRow(row, a, store), "escalated", name);
+    assert.equal(store.calls.snapshots.length, 0, name);
+    assert.deepEqual(a.writes, [], name);
+  }
 });
 
 test("rollbackRow throws on an unsupported field", async () => {

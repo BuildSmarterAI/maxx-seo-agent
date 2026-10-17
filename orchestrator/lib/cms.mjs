@@ -85,10 +85,8 @@ const contentReason = (adapter, row, current) =>
 
 // An unreadable content value is not a pre-change state: recording a null snapshot would
 // become the "latest" snapshot and hide the last real one from rollbackRow.
-async function snapshotUnlessUnavailable(adapter, store, row, current) {
-  if (adapter.isContent?.(row) && typeof current !== "string") return;
-  await store.snapshot(row, current);
-}
+// A content gate escalates an unreadable value first, so applyRow never snapshots it (SEO-23:
+// the snapshot is taken after every gate, immediately before the write).
 const PROTECTED_REASON = "do_not_touch: URL is protected — apply blocked at boundary";
 const NO_URL_REASON = "do_not_touch: row has no url — cannot verify protection, blocked at boundary";
 const RISK_CLASS_REASON = "risk_class: row is not safe-class — apply blocked at boundary";
@@ -139,8 +137,6 @@ export async function applyRow(row, adapter, store = defaultStore, opts = {}) {
     }
 
     const current = await adapter.read(row);
-    await snapshotUnlessUnavailable(adapter, store, row, current);
-
     // Content rows: raw-to-raw compare, fail closed on a missing baseline or live value.
     // RACE WINDOW: `current` is what adapter.read returned at the top of this function. A
     // Supabase snapshot insert and the placeholder scan run between this comparison and the
@@ -175,6 +171,13 @@ export async function applyRow(row, adapter, store = defaultStore, opts = {}) {
       return "escalated";
     }
 
+    // Snapshot LAST, after every gate (drift, content-drift, placeholder scan): a row a gate
+    // escalates must leave no snapshot, or that copy of the live value becomes the "latest"
+    // snapshot and rollbackRow restores it instead of the true pre-change value (SEO-23).
+    // The content gate has already escalated any non-string live value, so a content row
+    // never records a null snapshot here. A snapshot insert failure throws -> "failed", and
+    // nothing is written.
+    await store.snapshot(row, current);
     await adapter.write(row);
     if (adapter.verify) await adapter.verify(row);
 
@@ -184,10 +187,12 @@ export async function applyRow(row, adapter, store = defaultStore, opts = {}) {
     // It is reported as "applied_unrecorded": decision_log says the change is live (if the
     // log write gets through), stderr names the row, and applyExitCode fails the run.
     // While the row stays "approved", the next seo-apply-cms run re-reads the now-written
-    // value, snapshots it (masking the true pre-change value for rollback), then the drift
-    // gate escalates the row (current !== base_value) — or, for a non-drift-checkable
-    // field, rewrites the same value. Hence the alert tells the operator to set the status
-    // by hand before then.
+    // value. A drift-checkable row (content, or metadata with a base_value) escalates at the
+    // drift gate (current !== base_value) BEFORE any snapshot, so the pre-change snapshot is
+    // not masked. Only a row with no drift gate (a null-baseline metadata row such as
+    // canonical) reaches the snapshot step again: it re-snapshots the already-written value,
+    // masking the true pre-change value for rollback, and rewrites the same value (SEO-23
+    // residual). Hence the alert tells the operator to set the status by hand before then.
     try {
       await store.setStatus(row.id, "applied", { applied_at: new Date().toISOString() });
     } catch (err) {
@@ -207,7 +212,8 @@ export async function applyRow(row, adapter, store = defaultStore, opts = {}) {
 async function recordUnrecorded(row, adapter, store, err, error) {
   error(`APPLIED BUT STATUS UNRECORDED: change_set ${row.id} (${row.url} ${row.field}) was written live, ` +
     `but its status is still 'approved' (${err.message}). Set it to 'applied' by hand before the next ` +
-    `seo-apply-cms run, or that run will re-snapshot the new value and escalate it as drift.`);
+    `seo-apply-cms run: a drift-checked row would escalate as drift, but a null-baseline metadata row ` +
+    `(no drift gate) would re-snapshot the written value and rewrite it, masking the pre-change value for rollback.`);
   const applied = adapter.narrate.applied(row);
   try {
     await store.logDecision({
