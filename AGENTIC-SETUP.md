@@ -31,7 +31,7 @@ Stands up the system in order: **Phase 1 (L2 orchestration, mostly local)** → 
 | Sensing | GitHub Actions (cron), GSC API, citation tracker API, Vercel webhook | Emit events into the work queue |
 | Orchestration | **Claude Agent SDK** (`@anthropic-ai/claude-agent-sdk`) or `claude -p` | Plan + dispatch subagents + validate loop |
 | Action | The kit's `.claude/skills/*` | The actual SEO edits (audit, metadata, schema, links, CWV, blog) |
-| Memory | **Supabase** (Postgres) via Supabase MCP | decision log, queue, do-not-touch, outcomes |
+| Memory | **Supabase** (Postgres) via `orchestrator/lib/supabase.mjs` / `scripts/mem.mjs`; read-only Supabase MCP for inspection | decision log, queue, do-not-touch, outcomes |
 | Guardrails | Claude Code **hooks** + **CI validators** (Lighthouse CI, PSI, Schema Validator) | Deterministic + evaluative gates |
 | Delivery | **GitHub** (branches/PRs) via `gh` CLI or GitHub MCP | PR-based autonomy, human merge gate |
 | Cost control | model routing + budget cap + kill switch | Keep the metered pool bounded |
@@ -44,7 +44,7 @@ The orchestrator (and interactive Claude Code) reach external systems through MC
 
 | Server | Used for | Connect |
 |---|---|---|
-| **Supabase** | Agent reads/writes the memory tables | `claude mcp add` (hosted) or project `.mcp.json` |
+| **Supabase** | Read-only inspection of the memory tables (writes go through `scripts/mem.mjs`) | `claude mcp add` (hosted) or project `.mcp.json` |
 | **GitHub** *(optional)* | PR creation/comments from the agent | `claude mcp add`; or skip and use `gh` CLI in Bash |
 | **Filesystem** | Built into Claude Code tools (Read/Write/Edit) | none |
 
@@ -71,7 +71,7 @@ Project-scoped `.mcp.json` at repo root (commits with the repo so CI and teammat
 Keep this block identical to the committed `.mcp.json`. Notes on the flags (verified against the 0.8.2 package source):
 
 - **Pin the version.** Do not use `@latest`; flag parsing changes between releases.
-- **`--read-only` makes this a production inspection connection.** It is a boolean flag that takes no value; `--read-only=false` crashes the server at startup (`ERR_PARSE_ARGS_INVALID_OPTION_VALUE`), which Claude Code reports as `CONNECTION_CLOSED`. In 0.8.2 the write tools stay listed but refuse: `apply_migration` and `deploy_edge_function` throw before any API call, and `execute_sql` sends `read_only: true` to the Management API, which runs the query as a read-only Postgres user.
+- **`--read-only` makes this a production inspection connection.** It is a boolean flag that takes no value; `--read-only=false` crashes the server at startup (`ERR_PARSE_ARGS_INVALID_OPTION_VALUE`), which Claude Code reports as `CONNECTION_CLOSED`. In 0.8.2 the write tools stay listed but refuse: `apply_migration` and `deploy_edge_function` throw before any API call, and `execute_sql` sends `read_only: true` to the Management API. Supabase enforces that server-side (its docs: SQL runs "as a read-only Postgres user"); the package cannot enforce it itself.
 - **`--project-ref`** scopes the server to the `bsh-seo-agent` project: account tools (`list_projects`, `create_project`, `pause_project`, `restore_project`, cost tools) are not registered, and every project tool has `project_id` injected server-side and removed from its schema, so a caller cannot target another project.
 - **`--features` omits `branching`.** In 0.8.2, `delete_branch`, `merge_branch`, `reset_branch` and `rebase_branch` take a raw `branch_id` with no project check, so they would escape `--project-ref`. The repo does not use Supabase branching.
 
@@ -200,16 +200,16 @@ import { execSync } from "node:child_process";
 const branch = `seo/auto-${Date.now()}`;
 execSync(`git checkout -b ${branch}`);
 
-const goal = `Read the pending items in the Supabase work_queue (via the supabase MCP).
+const goal = `Read the pending items in the Supabase work_queue (node scripts/mem.mjs queue).
 For each SAFE-class item, run the matching kit skill to produce the fix.
 Only act on classes allowed for auto-merge in CLAUDE.md. For anything risky,
-write it to decision_log with action='escalate' and skip. Validate every change.`;
+write it to decision_log with action='escalate' (node scripts/mem.mjs log) and skip. Validate every change.`;
 
 for await (const msg of query({
   prompt: goal,
   options: {
     model: "claude-sonnet-4-6",
-    allowedTools: ["Read", "Write", "Edit", "Glob", "Grep", "Bash", "Agent", "mcp__supabase"],
+    allowedTools: ["Read", "Write", "Edit", "Glob", "Grep", "Bash", "Agent"],
     permissionMode: "acceptEdits",
     agents: {
       "seo-fixer": { description: "Applies one kit skill to one URL and validates.",

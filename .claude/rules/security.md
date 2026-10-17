@@ -48,7 +48,8 @@ are the primary runaway-spend defenses. Check them before enabling any unattende
 
 The interactive Supabase MCP connects to the production `bsh-seo-agent` project with
 `--read-only`. It is for inspection only. `apply_migration` and `deploy_edge_function`
-refuse, and `execute_sql` runs as a read-only Postgres user.
+refuse, and `execute_sql` sends `read_only: true`, which the Supabase Management API
+enforces server-side by running the SQL as a read-only Postgres user (vendor docs).
 
 - Never remove `--read-only` from this entry or point a writable entry at this project.
 - Development writes are unavailable: the repo designates no development project. A
