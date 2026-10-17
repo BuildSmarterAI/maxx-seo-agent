@@ -58,7 +58,9 @@ approval.
     staged with `base_value: null`, so no drift gate) that ends `applied_unrecorded` stays
     `approved`; the next run re-reads the already-written value and re-snapshots it, masking
     the true pre-change value. Drift-checkable rows are not affected, because their drift gate
-    now escalates before any snapshot. See the `applied_unrecorded` comment in
+    now escalates before any snapshot. A null-baseline metadata row with a null live value
+    also still records a null snapshot (not a regression: the old guard covered content rows
+    only). See the `applied_unrecorded` comment in
     `orchestrator/lib/cms.mjs`; related tickets SEO-18 and SEO-22.
   - **`post_content` rows are drift-checked raw-to-raw (implemented in lane
     `fix/content-drift-check`; not yet merged or deployed).** The WordPress adapter marks
